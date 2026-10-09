@@ -1084,6 +1084,16 @@
     }
 
     function editBcvRate() {
+  const nuevaTasa = prompt("Ingrese la nueva tasa BCV (Bs/$):", bcvRate || 42.50);
+  if (nuevaTasa && !isNaN(nuevaTasa) && parseFloat(nuevaTasa) > 0) {
+    bcvRate = parseFloat(nuevaTasa);
+    updateBcvUI();
+    // Guarda el cambio en Firebase Firestore
+    if (window.dbSync && window.dbSync.actualizarTasaBCV) {
+      window.dbSync.actualizarTasaBCV(bcvRate);
+    }
+  }
+}
       const val = prompt('Ingrese la Tasa de Cambio BCV (Bs. / USD):', bcvRate);
       if (val && !isNaN(val) && parseFloat(val) > 0) {
         bcvRate = parseFloat(val);
@@ -2683,7 +2693,23 @@
     }
   });
 
+ // Escuchar Tasa BCV desde Firebase (Reemplaza este bloque)
   onSnapshot(configRef, (docSnap) => {
+    if (docSnap.exists() && docSnap.data().bcvRate) {
+      const nuevaTasa = docSnap.data().bcvRate;
+      window.bcvRate = nuevaTasa;
+      
+      // Actualiza la variable interna global si existe
+      try { bcvRate = nuevaTasa; } catch(e) {}
+      
+      // Refresca la interfaz en pantalla
+      if (typeof updateBcvUI === 'function') {
+        updateBcvUI();
+      } else if (typeof window.updateBcvUI === 'function') {
+        window.updateBcvUI();
+      }
+    }
+  });
     if (docSnap.exists() && docSnap.data().bcvRate) {
       window.bcvRate = docSnap.data().bcvRate;
       if (typeof window.updateBcvUI === 'function') window.updateBcvUI();
