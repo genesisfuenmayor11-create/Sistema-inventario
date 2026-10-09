@@ -2623,28 +2623,71 @@
 <!-- ... Todo el contenido y etiquetas de tu página web ... -->
 
     <!-- Configuración e Integración de Firebase en El Botalón -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+   <!-- Módulo Integrado de Firestore para El Botalón -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    deleteDoc, 
+    doc, 
+    onSnapshot, 
+    serverTimestamp 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-      // Tus claves reales de Firebase
-      const firebaseConfig = {
-        apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
-        authDomain: "el-botalon-c9f2b.firebaseapp.com",
-        projectId: "el-botalon-c9f2b",
-        storageBucket: "el-botalon-c9f2b.firebasestorage.app",
-        messagingSenderId: "555179106001",
-        appId: "1:555179106001:web:a310342b0c180781f12ff0",
-        measurementId: "G-78J3H1CQ3X"
-      };
+  // Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
+    authDomain: "el-botalon-c9f2b.firebaseapp.com",
+    projectId: "el-botalon-c9f2b",
+    storageBucket: "el-botalon-c9f2b.firebasestorage.app",
+    messagingSenderId: "555179106001",
+    appId: "1:555179106001:web:a310342b0c180781f12ff0",
+    measurementId: "G-78J3H1CQ3X"
+  };
 
-      // Inicializar Firebase y Firestore
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const productosRef = collection(db, "productos");
 
-      // Hacer la base de datos accesible globalmente
-      window.db = db;
-      console.log("¡Firebase conectado exitosamente a El Botalón!");
+  // 1. Guardar un producto nuevo
+  window.guardarProducto = async function (nombre, cantidad, precio) {
+    try {
+      await addDoc(productosRef, {
+        nombre: nombre,
+        cantidad: Number(cantidad),
+        precio: Number(precio),
+        creado: serverTimestamp()
+      });
+      console.log("Producto guardado exitosamente");
+    } catch (error) {
+      console.error("Error al guardar producto:", error);
+    }
+  };
+
+  // 2. Eliminar un producto
+  window.eliminarProducto = async function (id) {
+    try {
+      await deleteDoc(doc(db, "productos", id));
+      console.log("Producto eliminado correctamente");
+    } catch (error) {
+      console.error("Error al eliminar producto:", error);
+    }
+  };
+
+  // 3. Escuchar cambios en tiempo real
+  onSnapshot(productosRef, (snapshot) => {
+    const listaProductos = [];
+    snapshot.forEach((doc) => {
+      listaProductos.push({ id: doc.id, ...doc.data() });
+    });
+    
+    // Disparar evento personalizado para actualizar la interfaz
+    window.dispatchEvent(new CustomEvent("productosActualizados", { detail: listaProductos }));
+  });
+
+  console.log("¡Firebase y funciones de inventario activas en El Botalón!");
     </script>
   </body>
 </html>
