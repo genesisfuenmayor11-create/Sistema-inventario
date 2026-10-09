@@ -2624,6 +2624,7 @@
 
     <!-- Configuración e Integración de Firebase en El Botalón -->
    <!-- Módulo Integrado de Firestore para El Botalón -->
+<!-- Módulo Integrado de Firestore con Interfaz de El Botalón -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { 
@@ -2636,7 +2637,7 @@
     serverTimestamp 
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // Configuration
+  // 1. Configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
     authDomain: "el-botalon-c9f2b.firebaseapp.com",
@@ -2651,43 +2652,74 @@
   const db = getFirestore(app);
   const productosRef = collection(db, "productos");
 
-  // 1. Guardar un producto nuevo
-  window.guardarProducto = async function (nombre, cantidad, precio) {
-    try {
-      await addDoc(productosRef, {
-        nombre: nombre,
-        cantidad: Number(cantidad),
-        precio: Number(precio),
-        creado: serverTimestamp()
-      });
-      console.log("Producto guardado exitosamente");
-    } catch (error) {
-      console.error("Error al guardar producto:", error);
-    }
-  };
+  // 2. Vincular el formulario de la página para GUARDAR
+  const formulario = document.querySelector("form");
+  if (formulario) {
+    formulario.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      // Obtener valores de las cajas de texto de tu HTML
+      const nombreInput = document.querySelector("#nombre") || document.querySelector("input[type='text']");
+      const cantidadInput = document.querySelector("#cantidad") || document.querySelector("input[type='number']");
+      const precioInput = document.querySelector("#precio");
 
-  // 2. Eliminar un producto
-  window.eliminarProducto = async function (id) {
-    try {
-      await deleteDoc(doc(db, "productos", id));
-      console.log("Producto eliminado correctamente");
-    } catch (error) {
-      console.error("Error al eliminar producto:", error);
-    }
-  };
+      if (nombreInput && cantidadInput) {
+        try {
+          await addDoc(productosRef, {
+            nombre: nombreInput.value,
+            cantidad: Number(cantidadInput.value),
+            precio: precioInput ? Number(precioInput.value) : 0,
+            creado: serverTimestamp()
+          });
 
-  // 3. Escuchar cambios en tiempo real
-  onSnapshot(productosRef, (snapshot) => {
-    const listaProductos = [];
-    snapshot.forEach((doc) => {
-      listaProductos.push({ id: doc.id, ...doc.data() });
+          // Limpiar formulario tras guardar
+          formulario.reset();
+          console.log("¡Producto guardado e integrado a la pantalla!");
+        } catch (error) {
+          console.error("Error al guardar:", error);
+        }
+      }
     });
+  }
+
+  // 3. Vincular la tabla/lista en tiempo real para MOSTRAR y ELIMINAR
+  onSnapshot(productosRef, (snapshot) => {
+    const tablaCuerpo = document.querySelector("tbody") || document.querySelector("#lista-productos");
     
-    // Disparar evento personalizado para actualizar la interfaz
-    window.dispatchEvent(new CustomEvent("productosActualizados", { detail: listaProductos }));
+    if (tablaCuerpo) {
+      tablaCuerpo.innerHTML = ""; // Limpiar tabla antes de renderizar
+      
+      snapshot.forEach((docSnapshot) => {
+        const producto = docSnapshot.data();
+        const id = docSnapshot.id;
+
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+          <td class="p-2 border-b">${producto.nombre || ''}</td>
+          <td class="p-2 border-b">${producto.cantidad || 0}</td>
+          <td class="p-2 border-b">$${producto.precio || 0}</td>
+          <td class="p-2 border-b text-center">
+            <button data-id="${id}" class="btn-eliminar bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+              Eliminar
+            </button>
+          </td>
+        `;
+        tablaCuerpo.appendChild(fila);
+      });
+
+      // Agregar eventos a los botones de eliminar generados
+      document.querySelectorAll(".btn-eliminar").forEach((boton) => {
+        boton.addEventListener("click", async (e) => {
+          const id = e.target.getAttribute("data-id");
+          if (confirm("¿Deseas eliminar este producto del inventario?")) {
+            await deleteDoc(doc(db, "productos", id));
+          }
+        });
+      });
+    }
   });
 
-  console.log("¡Firebase y funciones de inventario activas en El Botalón!");
+  console.log("¡Todas las funciones vinculadas con el formulario y tabla!");
     </script>
   </body>
 </html>
