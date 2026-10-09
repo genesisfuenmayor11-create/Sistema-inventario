@@ -7,6 +7,50 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FIREBASE SDKS Y CONFIGURACIÓN EN TIEMPO REAL -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+   // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
+  authDomain: "el-botalon-c9f2b.firebaseapp.com",
+  projectId: "el-botalon-c9f2b",
+  storageBucket: "el-botalon-c9f2b.firebasestorage.app",
+  messagingSenderId: "555179106001",
+  appId: "1:555179106001:web:a310342b0c180781f12ff0",
+  measurementId: "G-78J3H1CQ3X"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.db = db;
+    window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc };
+
+    if (window.initCloudApp) window.initCloudApp();
+  </script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -35,7 +79,6 @@
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-    /* Estilos específicos para Impresión de Ticket */
     @media print {
       body * { visibility: hidden; }
       #printable-ticket, #printable-ticket * { visibility: visible; }
@@ -44,7 +87,7 @@
         left: 0;
         top: 0;
         width: 100%;
-        max-width: 80mm; /* Tamaño estándar de papel térmico POS */
+        max-width: 80mm;
         padding: 10px;
         font-size: 11px;
         color: #000;
@@ -122,7 +165,6 @@
           <strong id="topbar-bcv-rate" class="text-slate-900 font-bold">42.50 Bs/$</strong>
         </div>
 
-        <!-- Botones Reportes Semanal y Mensual -->
         <button onclick="generatePeriodicReport('weekly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
           <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
           <span class="hidden md:inline">Reporte</span> Semanal
@@ -133,13 +175,11 @@
           <span class="hidden md:inline">Reporte</span> Mensual
         </button>
 
-        <!-- Botón Devolución -->
         <button onclick="openReturnModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 transition flex items-center gap-1">
           <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
           <span>Devolución</span>
         </button>
 
-        <!-- Botón Vender -->
         <button onclick="switchTab('pos')" class="bg-gradient-to-r from-botalon-purple to-botalon-pink text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-botalon-purple/20 hover:opacity-95 transition flex items-center gap-1.5">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i>
           <span>+ Vender</span>
@@ -149,8 +189,6 @@
 
     <!-- DASHBOARD -->
     <section id="tab-dashboard" class="tab-content p-6 space-y-6">
-      
-      <!-- Selector de Calendario para Dashboard -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <div>
           <h3 class="font-extrabold text-slate-900 text-sm">Fecha de Consulta del Resumen</h3>
@@ -166,10 +204,7 @@
         </div>
       </div>
 
-      <!-- Tarjetas Interactivas de Resumen -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        
-        <!-- Ventas del Día -->
         <div onclick="openMovementsModal('TODOS')" class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs cursor-pointer hover:border-botalon-purple transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -182,7 +217,6 @@
           <span class="text-[10px] text-slate-400 mt-2 block font-medium group-hover:text-botalon-purple underline">Ver desglose del día →</span>
         </div>
 
-        <!-- Efectivo Bs -->
         <div onclick="openMovementsModal('Efectivo Bs')" class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs bg-emerald-50/20 cursor-pointer hover:border-emerald-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -195,7 +229,6 @@
           <span class="text-[10px] text-emerald-600 mt-2 block font-medium underline">Ver desglose Efectivo Bs →</span>
         </div>
 
-        <!-- Efectivo Divisas -->
         <div onclick="openMovementsModal('Efectivo Divisas ($)')" class="bg-white border border-teal-200 rounded-2xl p-5 shadow-xs bg-teal-50/20 cursor-pointer hover:border-teal-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -208,7 +241,6 @@
           <span class="text-[10px] text-teal-600 mt-2 block font-medium underline">Ver desglose Divisas →</span>
         </div>
 
-        <!-- Pago Móvil -->
         <div onclick="openMovementsModal('Pago Móvil')" class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs bg-blue-50/20 cursor-pointer hover:border-blue-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -221,7 +253,6 @@
           <span class="text-[10px] text-blue-600 mt-2 block font-medium underline">Ver desglose Pago Móvil →</span>
         </div>
 
-        <!-- Punto de Venta -->
         <div onclick="openMovementsModal('Punto de Venta')" class="bg-white border border-purple-200 rounded-2xl p-5 shadow-xs bg-purple-50/20 cursor-pointer hover:border-purple-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -234,7 +265,6 @@
           <span class="text-[10px] text-purple-600 mt-2 block font-medium underline">Ver desglose Punto →</span>
         </div>
 
-        <!-- BioPago -->
         <div onclick="openMovementsModal('BioPago')" class="bg-white border border-rose-200 rounded-2xl p-5 shadow-xs bg-rose-50/20 cursor-pointer hover:border-rose-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -247,7 +277,6 @@
           <span class="text-[10px] text-rose-600 mt-2 block font-medium underline">Ver desglose BioPago →</span>
         </div>
 
-        <!-- Cuentas por Cobrar Total -->
         <div onclick="switchTab('credits')" class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs bg-amber-50/20 cursor-pointer hover:border-amber-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -259,10 +288,8 @@
           <p id="dash-credit-debtors" class="mt-2 text-xs font-medium text-amber-600">0 deudores pendientes</p>
           <span class="text-[10px] text-amber-600 mt-2 block font-medium underline">Ir a Cuentas por Cobrar →</span>
         </div>
-
       </div>
 
-      <!-- ALERTA DE STOCK BAJO (<= 5 UNIDADES / SACOS / METROS) -->
       <div class="bg-red-50/60 border border-red-200 rounded-2xl p-5 shadow-xs space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -280,7 +307,6 @@
         <div id="low-stock-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
       </div>
 
-      <!-- ÚLTIMAS VENTAS -->
       <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
         <h3 class="font-bold text-slate-900 text-base mb-4">Últimas Ventas de la Fecha Seleccionada</h3>
         <div class="overflow-x-auto">
@@ -460,14 +486,13 @@
     </section>
   </main>
 
-  <!-- MODAL: TICKET / FACTURA DIGITAL E IMPRIMIBLE -->
+  <!-- MODAL: TICKET -->
   <div id="modal-ticket" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeTicketModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
-      <!-- Área de Impresión del Ticket -->
       <div id="printable-ticket" class="space-y-3 font-mono text-xs">
         <div class="text-center border-b border-dashed border-slate-300 pb-3">
           <h2 class="font-extrabold text-sm text-slate-900 tracking-tight uppercase">RAMOS AGROINSUMOS EL BOTALON</h2>
@@ -503,7 +528,6 @@
         </div>
       </div>
 
-      <!-- Acciones del Modal -->
       <div class="no-print pt-2 flex gap-2">
         <button onclick="printTicket()" class="flex-1 py-3 bg-botalon-purple hover:bg-botalon-purpleHover text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md">
           <i data-lucide="printer" class="w-4 h-4"></i>
@@ -516,7 +540,7 @@
     </div>
   </div>
 
-  <!-- MODAL: REPORTE PERIÓDICO (SEMANAL / MENSUAL) -->
+  <!-- MODAL: REPORTE PERIÓDICO -->
   <div id="modal-periodic-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePeriodicReportModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800">
@@ -558,7 +582,7 @@
     </div>
   </div>
 
-  <!-- MODAL: DEVOLUCIÓN DE PRODUCTO CON BÚSQUEDA DINÁMICA -->
+  <!-- MODAL: DEVOLUCIÓN -->
   <div id="modal-return" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeReturnModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
@@ -604,7 +628,7 @@
     </div>
   </div>
 
-  <!-- MODAL: DESGLOSE DE MOVIMIENTOS POR FECHA -->
+  <!-- MODAL: MOVIMIENTOS -->
   <div id="modal-movements" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[85vh] overflow-y-auto space-y-4">
       <button onclick="closeMovementsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
@@ -646,7 +670,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CARPETA / EXPEDIENTE DE CLIENTE DEUDOR -->
+  <!-- MODAL: CARPETA CLIENTE -->
   <div id="modal-customer-folder" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto space-y-5">
       <button onclick="closeCustomerFolder()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
@@ -661,16 +685,12 @@
           <div>
             <div class="flex items-center gap-2">
               <h3 id="folder-customer-name" class="font-black text-xl text-slate-900">Nombre Cliente</h3>
-              <button onclick="editCustomerName()" class="text-botalon-purple hover:underline text-[11px] font-bold">
-                Editar Nombre
-              </button>
+              <button onclick="editCustomerName()" class="text-botalon-purple hover:underline text-[11px] font-bold">Editar Nombre</button>
             </div>
             <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
               <i data-lucide="phone" class="w-3.5 h-3.5 text-amber-600"></i>
               <span id="folder-customer-phone" class="font-bold text-slate-700">Sin teléfono</span>
-              <button onclick="editCustomerPhone()" class="text-botalon-purple hover:underline text-[11px] font-bold ml-1">
-                Editar Teléfono
-              </button>
+              <button onclick="editCustomerPhone()" class="text-botalon-purple hover:underline text-[11px] font-bold ml-1">Editar Teléfono</button>
             </div>
           </div>
         </div>
@@ -680,7 +700,6 @@
         </button>
       </div>
 
-      <!-- Resumen Deuda -->
       <div class="grid grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
         <div>
           <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total Solicitado</span>
@@ -777,7 +796,7 @@
     </div>
   </div>
 
-  <!-- MODAL CALCULADORA PARA ALIMENTOS Y MISCELÁNEOS -->
+  <!-- MODAL CALCULADORA -->
   <div id="modal-calc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative">
       <button onclick="closeCalcModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
@@ -872,7 +891,7 @@
     </div>
   </div>
 
-  <!-- MODAL: REGISTRAR / EDITAR PRODUCTO -->
+  <!-- MODAL: PRODUCTO -->
   <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeProductModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
@@ -920,7 +939,6 @@
           <div>
             <label class="block font-semibold text-botalon-purple mb-1">Sacos Abiertos Actualmente (Granel):</label>
             <input type="number" step="0.01" id="form-open-sacks" value="0" placeholder="Ej: 1 o 0.5 sacos" class="w-full bg-botalon-purple/5 border border-botalon-purple/30 rounded-xl p-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-botalon-purple">
-            <span class="text-[10px] text-slate-400">Sacos abiertos actualmente a granel.</span>
           </div>
 
           <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
@@ -1032,46 +1050,102 @@
       const today = getTodayYMD();
       document.getElementById('dash-date-picker').value = today;
 
-      loadData();
-      renderDashboard();
-      renderPosGrid();
-      renderInventoryTable();
-      renderDebtorsGrid();
-      renderSalesHistory();
-      populateDebtorSelect();
+      if (!window.db) {
+        renderDashboard();
+        renderPosGrid();
+        renderInventoryTable();
+        renderDebtorsGrid();
+        renderSalesHistory();
+        populateDebtorSelect();
+      }
       if (window.lucide) lucide.createIcons();
     };
 
-    function loadData() {
-      const savedBcv = localStorage.getItem('fina_bcv');
-      if (savedBcv) bcvRate = parseFloat(savedBcv);
+    window.initCloudApp = function() {
+      const db = window.db;
+      const { collection, onSnapshot, doc, setDoc } = window.firebaseFns;
 
-      const savedProds = localStorage.getItem('fina_products');
-      if (savedProds) {
-        try { products = JSON.parse(savedProds); } catch(e) { products = seedProducts; }
-      } else {
-        products = seedProducts;
-        saveData();
-      }
+      onSnapshot(doc(db, "configuracion", "bcv"), (docSnap) => {
+        if (docSnap.exists()) {
+          bcvRate = docSnap.data().valor || 42.50;
+        } else {
+          setDoc(doc(db, "configuracion", "bcv"), { valor: 42.50 });
+        }
+        updateBcvUI();
+        renderPosGrid();
+        renderInventoryTable();
+        updateCartTotals();
+      });
 
-      const savedSales = localStorage.getItem('fina_sales');
-      if (savedSales) {
-        try { salesHistory = JSON.parse(savedSales); } catch(e) { salesHistory = []; }
-      }
+      onSnapshot(collection(db, "productos"), (snapshot) => {
+        products = [];
+        snapshot.forEach((docSnap) => {
+          products.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        if (products.length === 0) {
+          seedProducts.forEach(p => saveProductCloud(p));
+        } else {
+          renderInventoryTable();
+          renderPosGrid();
+          renderDashboard();
+        }
+      });
 
-      const savedDebtors = localStorage.getItem('fina_debtors');
-      if (savedDebtors) {
-        try { debtors = JSON.parse(savedDebtors); } catch(e) { debtors = []; }
-      }
+      onSnapshot(collection(db, "ventas"), (snapshot) => {
+        salesHistory = [];
+        snapshot.forEach((docSnap) => {
+          salesHistory.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        salesHistory.sort((a, b) => b.id.localeCompare(a.id));
+        renderDashboard();
+        renderSalesHistory();
+      });
 
-      updateBcvUI();
+      onSnapshot(collection(db, "deudores"), (snapshot) => {
+        debtors = [];
+        snapshot.forEach((docSnap) => {
+          debtors.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        renderDebtorsGrid();
+        renderDashboard();
+        populateDebtorSelect();
+      });
+    };
+
+    async function saveBcvCloud(nuevoValor) {
+      if (!window.db) return;
+      const { doc, setDoc } = window.firebaseFns;
+      await setDoc(doc(window.db, "configuracion", "bcv"), { valor: nuevoValor });
     }
 
-    function saveData() {
-      localStorage.setItem('fina_bcv', bcvRate.toString());
-      localStorage.setItem('fina_products', JSON.stringify(products));
-      localStorage.setItem('fina_sales', JSON.stringify(salesHistory));
-      localStorage.setItem('fina_debtors', JSON.stringify(debtors));
+    async function saveProductCloud(prod) {
+      if (!window.db) return;
+      const { doc, setDoc } = window.firebaseFns;
+      await setDoc(doc(window.db, "productos", prod.id.toString()), prod);
+    }
+
+    async function deleteProductCloud(prodId) {
+      if (!window.db) return;
+      const { doc, deleteDoc } = window.firebaseFns;
+      await deleteDoc(doc(window.db, "productos", prodId.toString()));
+    }
+
+    async function saveSaleCloud(sale) {
+      if (!window.db) return;
+      const { doc, setDoc } = window.firebaseFns;
+      await setDoc(doc(window.db, "ventas", sale.id.toString()), sale);
+    }
+
+    async function saveDebtorCloud(debtor) {
+      if (!window.db) return;
+      const { doc, setDoc } = window.firebaseFns;
+      await setDoc(doc(window.db, "deudores", debtor.id.toString()), debtor);
+    }
+
+    async function deleteDebtorCloud(debtorId) {
+      if (!window.db) return;
+      const { doc, deleteDoc } = window.firebaseFns;
+      await deleteDoc(doc(window.db, "deudores", debtorId.toString()));
     }
 
     function updateBcvUI() {
@@ -1087,7 +1161,7 @@
       const val = prompt('Ingrese la Tasa de Cambio BCV (Bs. / USD):', bcvRate);
       if (val && !isNaN(val) && parseFloat(val) > 0) {
         bcvRate = parseFloat(val);
-        saveData();
+        saveBcvCloud(bcvRate);
         updateBcvUI();
         renderPosGrid();
         renderInventoryTable();
@@ -1216,7 +1290,6 @@
       }
     }
 
-    // GENERADOR Y MOSTRADOR DE TICKET DE VENTA DIGITAL
     function openTicketModal(saleRecord) {
       if (!saleRecord) return;
 
@@ -1262,7 +1335,6 @@
       window.print();
     }
 
-    // GENERAR REPORTES SEMANALES Y MENSUALES
     function generatePeriodicReport(period) {
       const now = new Date();
       let startDate = new Date();
@@ -1290,7 +1362,6 @@
       setSafeText('report-total-usd', `$${totalUsd.toFixed(2)}`);
       setSafeText('report-total-bs', `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
 
-      // Métodos de pago
       const methods = ['Efectivo Bs', 'Efectivo Divisas ($)', 'Pago Móvil', 'Punto de Venta', 'BioPago', 'Zelle', 'Crédito'];
       const bdContainer = document.getElementById('report-methods-breakdown');
       bdContainer.innerHTML = '';
@@ -1345,7 +1416,7 @@
       });
 
       if (lowStockProducts.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-2 text-xs font-bold text-emerald-700 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i> Todos los productos cuentan con suficiente inventario (más de 5 unidades/sacos).</div>`;
+        container.innerHTML = `<div class="col-span-full py-2 text-xs font-bold text-emerald-700 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i> Todos los productos cuentan con suficiente inventario.</div>`;
         return;
       }
 
@@ -1372,14 +1443,13 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // DEVOLUCIONES CON BUSCADOR INTERACTIVO Y DESPLEGABLE DINÁMICO
     function openReturnModal() {
       const searchInput = document.getElementById('return-search-input');
       if (searchInput) searchInput.value = '';
       
       const select = document.getElementById('return-product-select');
       if (select) {
-        select.innerHTML = '<option value="">-- Escriba en el buscador de arriba para ver coincidencia --</option>';
+        select.innerHTML = '<option value="">-- Escriba en el buscador de arriba --</option>';
       }
 
       document.getElementById('return-amount-box').classList.add('hidden');
@@ -1394,7 +1464,7 @@
       select.innerHTML = '';
 
       if (!q) {
-        select.innerHTML = '<option value="">-- Escriba en el buscador de arriba para ver coincidencia --</option>';
+        select.innerHTML = '<option value="">-- Escriba en el buscador de arriba --</option>';
         document.getElementById('return-amount-box').classList.add('hidden');
         return;
       }
@@ -1402,10 +1472,10 @@
       const filtered = products.filter(p => p.name.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q)));
 
       if (filtered.length === 0) {
-        select.innerHTML = '<option value="">No se encontraron productos que coincidan</option>';
+        select.innerHTML = '<option value="">No se encontraron productos</option>';
         document.getElementById('return-amount-box').classList.add('hidden');
       } else {
-        select.innerHTML = '<option value="">-- Seleccionar de los resultados encontrados --</option>';
+        select.innerHTML = '<option value="">-- Seleccionar producto --</option>';
         filtered.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p.id;
@@ -1439,15 +1509,15 @@
 
       if (p.type === 'alimento') {
         label.innerText = 'Sacos Cerrados o Kilos a Devolver:';
-        info.innerText = 'Escriba la cantidad en Sacos Cerrados (Ej: 1) o la fracción de kilos si fue a granel.';
+        info.innerText = 'Escriba la cantidad en Sacos Cerrados (Ej: 1) o kilos a granel.';
         input.placeholder = "Ej: 1 saco ó 2 kilos";
       } else if (p.type === 'miscelaneos') {
         label.innerText = 'Metros a Devolver:';
-        info.innerText = `Se reincorporarán los metros indicados al stock actual (${(p.stockMeters||0).toFixed(2)}m).`;
+        info.innerText = `Se reincorporarán al stock actual (${(p.stockMeters||0).toFixed(2)}m).`;
         input.placeholder = "Ej: 5.5";
       } else {
         label.innerText = 'Unidades a Devolver:';
-        info.innerText = `Se sumarán las unidades indicadas al inventario actual (${p.stockUnits||0} unids).`;
+        info.innerText = `Se sumarán al stock actual (${p.stockUnits||0} unids).`;
         input.placeholder = "Ej: 1";
       }
     }
@@ -1457,7 +1527,7 @@
       const qty = parseFloat(document.getElementById('return-amount-input').value) || 0;
 
       if (!pid || qty <= 0) {
-        alert('Por favor seleccione un producto y especifique una cantidad válida.');
+        alert('Por favor seleccione un producto y cantidad válida.');
         return;
       }
 
@@ -1465,7 +1535,7 @@
       if (!p) return;
 
       if (p.type === 'alimento') {
-        const choice = prompt(`¿Devuelve SACOS CERRADOS entero o KILOS a granel?\n\nEscriba '1' para Sacos Cerrados\nEscriba '2' para Kilos a Granel`, '1');
+        const choice = prompt(`¿Devuelve SACOS CERRADOS enteros o KILOS a granel?\n\nEscriba '1' para Sacos\nEscriba '2' para Kilos`, '1');
         if (choice === '1') {
           p.closedSacks = (p.closedSacks || 0) + Math.round(qty);
         } else if (choice === '2') {
@@ -1479,13 +1549,9 @@
         p.stockUnits = (p.stockUnits || 0) + Math.round(qty);
       }
 
-      saveData();
+      saveProductCloud(p);
       closeReturnModal();
-      renderInventoryTable();
-      renderPosGrid();
-      renderDashboard();
-
-      alert(`¡Devolución exitosa! Se han reintegrado las existencias del producto "${p.name}".`);
+      alert(`¡Devolución exitosa para ${p.name}!`);
     }
 
     function openMovementsModal(methodFilter) {
@@ -1495,13 +1561,13 @@
       let filteredMovements = [];
       if (methodFilter === 'TODOS') {
         filteredMovements = daySales;
-        setSafeText('mov-modal-title', `Todas las Ventas del Día (${selectedYMD})`);
+        setSafeText('mov-modal-title', `Todas las Ventas (${selectedYMD})`);
       } else {
         filteredMovements = daySales.filter(s => s.method.includes(methodFilter));
         setSafeText('mov-modal-title', `Movimientos: ${methodFilter}`);
       }
 
-      setSafeText('mov-modal-subtitle', `Fecha seleccionada: ${selectedYMD} - Total movimientos: ${filteredMovements.length}`);
+      setSafeText('mov-modal-subtitle', `Fecha: ${selectedYMD} - Total: ${filteredMovements.length}`);
 
       const totalUsd = filteredMovements.reduce((acc, m) => acc + (m.totalUsd || 0), 0);
       const totalBs = filteredMovements.reduce((acc, m) => acc + (m.totalBs || 0), 0);
@@ -1513,17 +1579,17 @@
       tbody.innerHTML = '';
 
       if (filteredMovements.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">No existen movimientos registrados para este filtro en esta fecha.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">No existen movimientos.</td></tr>`;
       } else {
         filteredMovements.forEach(m => {
           const itemsStr = (m.items || []).map(i => i.name).join(', ');
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td class="p-3 text-slate-400 font-medium">${m.id}<br><span class="text-[10px] text-slate-300">${m.date.split(',')[1] || ''}</span></td>
+            <td class="p-3 text-slate-400 font-medium">${m.id}</td>
             <td class="p-3 font-bold text-slate-800">${itemsStr}</td>
             <td class="p-3 text-center font-semibold text-slate-600">${m.method}</td>
             <td class="p-3 text-right font-black text-slate-900">$${m.totalUsd.toFixed(2)}</td>
-            <td class="p-3 text-right font-black text-botalon-purple">${m.totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs</td>
+            <td class="p-3 text-right font-black text-botalon-purple">${m.totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</td>
           `;
           tbody.appendChild(tr);
         });
@@ -1532,9 +1598,7 @@
       document.getElementById('modal-movements').classList.remove('hidden');
     }
 
-    function closeMovementsModal() {
-      document.getElementById('modal-movements').classList.add('hidden');
-    }
+    function closeMovementsModal() { document.getElementById('modal-movements').classList.add('hidden'); }
 
     function renderSalesHistory() {
       const container = document.getElementById('history-container');
@@ -1542,7 +1606,6 @@
       container.innerHTML = '';
 
       const filterYMD = document.getElementById('history-date-picker').value;
-
       const grouped = {};
       salesHistory.forEach(s => {
         const ymd = parseDateToYMD(s.date) || 'Sin Fecha';
@@ -1554,7 +1617,7 @@
       const filteredDates = filterYMD ? dates.filter(d => d === filterYMD) : dates;
 
       if (filteredDates.length === 0) {
-        container.innerHTML = `<div class="bg-white p-12 rounded-2xl border border-slate-200 text-center text-slate-400 text-xs">No hay ventas registradas para el día o período seleccionado.</div>`;
+        container.innerHTML = `<div class="bg-white p-12 rounded-2xl border border-slate-200 text-center text-slate-400 text-xs">No hay ventas registradas.</div>`;
         return;
       }
 
@@ -1564,61 +1627,33 @@
         const dayTotalBs = salesInDate.reduce((acc, s) => acc + (s.totalBs || 0), 0);
 
         const groupDiv = document.createElement('div');
-        groupDiv.className = "bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs space-y-0";
+        groupDiv.className = "bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs";
 
         let tableRowsHtml = '';
         salesInDate.forEach(s => {
-          const itemsDetail = (s.items || []).map(i => {
-            if (i.type === 'bulk') return `${i.name} [${i.kilos.toFixed(2)}kg]`;
-            if (i.type === 'meters') return `${i.name} [${i.meters.toFixed(2)}m]`;
-            return `${i.name}`;
-          }).join(', ');
-
+          const itemsDetail = (s.items || []).map(i => i.name).join(', ');
           tableRowsHtml += `
             <tr class="hover:bg-slate-50 transition">
               <td class="p-3.5 text-slate-400 font-medium">${s.date || ''}</td>
               <td class="p-3.5 font-bold text-slate-800">${itemsDetail}</td>
-              <td class="p-3.5 text-center">
-                <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200">${s.method || ''}</span>
-              </td>
+              <td class="p-3.5 text-center"><span class="px-2 py-1 rounded bg-slate-100 text-[10px] font-bold">${s.method}</span></td>
               <td class="p-3.5 text-right font-black text-slate-900">$${(s.totalUsd || 0).toFixed(2)}</td>
-              <td class="p-3.5 text-right font-black text-botalon-purple">${(s.totalBs || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs</td>
+              <td class="p-3.5 text-right font-black text-botalon-purple">${(s.totalBs || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</td>
             </tr>
           `;
         });
 
         groupDiv.innerHTML = `
-          <div class="bg-slate-100/80 p-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <div class="flex items-center gap-2">
-              <i data-lucide="calendar" class="w-4 h-4 text-botalon-purple"></i>
-              <h4 class="font-black text-slate-900 text-sm">Fecha: ${dateKey}</h4>
-              <span class="text-xs text-slate-400 font-medium">(${salesInDate.length} transacciones)</span>
-            </div>
-            <div class="text-right flex items-center gap-4">
-              <span class="text-xs font-bold text-slate-700">Total Día: <strong class="text-slate-900">$${dayTotalUsd.toFixed(2)} USD</strong> / <strong class="text-botalon-purple">${dayTotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs</strong></span>
-            </div>
+          <div class="bg-slate-100/80 p-4 border-b border-slate-200 flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-900">Fecha: ${dateKey} (${salesInDate.length} ventas)</span>
+            <span class="font-bold text-slate-700">Total: $${dayTotalUsd.toFixed(2)} / ${dayTotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</span>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-400 uppercase tracking-wider border-b border-slate-100 text-[10px]">
-                <tr>
-                  <th class="p-3 font-semibold">Fecha / Hora</th>
-                  <th class="p-3 font-semibold">Detalle de Productos</th>
-                  <th class="p-3 font-semibold text-center">Método Pago</th>
-                  <th class="p-3 font-semibold text-right">Monto USD</th>
-                  <th class="p-3 font-semibold text-right">Monto Bs.</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 text-slate-700">
-                ${tableRowsHtml}
-              </tbody>
-            </table>
-          </div>
+          <table class="w-full text-left text-xs">
+            <tbody class="divide-y divide-slate-100">${tableRowsHtml}</tbody>
+          </table>
         `;
         container.appendChild(groupDiv);
       });
-
-      if (window.lucide) lucide.createIcons();
     }
 
     function clearHistoryDateFilter() {
@@ -1641,61 +1676,34 @@
       const select = document.getElementById('cart-debtor-select');
       if (!select) return;
       select.innerHTML = '<option value="">-- Cliente Nuevo --</option>';
-      
       debtors.forEach(d => {
-        const phoneTxt = d.phone ? ` (${d.phone})` : '';
         const opt = document.createElement('option');
         opt.value = d.id;
-        opt.innerText = `${d.name}${phoneTxt}`;
+        opt.innerText = `${d.name} (${d.phone || 'Sin tlf'})`;
         select.appendChild(opt);
       });
     }
 
     function autoFillDebtorPhone() {
       const select = document.getElementById('cart-debtor-select');
-      const nameInput = document.getElementById('cart-debtor-name');
-      const phoneInput = document.getElementById('cart-debtor-phone');
-      
-      if (!select.value) {
-        nameInput.value = '';
-        phoneInput.value = '';
-        return;
-      }
-
       const debtor = debtors.find(d => d.id === select.value);
       if (debtor) {
-        nameInput.value = debtor.name;
-        phoneInput.value = debtor.phone || '';
+        document.getElementById('cart-debtor-name').value = debtor.name;
+        document.getElementById('cart-debtor-phone').value = debtor.phone || '';
       }
     }
 
     function checkDebtorNameMatch() {
       const nameVal = (document.getElementById('cart-debtor-name').value || '').trim().toLowerCase();
-      const phoneInput = document.getElementById('cart-debtor-phone');
-      const select = document.getElementById('cart-debtor-select');
-
       const match = debtors.find(d => d.name.toLowerCase() === nameVal);
       if (match) {
-        select.value = match.id;
-        phoneInput.value = match.phone || '';
-      } else {
-        select.value = '';
+        document.getElementById('cart-debtor-select').value = match.id;
+        document.getElementById('cart-debtor-phone').value = match.phone || '';
       }
     }
 
     function setDebtorFilter(onlyPending) {
       showOnlyPendingDebtors = onlyPending;
-      const btnPending = document.getElementById('btn-filter-pending');
-      const btnAll = document.getElementById('btn-filter-all');
-
-      if (onlyPending) {
-        btnPending.className = "px-3 py-1.5 rounded-lg transition bg-amber-600 text-white shadow-xs";
-        btnAll.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
-      } else {
-        btnAll.className = "px-3 py-1.5 rounded-lg transition bg-amber-600 text-white shadow-xs";
-        btnPending.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
-      }
-
       renderDebtorsGrid();
     }
 
@@ -1704,313 +1712,159 @@
       if (!grid) return;
       grid.innerHTML = '';
 
-      const filteredDebtors = debtors.filter(d => {
-        const totalItems = d.items ? d.items.reduce((acc, i) => acc + (i.totalUsd || 0), 0) : 0;
-        const totalPayments = d.payments ? d.payments.reduce((acc, p) => acc + (p.amountUsd || 0), 0) : 0;
-        const balanceUsd = totalItems - totalPayments;
-        
-        if (showOnlyPendingDebtors) {
-          return balanceUsd > 0.001;
-        }
-        return true;
+      const filtered = debtors.filter(d => {
+        const totalItems = (d.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
+        const totalPayments = (d.payments || []).reduce((acc, p) => acc + (p.amountUsd || 0), 0);
+        const bal = totalItems - totalPayments;
+        return showOnlyPendingDebtors ? bal > 0.001 : true;
       });
 
-      if (filteredDebtors.length === 0) {
-        const msg = showOnlyPendingDebtors 
-          ? "No hay clientes con deudas pendientes actualmente." 
-          : "No hay carpetas de clientes registradas.";
-        grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">${msg}</div>`;
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">No hay deudores registrados.</div>`;
         return;
       }
 
-      filteredDebtors.forEach(d => {
-        const totalItems = d.items ? d.items.reduce((acc, i) => acc + (i.totalUsd || 0), 0) : 0;
-        const totalPayments = d.payments ? d.payments.reduce((acc, p) => acc + (p.amountUsd || 0), 0) : 0;
-        const balanceUsd = totalItems - totalPayments;
-        const balanceBs = balanceUsd * bcvRate;
-        const isPending = balanceUsd > 0.001;
+      filtered.forEach(d => {
+        const totalItems = (d.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
+        const totalPayments = (d.payments || []).reduce((acc, p) => acc + (p.amountUsd || 0), 0);
+        const balUsd = totalItems - totalPayments;
+        const balBs = balUsd * bcvRate;
+        const isPending = balUsd > 0.001;
 
         const card = document.createElement('div');
-        card.className = "bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-amber-300 transition relative group";
+        card.className = "bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4";
         card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}">${isPending ? 'Pendiente' : 'Al Día'}</span>
+            <button onclick="deleteDebtor('${d.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
           <div>
-            <div class="flex justify-between items-start">
-              <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}">
-                ${isPending ? 'Deuda Pendiente' : 'Al Día / Solvente'}
-              </span>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-400">${d.items ? d.items.length : 0} consumos</span>
-                <button onclick="deleteDebtor('${d.id}')" title="Eliminar Carpeta" class="p-1 text-slate-300 hover:text-red-500 transition">
-                  <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-              </div>
-            </div>
-            <h4 class="font-extrabold text-slate-900 text-base mt-2">${d.name}</h4>
-            <div class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-              <i data-lucide="phone" class="w-3 h-3 text-slate-400"></i>
-              <span>${d.phone ? d.phone : 'Sin teléfono'}</span>
-            </div>
+            <h4 class="font-extrabold text-slate-900 text-base">${d.name}</h4>
+            <span class="text-xs text-slate-500">${d.phone || 'Sin teléfono'}</span>
           </div>
-
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
-            <div>
-              <span class="text-[10px] font-bold text-slate-400 uppercase block">Saldo Deuda</span>
-              <div class="text-sm font-black text-slate-900">${balanceBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs</div>
-            </div>
-            <div class="text-right">
-              <div class="text-base font-black ${isPending ? 'text-amber-600' : 'text-emerald-600'}">$${balanceUsd.toFixed(2)} USD</div>
-            </div>
+          <div class="bg-slate-50 p-3 rounded-xl flex justify-between items-center text-xs">
+            <span>Deuda Restante:</span>
+            <strong class="${isPending ? 'text-amber-600' : 'text-emerald-600'} font-black">$${balUsd.toFixed(2)} (${balBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs)</strong>
           </div>
-
-          <button onclick="openCustomerFolder('${d.id}')" class="w-full py-2.5 ${isPending ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-800 hover:bg-slate-900'} text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-xs">
-            <i data-lucide="folder-open" class="w-4 h-4"></i>
-            <span>Ver Carpeta & Abonar</span>
-          </button>
+          <button onclick="openCustomerFolder('${d.id}')" class="w-full py-2.5 ${isPending ? 'bg-amber-600' : 'bg-slate-800'} text-white font-bold text-xs rounded-xl">Ver Carpeta & Abonar</button>
         `;
         grid.appendChild(card);
       });
-
       if (window.lucide) lucide.createIcons();
     }
 
-    function deleteDebtor(debtorId) {
-      if (!debtorId) return;
-      const debtor = debtors.find(d => d.id === debtorId);
-      if (!debtor) return;
-
-      const confirmMsg = `¿Está seguro de que desea eliminar la carpeta de "${debtor.name}"?\n\nEsta acción borrará todo su historial de consumo y abonos registrados.`;
-      
-      if (confirm(confirmMsg)) {
-        debtors = debtors.filter(d => d.id !== debtorId);
-        saveData();
-        closeCustomerFolder();
-        renderDebtorsGrid();
-        renderDashboard();
-        populateDebtorSelect();
-        alert('La carpeta del cliente ha sido eliminada con éxito.');
-      }
+    function deleteDebtor(id) {
+      if (confirm('¿Eliminar esta carpeta de cliente?')) deleteDebtorCloud(id);
     }
 
     function openNewDebtorModal() {
-      const name = prompt('Escriba el nombre completo del nuevo cliente:');
+      const name = prompt('Nombre completo del cliente:');
       if (name && name.trim()) {
-        const phone = prompt('Ingrese el número de teléfono del cliente (opcional):', '') || '';
-        const newDebtor = {
-          id: 'CLI-' + Date.now().toString().slice(-6),
-          name: name.trim(),
-          phone: phone.trim(),
-          items: [],
-          payments: []
-        };
-        debtors.push(newDebtor);
-        saveData();
-        renderDebtorsGrid();
-        renderDashboard();
-        populateDebtorSelect();
+        const phone = prompt('Teléfono del cliente:', '') || '';
+        saveDebtorCloud({ id: 'CLI-' + Date.now().toString().slice(-6), name: name.trim(), phone: phone.trim(), items: [], payments: [] });
       }
     }
 
     function editCustomerName() {
       if (!activeCustomer) return;
-      const newName = prompt('Ingrese el nuevo nombre del cliente:', activeCustomer.name);
-      if (newName && newName.trim()) {
-        activeCustomer.name = newName.trim();
-        saveData();
-        setSafeText('folder-customer-name', activeCustomer.name);
-        renderDebtorsGrid();
-        renderDashboard();
-        populateDebtorSelect();
-      }
+      const name = prompt('Nuevo nombre:', activeCustomer.name);
+      if (name) { activeCustomer.name = name.trim(); saveDebtorCloud(activeCustomer); openCustomerFolder(activeCustomer.id); }
     }
 
     function editCustomerPhone() {
       if (!activeCustomer) return;
-      const newPhone = prompt('Ingrese el número de teléfono del cliente:', activeCustomer.phone || '');
-      if (newPhone !== null) {
-        activeCustomer.phone = newPhone.trim();
-        saveData();
-        setSafeText('folder-customer-phone', activeCustomer.phone ? activeCustomer.phone : 'Sin teléfono');
-        renderDebtorsGrid();
-        populateDebtorSelect();
-      }
+      const phone = prompt('Nuevo teléfono:', activeCustomer.phone);
+      if (phone !== null) { activeCustomer.phone = phone.trim(); saveDebtorCloud(activeCustomer); openCustomerFolder(activeCustomer.id); }
     }
 
-    function openCustomerFolder(debtorId) {
-      activeCustomer = debtors.find(d => d.id === debtorId);
+    function openCustomerFolder(id) {
+      activeCustomer = debtors.find(d => d.id === id);
       if (!activeCustomer) return;
 
       setSafeText('folder-customer-name', activeCustomer.name);
-      setSafeText('folder-customer-phone', activeCustomer.phone ? activeCustomer.phone : 'Sin teléfono');
+      setSafeText('folder-customer-phone', activeCustomer.phone || 'Sin teléfono');
 
-      const totalDebtUsd = (activeCustomer.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
-      const totalPaidUsd = (activeCustomer.payments || []).reduce((acc, p) => acc + (p.amountUsd || 0), 0);
-      const remainingUsd = totalDebtUsd - totalPaidUsd;
+      const debt = (activeCustomer.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
+      const paid = (activeCustomer.payments || []).reduce((acc, p) => acc + (p.amountUsd || 0), 0);
+      const rem = debt - paid;
 
-      setSafeText('folder-total-debt', `$${totalDebtUsd.toFixed(2)}`);
-      setSafeText('folder-total-paid', `$${totalPaidUsd.toFixed(2)}`);
-      setSafeText('folder-remaining-balance', `$${Math.max(0, remainingUsd).toFixed(2)} USD (${(Math.max(0, remainingUsd) * bcvRate).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs)`);
+      setSafeText('folder-total-debt', `$${debt.toFixed(2)}`);
+      setSafeText('folder-total-paid', `$${paid.toFixed(2)}`);
+      setSafeText('folder-remaining-balance', `$${Math.max(0, rem).toFixed(2)}`);
 
       const itemsBody = document.getElementById('folder-items-body');
       itemsBody.innerHTML = '';
       (activeCustomer.items || []).forEach(i => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="p-3 text-slate-400 font-medium">${i.date || ''}</td>
-          <td class="p-3 font-bold text-slate-800">${i.productName}</td>
-          <td class="p-3 text-right font-bold text-slate-900">$${(i.totalUsd || 0).toFixed(2)}</td>
-          <td class="p-3 text-right font-bold text-botalon-purple">${(i.totalBs || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</td>
-        `;
-        itemsBody.appendChild(tr);
+        itemsBody.innerHTML += `<tr><td class="p-3">${i.date}</td><td class="p-3 font-bold">${i.productName}</td><td class="p-3 text-right">$${i.totalUsd.toFixed(2)}</td><td class="p-3 text-right">${i.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
       });
 
       const paymentsBody = document.getElementById('folder-payments-body');
       paymentsBody.innerHTML = '';
       (activeCustomer.payments || []).forEach(p => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="p-3 text-slate-400 font-medium">${p.date || ''}</td>
-          <td class="p-3 font-semibold text-slate-700">${p.method}</td>
-          <td class="p-3 text-right font-bold text-emerald-600">$${(p.amountUsd || 0).toFixed(2)}</td>
-          <td class="p-3 text-right font-bold text-emerald-600">${(p.amountBs || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</td>
-        `;
-        paymentsBody.appendChild(tr);
+        paymentsBody.innerHTML += `<tr><td class="p-3">${p.date}</td><td class="p-3">${p.method}</td><td class="p-3 text-right text-emerald-600">$${p.amountUsd.toFixed(2)}</td><td class="p-3 text-right text-emerald-600">${p.amountBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
       });
 
       document.getElementById('modal-customer-folder').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
     }
 
-    function closeCustomerFolder() {
-      document.getElementById('modal-customer-folder').classList.add('hidden');
-    }
-
-    function openPaymentModal() {
-      if (!activeCustomer) return;
-      document.getElementById('pay-amount').value = '';
-      document.getElementById('modal-payment').classList.remove('hidden');
-    }
-
-    function closePaymentModal() {
-      document.getElementById('modal-payment').classList.add('hidden');
-    }
+    function closeCustomerFolder() { document.getElementById('modal-customer-folder').classList.add('hidden'); }
+    function openPaymentModal() { document.getElementById('pay-amount').value = ''; document.getElementById('modal-payment').classList.remove('hidden'); }
+    function closePaymentModal() { document.getElementById('modal-payment').classList.add('hidden'); }
 
     function togglePayCurrency() {
       const curr = document.getElementById('pay-currency').value;
-      const methodSelect = document.getElementById('pay-method');
-      if (curr === 'BS') {
-        methodSelect.value = 'Efectivo Bs';
-      } else {
-        methodSelect.value = 'Efectivo Divisas ($)';
-      }
+      document.getElementById('pay-method').value = curr === 'BS' ? 'Efectivo Bs' : 'Efectivo Divisas ($)';
     }
 
     function savePayment() {
       if (!activeCustomer) return;
       const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
+      if (amount <= 0) return alert('Ingrese un monto válido.');
+
       const curr = document.getElementById('pay-currency').value;
       const method = document.getElementById('pay-method').value;
-
-      if (amount <= 0) {
-        alert('Ingrese un monto válido para el abono.');
-        return;
-      }
-
-      let amountUsd = 0;
-      let amountBs = 0;
-
-      if (curr === 'USD') {
-        amountUsd = amount;
-        amountBs = amount * bcvRate;
-      } else {
-        amountBs = amount;
-        amountUsd = amount / bcvRate;
-      }
+      const usd = curr === 'USD' ? amount : amount / bcvRate;
+      const bs = curr === 'BS' ? amount : amount * bcvRate;
 
       if (!activeCustomer.payments) activeCustomer.payments = [];
-      activeCustomer.payments.push({
-        id: 'ABO-' + Date.now().toString().slice(-6),
-        date: new Date().toLocaleString('es-VE'),
-        currency: curr,
-        method: method,
-        amountUsd: amountUsd,
-        amountBs: amountBs
-      });
+      activeCustomer.payments.push({ id: 'ABO-' + Date.now().toString().slice(-6), date: new Date().toLocaleString('es-VE'), currency: curr, method, amountUsd: usd, amountBs: bs });
 
-      const totalDebtUsd = (activeCustomer.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
-      const totalPaidUsd = (activeCustomer.payments || []).reduce((acc, p) => acc + (p.amountUsd || 0), 0);
-      const remainingUsd = totalDebtUsd - totalPaidUsd;
-
-      let debtClearedMsg = '';
-      if (remainingUsd <= 0.001) {
+      const debt = (activeCustomer.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
+      const paid = (activeCustomer.payments || []).reduce((acc, p) => acc + (p.amountUsd || 0), 0);
+      if (debt - paid <= 0.001) {
         activeCustomer.items = [];
-        activeCustomer.payments = [{
-          id: 'RES-' + Date.now().toString().slice(-6),
-          date: new Date().toLocaleString('es-VE'),
-          method: 'Saldado Total',
-          amountUsd: 0,
-          amountBs: 0
-        }];
-        debtClearedMsg = '\n\n🎉 ¡El cliente ha cancelado el 100% de su deuda! La carpeta se ha reiniciado en blanco para nuevos créditos.';
+        activeCustomer.payments = [{ id: 'RES-' + Date.now().toString().slice(-6), date: new Date().toLocaleString('es-VE'), method: 'Saldado Total', amountUsd: 0, amountBs: 0 }];
       }
 
-      saveData();
+      saveDebtorCloud(activeCustomer);
       closePaymentModal();
       openCustomerFolder(activeCustomer.id);
-      renderDebtorsGrid();
-      renderDashboard();
-
-      alert(`¡Abono guardado exitosamente!${debtClearedMsg}`);
+      alert('¡Abono guardado!');
     }
 
     function processSale() {
-      if (cart.length === 0) {
-        alert('El carrito está vacío.');
-        return;
-      }
-
+      if (cart.length === 0) return alert('El carrito está vacío.');
       const method = document.getElementById('cart-payment-method').value;
-      let debtorName = '';
-      let debtorPhone = '';
+      let debtorName = '', debtorPhone = '';
 
       if (method === 'Crédito') {
         debtorName = (document.getElementById('cart-debtor-name').value || '').trim();
         debtorPhone = (document.getElementById('cart-debtor-phone').value || '').trim();
-        if (!debtorName) {
-          alert('Por favor escriba el nombre del deudor.');
-          return;
-        }
+        if (!debtorName) return alert('Escriba el nombre del deudor.');
       }
 
       cart.forEach(item => {
         const p = products.find(prod => prod && prod.id === item.productId);
         if (p) {
           if (p.type === 'alimento') {
-            if (item.type === 'sack') {
-              p.closedSacks = Math.max(0, (p.closedSacks || 0) - 1);
-            } else {
-              let kilosNeeded = item.kilos;
-
-              if ((p.openSackKilos || 0) >= kilosNeeded) {
-                p.openSackKilos -= kilosNeeded;
-              } else {
-                kilosNeeded -= (p.openSackKilos || 0);
-                p.openSackKilos = 0;
-
-                while (kilosNeeded > 0 && (p.closedSacks || 0) > 0) {
-                  p.closedSacks -= 1;
-                  p.openSackKilos += (p.sackWeightKg || 40);
-
-                  const deduct = Math.min(p.openSackKilos, kilosNeeded);
-                  p.openSackKilos -= deduct;
-                  kilosNeeded -= deduct;
-                }
-              }
-            }
+            if (item.type === 'sack') p.closedSacks = Math.max(0, (p.closedSacks || 0) - 1);
+            else p.openSackKilos = Math.max(0, (p.openSackKilos || 0) - item.kilos);
           } else if (p.type === 'miscelaneos') {
             p.stockMeters = Math.max(0, (p.stockMeters || 0) - item.meters);
           } else {
             p.stockUnits = Math.max(0, (p.stockUnits || 0) - 1);
           }
+          saveProductCloud(p);
         }
       });
 
@@ -2020,52 +1874,16 @@
       if (method === 'Crédito') {
         let debtor = debtors.find(d => d.name.toLowerCase() === debtorName.toLowerCase());
         if (!debtor) {
-          debtor = {
-            id: 'CLI-' + Date.now().toString().slice(-6),
-            name: debtorName,
-            phone: debtorPhone,
-            items: [],
-            payments: []
-          };
-          debtors.push(debtor);
-        } else {
-          if (debtorPhone && !debtor.phone) {
-            debtor.phone = debtorPhone;
-          }
+          debtor = { id: 'CLI-' + Date.now().toString().slice(-6), name: debtorName, phone: debtorPhone, items: [], payments: [] };
         }
-
         cart.forEach(i => {
-          debtor.items.push({
-            id: 'CRE-' + Date.now().toString().slice(-6),
-            date: new Date().toLocaleString('es-VE'),
-            productName: i.name,
-            totalUsd: i.totalUsd,
-            totalBs: i.totalBs
-          });
+          debtor.items.push({ id: 'CRE-' + Date.now().toString().slice(-6), date: new Date().toLocaleString('es-VE'), productName: i.name, totalUsd: i.totalUsd, totalBs: i.totalBs });
         });
+        saveDebtorCloud(debtor);
       }
 
-      const record = {
-        id: 'VEN-' + Date.now().toString().slice(-6),
-        date: new Date().toLocaleString('es-VE'),
-        items: [...cart],
-        method: method === 'Crédito' ? `Crédito (${debtorName})` : method,
-        totalUsd,
-        totalBs,
-        bcv: bcvRate
-      };
-
-      salesHistory.unshift(record);
-
-      saveData();
-      renderPosGrid();
-      renderInventoryTable();
-      renderDebtorsGrid();
-      renderDashboard();
-      renderSalesHistory();
-      populateDebtorSelect();
-
-      // Muestra el Ticket de Venta Digital automáticamente
+      const record = { id: 'VEN-' + Date.now().toString().slice(-6), date: new Date().toLocaleString('es-VE'), items: [...cart], method: method === 'Crédito' ? `Crédito (${debtorName})` : method, totalUsd, totalBs, bcv: bcvRate };
+      saveSaleCloud(record);
       openTicketModal(record);
       clearCart();
     }
@@ -2080,7 +1898,7 @@
       if (type === 'alimento') document.getElementById('section-alimento').classList.remove('hidden');
       else if (type === 'medicamento') document.getElementById('section-medicamento').classList.remove('hidden');
       else if (type === 'miscelaneos') document.getElementById('section-miscelaneos').classList.remove('hidden');
-      else if (type === 'talabarteria' || type === 'ferreteria') document.getElementById('section-standard').classList.remove('hidden');
+      else document.getElementById('section-standard').classList.remove('hidden');
     }
 
     function autoCalcPrices(source = 'sack') {
@@ -2095,101 +1913,47 @@
       const query = (document.getElementById('pos-search')?.value || '').toLowerCase();
       grid.innerHTML = '';
 
-      const filtered = products.filter(p => p && ((p.name && p.name.toLowerCase().includes(query)) || (p.brand && p.brand.toLowerCase().includes(query)) || (p.type && p.type.toLowerCase().includes(query))));
+      const filtered = products.filter(p => p && ((p.name && p.name.toLowerCase().includes(query)) || (p.brand && p.brand.toLowerCase().includes(query))));
 
       filtered.forEach(p => {
         const card = document.createElement('div');
         card.className = "bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex flex-col justify-between space-y-3";
 
         if (p.type === 'alimento') {
-          const priceKgBs = (p.priceKgUsd || 0) * bcvRate;
-          const priceSackBs = (p.priceSackUsd || 0) * bcvRate;
-          const totalKilos = ((p.closedSacks || 0) * (p.sackWeightKg || 40)) + (p.openSackKilos || 0);
-
           card.innerHTML = `
             <div>
-              <div class="flex justify-between items-start">
-                <span class="text-[10px] font-bold text-botalon-purple uppercase bg-botalon-purple/10 px-2 py-0.5 rounded-full">Alimento (${p.sackWeightKg || 40} Kg)</span>
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${p.closedSacks > 5 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}">
-                  ${p.closedSacks || 0} Sacos
-                </span>
-              </div>
-              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name || ''}</h4>
-              <span class="text-[11px] font-semibold text-slate-500">${p.brand || 'Sin Marca'}</span>
+              <span class="text-[10px] font-bold text-botalon-purple uppercase bg-botalon-purple/10 px-2 py-0.5 rounded-full">Alimento</span>
+              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
+              <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
             </div>
-
-            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs space-y-1">
-              <div class="flex justify-between text-slate-600">
-                <span>Saco Completo:</span>
-                <strong class="text-slate-900">$${(p.priceSackUsd || 0).toFixed(2)} (${priceSackBs.toFixed(2)} Bs)</strong>
-              </div>
-              <div class="flex justify-between text-slate-600">
-                <span>Precio / Kilo:</span>
-                <strong class="text-botalon-purple font-bold">${priceKgBs.toFixed(2)} Bs/kg</strong>
-              </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs space-y-1">
+              <div>Saco: <strong>$${(p.priceSackUsd || 0).toFixed(2)}</strong></div>
+              <div class="text-botalon-purple font-bold">Kilo: ${((p.priceKgUsd || 0) * bcvRate).toFixed(2)} Bs</div>
             </div>
-
             <div class="grid grid-cols-2 gap-2">
-              <button onclick="addFullSackToCart('${p.id}')" class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition">+1 Saco</button>
-              <button onclick="openCalcModal('${p.id}')" class="py-2 bg-botalon-purple text-white rounded-xl text-xs font-bold hover:bg-botalon-purpleHover transition flex items-center justify-center gap-1">
-                <i data-lucide="scale" class="w-3.5 h-3.5"></i> Granel
-              </button>
+              <button onclick="addFullSackToCart('${p.id}')" class="py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold">+1 Saco</button>
+              <button onclick="openCalcModal('${p.id}')" class="py-2 bg-botalon-purple text-white rounded-xl text-xs font-bold">Granel</button>
             </div>
           `;
         } else if (p.type === 'miscelaneos') {
-          const priceMeterBs = (p.priceMeterUsd || 0) * bcvRate;
-          const stockM = typeof p.stockMeters === 'number' ? p.stockMeters : 0;
           card.innerHTML = `
             <div>
-              <div class="flex justify-between items-start">
-                <span class="text-[10px] font-bold text-indigo-600 uppercase bg-indigo-50 px-2 py-0.5 rounded-full">Misceláneos</span>
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${stockM > 5 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}">
-                  ${stockM.toFixed(2)} m disp.
-                </span>
-              </div>
-              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name || ''}</h4>
-              <span class="text-[11px] font-semibold text-slate-500">${p.brand || 'Sin Marca'}</span>
+              <span class="text-[10px] font-bold text-indigo-600 uppercase bg-indigo-50 px-2 py-0.5 rounded-full">Misceláneos</span>
+              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
+              <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
             </div>
-
-            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs flex justify-between text-slate-600">
-              <span>Precio por Metro:</span>
-              <strong class="text-indigo-600 font-bold">$${(p.priceMeterUsd || 0).toFixed(2)} (${priceMeterBs.toFixed(2)} Bs)</strong>
-            </div>
-
-            <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition flex items-center justify-center gap-1">
-              <i data-lucide="ruler" class="w-3.5 h-3.5"></i> Vender Metros
-            </button>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-indigo-600 font-bold">Precio/m: $${(p.priceMeterUsd || 0).toFixed(2)}</div>
+            <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Vender Metros</button>
           `;
         } else {
-          const priceBs = (p.priceUnitUsd || 0) * bcvRate;
-          const stockU = typeof p.stockUnits === 'number' ? p.stockUnits : 0;
-          const categoryColors = {
-            medicamento: 'bg-pink-50 text-pink-600',
-            talabarteria: 'bg-amber-50 text-amber-700',
-            ferreteria: 'bg-blue-50 text-blue-600'
-          };
-          const badgeClass = categoryColors[p.type] || 'bg-slate-100 text-slate-700';
-
           card.innerHTML = `
             <div>
-              <div class="flex justify-between items-start">
-                <span class="text-[10px] font-bold uppercase ${badgeClass} px-2 py-0.5 rounded-full">${p.type}</span>
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${stockU > 5 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}">
-                  ${stockU} Unid.
-                </span>
-              </div>
-              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name || ''}</h4>
-              <span class="text-[11px] font-semibold text-slate-500">${p.brand || 'Sin Marca'}</span>
+              <span class="text-[10px] font-bold uppercase bg-slate-100 px-2 py-0.5 rounded-full">${p.type}</span>
+              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
+              <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
             </div>
-
-            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs flex justify-between text-slate-600">
-              <span>Precio Unitario:</span>
-              <strong class="text-slate-900">$${(p.priceUnitUsd || 0).toFixed(2)} (${priceBs.toFixed(2)} Bs)</strong>
-            </div>
-
-            <button onclick="addStandardToCart('${p.id}')" class="w-full py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition flex items-center justify-center gap-1">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar al Carrito
-            </button>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs">Precio: <strong>$${(p.priceUnitUsd || 0).toFixed(2)}</strong></div>
+            <button onclick="addStandardToCart('${p.id}')" class="w-full py-2 bg-slate-900 text-white rounded-xl text-xs font-bold">Agregar</button>
           `;
         }
         grid.appendChild(card);
@@ -2200,130 +1964,35 @@
     function renderInventoryTable() {
       const tbody = document.getElementById('inventory-table-body');
       if (!tbody) return;
-
-      const searchInput = document.getElementById('inventory-search');
-      const search = searchInput ? searchInput.value.toLowerCase() : '';
       tbody.innerHTML = '';
 
-      const filtered = (products || []).filter(p => {
-        if (!p) return false;
-        const pName = (p.name || '').toLowerCase();
-        const pBrand = (p.brand || '').toLowerCase();
-        const pType = (p.type || '').toLowerCase();
-        return pName.includes(search) || pBrand.includes(search) || pType.includes(search);
-      });
-
-      filtered.forEach(p => {
+      products.forEach(p => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/80 transition";
+        tr.className = "hover:bg-slate-50 transition";
+        const stockText = p.type === 'alimento' ? `${p.closedSacks || 0} sacos` : p.type === 'miscelaneos' ? `${(p.stockMeters || 0).toFixed(2)}m` : `${p.stockUnits || 0} unids`;
+        const priceText = p.type === 'alimento' ? `$${(p.priceSackUsd || 0).toFixed(2)}` : p.type === 'miscelaneos' ? `$${(p.priceMeterUsd || 0).toFixed(2)}/m` : `$${(p.priceUnitUsd || 0).toFixed(2)}`;
 
-        const pType = p.type || 'alimento';
-        const priceSack = typeof p.priceSackUsd === 'number' ? p.priceSackUsd : 0;
-        const priceKg = typeof p.priceKgUsd === 'number' ? p.priceKgUsd : 0;
-        const priceMeter = typeof p.priceMeterUsd === 'number' ? p.priceMeterUsd : 0;
-        const priceUnit = typeof p.priceUnitUsd === 'number' ? p.priceUnitUsd : 0;
-
-        if (pType === 'alimento') {
-          const sackWeight = p.sackWeightKg || 40;
-          const openKilos = p.openSackKilos || 0;
-          const openSacksCount = (openKilos / sackWeight).toFixed(2);
-
-          tr.innerHTML = `
-            <td class="p-4"><span class="px-2 py-0.5 bg-botalon-purple/10 text-botalon-purple rounded-md font-bold text-[10px] uppercase">Alimento</span></td>
-            <td class="p-4 font-bold text-slate-900">${p.name || ''}</td>
-            <td class="p-4"><span class="font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">${p.brand || 'Sin Marca'}</span></td>
-            <td class="p-4 text-center font-bold text-slate-800">${p.closedSacks || 0} Sacos</td>
-            <td class="p-4 text-center">
-              <div class="flex items-center justify-center gap-1">
-                <input type="number" step="0.01" value="${openSacksCount}" onchange="updateOpenSacks('${p.id}', this.value)" class="w-16 p-1 border border-slate-200 rounded-lg text-center font-bold text-botalon-purple focus:outline-none focus:border-botalon-purple bg-slate-50 text-xs">
-                <span class="text-[10px] text-slate-400">sacos</span>
-              </div>
-              <div class="text-[10px] text-slate-400 mt-0.5">(${openKilos.toFixed(1)} Kg)</div>
-            </td>
-            <td class="p-4 text-right">
-              <strong class="text-slate-800">$${priceSack.toFixed(2)}</strong>
-              <div class="text-[10px] text-slate-400">$${priceKg.toFixed(3)}/kg</div>
-            </td>
-            <td class="p-4 text-right">
-              <strong class="text-botalon-purple">${(priceKg * bcvRate).toFixed(2)} Bs/kg</strong>
-            </td>
-            <td class="p-4 text-center space-x-1">
-              <button onclick="editProduct('${p.id}')" class="p-1.5 text-slate-400 hover:text-slate-800"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-              <button onclick="deleteProduct('${p.id}')" class="p-1.5 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            </td>
-          `;
-        } else if (pType === 'miscelaneos') {
-          const stockM = typeof p.stockMeters === 'number' ? p.stockMeters : 0;
-          const priceBs = priceMeter * bcvRate;
-
-          tr.innerHTML = `
-            <td class="p-4"><span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-md font-bold text-[10px] uppercase">Misceláneos</span></td>
-            <td class="p-4 font-bold text-slate-900">${p.name || ''}</td>
-            <td class="p-4"><span class="font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">${p.brand || 'Sin Marca'}</span></td>
-            <td class="p-4 text-center font-bold text-slate-800">${stockM.toFixed(2)} Metros</td>
-            <td class="p-4 text-center text-slate-400 font-medium">N/A</td>
-            <td class="p-4 text-right">
-              <strong class="text-slate-800">$${priceMeter.toFixed(2)} /m</strong>
-            </td>
-            <td class="p-4 text-right font-bold text-indigo-600">
-              ${priceBs.toFixed(2)} Bs/m
-            </td>
-            <td class="p-4 text-center space-x-1">
-              <button onclick="editProduct('${p.id}')" class="p-1.5 text-slate-400 hover:text-slate-800"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-              <button onclick="deleteProduct('${p.id}')" class="p-1.5 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            </td>
-          `;
-        } else {
-          const stockU = typeof p.stockUnits === 'number' ? p.stockUnits : 0;
-          const priceBs = priceUnit * bcvRate;
-          const categoryColors = {
-            medicamento: 'bg-pink-50 text-pink-600',
-            talabarteria: 'bg-amber-50 text-amber-700',
-            ferreteria: 'bg-blue-50 text-blue-600'
-          };
-          const badgeClass = categoryColors[pType] || 'bg-slate-100 text-slate-700';
-
-          tr.innerHTML = `
-            <td class="p-4"><span class="px-2 py-0.5 rounded-md font-bold text-[10px] uppercase ${badgeClass}">${pType}</span></td>
-            <td class="p-4 font-bold text-slate-900">${p.name || ''}</td>
-            <td class="p-4"><span class="font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">${p.brand || 'Sin Marca'}</span></td>
-            <td class="p-4 text-center font-bold text-slate-800">${stockU} Unid.</td>
-            <td class="p-4 text-center text-slate-400 font-medium">N/A</td>
-            <td class="p-4 text-right">
-              <strong class="text-slate-800">$${priceUnit.toFixed(2)}</strong>
-            </td>
-            <td class="p-4 text-right font-bold text-slate-900">
-              ${priceBs.toFixed(2)} Bs
-            </td>
-            <td class="p-4 text-center space-x-1">
-              <button onclick="editProduct('${p.id}')" class="p-1.5 text-slate-400 hover:text-slate-800"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-              <button onclick="deleteProduct('${p.id}')" class="p-1.5 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            </td>
-          `;
-        }
-
+        tr.innerHTML = `
+          <td class="p-4 uppercase font-bold text-[10px]">${p.type}</td>
+          <td class="p-4 font-bold">${p.name}</td>
+          <td class="p-4 text-slate-600">${p.brand || 'N/A'}</td>
+          <td class="p-4 text-center font-bold">${stockText}</td>
+          <td class="p-4 text-center">${p.type === 'alimento' ? `${(p.openSackKilos || 0).toFixed(1)} Kg` : 'N/A'}</td>
+          <td class="p-4 text-right font-bold">${priceText}</td>
+          <td class="p-4 text-right font-bold text-botalon-purple">${(parseFloat(p.priceSackUsd || p.priceUnitUsd || p.priceMeterUsd || 0) * bcvRate).toFixed(2)} Bs</td>
+          <td class="p-4 text-center space-x-1">
+            <button onclick="editProduct('${p.id}')" class="text-slate-400 hover:text-slate-800">Editar</button>
+            <button onclick="deleteProduct('${p.id}')" class="text-red-500">Eliminar</button>
+          </td>
+        `;
         tbody.appendChild(tr);
       });
-
-      if (window.lucide) lucide.createIcons();
     }
 
     function openProductModal() {
       document.getElementById('prod-id').value = '';
-      document.getElementById('form-type').value = 'alimento';
       document.getElementById('form-name').value = '';
       document.getElementById('form-brand').value = '';
-      document.getElementById('form-sack-weight').value = "40";
-      document.getElementById('form-sack-stock').value = "10";
-      document.getElementById('form-open-sacks').value = "0";
-      document.getElementById('form-price-sack').value = "25.00";
-      document.getElementById('form-price-kg').value = "0.625";
-      document.getElementById('form-med-stock').value = "1";
-      document.getElementById('form-med-price').value = "5.00";
-      document.getElementById('form-misc-meters').value = "100";
-      document.getElementById('form-misc-price-meter').value = "1.50";
-      document.getElementById('form-std-stock').value = "10";
-      document.getElementById('form-std-price').value = "15.00";
       document.getElementById('modal-prod-title').innerText = 'Registrar Producto';
       toggleProductCategoryFields();
       document.getElementById('modal-product').classList.remove('hidden');
@@ -2332,231 +2001,134 @@
     function closeProductModal() { document.getElementById('modal-product').classList.add('hidden'); }
 
     function editProduct(id) {
-      const p = products.find(prod => prod && prod.id === id);
+      const p = products.find(prod => prod.id === id);
       if (!p) return;
       document.getElementById('prod-id').value = p.id;
-      document.getElementById('form-type').value = p.type || 'alimento';
-      document.getElementById('form-name').value = p.name || '';
+      document.getElementById('form-type').value = p.type;
+      document.getElementById('form-name').value = p.name;
       document.getElementById('form-brand').value = p.brand || '';
       toggleProductCategoryFields();
-
-      if (p.type === 'alimento') {
-        document.getElementById('form-sack-weight').value = p.sackWeightKg || 40;
-        document.getElementById('form-sack-stock').value = p.closedSacks || 0;
-        document.getElementById('form-open-sacks').value = ((p.openSackKilos || 0) / (p.sackWeightKg || 40)).toFixed(2);
-        document.getElementById('form-price-sack').value = p.priceSackUsd || 0;
-        document.getElementById('form-price-kg').value = p.priceKgUsd || 0;
-      } else if (p.type === 'medicamento') {
-        document.getElementById('form-med-stock').value = p.stockUnits || 0;
-        document.getElementById('form-med-price').value = p.priceUnitUsd || 0;
-      } else if (p.type === 'miscelaneos') {
-        document.getElementById('form-misc-meters').value = p.stockMeters || 0;
-        document.getElementById('form-misc-price-meter').value = p.priceMeterUsd || 0;
-      } else if (p.type === 'talabarteria' || p.type === 'ferreteria') {
-        document.getElementById('form-std-stock').value = p.stockUnits || 0;
-        document.getElementById('form-std-price').value = p.priceUnitUsd || 0;
-      }
-
       document.getElementById('modal-prod-title').innerText = 'Editar Producto';
       document.getElementById('modal-product').classList.remove('hidden');
     }
 
     function saveProductDirect(e) {
-      if (e) { e.preventDefault(); e.stopPropagation(); }
-      const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-      const getNum = (id, fallback = 0) => { const el = document.getElementById(id); if (!el) return fallback; const val = parseFloat(el.value); return isNaN(val) ? fallback : val; };
+      if (e) e.preventDefault();
+      const id = document.getElementById('prod-id').value;
+      const type = document.getElementById('form-type').value;
+      const name = document.getElementById('form-name').value.trim();
+      const brand = document.getElementById('form-brand').value.trim();
 
-      const id = getVal('prod-id');
-      const type = getVal('form-type') || 'alimento';
-      const name = getVal('form-name');
-      const brand = getVal('form-brand');
+      if (!name) return alert('Escriba el nombre del producto.');
 
-      if (!name) { alert('Por favor, escribe el nombre del producto.'); return; }
-
-      let newProduct = { id: id ? id : Date.now().toString(), type: type, name: name, brand: brand };
+      let newProduct = { id: id ? id : Date.now().toString(), type, name, brand };
 
       if (type === 'alimento') {
-        const sackWeightKg = getNum('form-sack-weight', 40);
-        const closedSacks = Math.round(getNum('form-sack-stock', 0));
-        const openSacksInput = getNum('form-open-sacks', 0);
-        const priceSackUsd = getNum('form-price-sack', 0);
-        let priceKgUsd = getNum('form-price-kg', 0);
-        if (priceKgUsd === 0 && priceSackUsd > 0 && sackWeightKg > 0) priceKgUsd = priceSackUsd / sackWeightKg;
-
-        newProduct.sackWeightKg = sackWeightKg;
-        newProduct.closedSacks = closedSacks;
-        newProduct.openSackKilos = openSacksInput * sackWeightKg;
-        newProduct.priceSackUsd = priceSackUsd;
-        newProduct.priceKgUsd = priceKgUsd;
-      } else if (type === 'medicamento') {
-        newProduct.stockUnits = Math.round(getNum('form-med-stock', 0));
-        newProduct.priceUnitUsd = getNum('form-med-price', 0);
+        newProduct.sackWeightKg = parseFloat(document.getElementById('form-sack-weight').value) || 40;
+        newProduct.closedSacks = parseInt(document.getElementById('form-sack-stock').value) || 0;
+        newProduct.openSackKilos = 0;
+        newProduct.priceSackUsd = parseFloat(document.getElementById('form-price-sack').value) || 0;
+        newProduct.priceKgUsd = parseFloat(document.getElementById('form-price-kg').value) || 0;
       } else if (type === 'miscelaneos') {
-        newProduct.stockMeters = getNum('form-misc-meters', 0);
-        newProduct.priceMeterUsd = getNum('form-misc-price-meter', 0);
-      } else if (type === 'talabarteria' || type === 'ferreteria') {
-        newProduct.stockUnits = Math.round(getNum('form-std-stock', 0));
-        newProduct.priceUnitUsd = getNum('form-std-price', 0);
+        newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
+        newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
+      } else {
+        newProduct.stockUnits = parseInt(document.getElementById('form-med-stock').value || document.getElementById('form-std-stock').value) || 0;
+        newProduct.priceUnitUsd = parseFloat(document.getElementById('form-med-price').value || document.getElementById('form-std-price').value) || 0;
       }
 
-      if (!products) products = [];
-      if (id) {
-        const index = products.findIndex(p => p && p.id === id);
-        if (index !== -1) products[index] = newProduct;
-        else products.push(newProduct);
-      } else { products.push(newProduct); }
-
-      saveData();
+      saveProductCloud(newProduct);
       closeProductModal();
-      renderInventoryTable();
-      renderPosGrid();
-      renderDashboard();
-      alert('¡Producto guardado exitosamente!');
+      alert('¡Producto guardado en la nube!');
     }
 
     function deleteProduct(id) {
-      if (confirm('¿Desea eliminar este producto del inventario?')) {
-        products = products.filter(p => p && p.id !== id);
-        saveData();
-        renderInventoryTable();
-        renderPosGrid();
-        renderDashboard();
-      }
+      if (confirm('¿Eliminar producto?')) deleteProductCloud(id);
     }
 
     function addStandardToCart(id) {
-      const p = products.find(prod => prod && prod.id === id);
-      if (!p || (p.stockUnits || 0) <= 0) { alert('Sin stock disponible para este producto.'); return; }
-      cart.push({ productId: p.id, name: `${p.name} (${p.brand || 'Sin Marca'})`, type: p.type, quantity: 1, totalUsd: p.priceUnitUsd || 0, totalBs: (p.priceUnitUsd || 0) * bcvRate });
+      const p = products.find(prod => prod.id === id);
+      if (!p || (p.stockUnits || 0) <= 0) return alert('Sin stock disponible.');
+      cart.push({ productId: p.id, name: `${p.name} (${p.brand || ''})`, type: p.type, totalUsd: p.priceUnitUsd || 0, totalBs: (p.priceUnitUsd || 0) * bcvRate });
       renderCartUI();
     }
 
     function openCalcModal(productId) {
-      currentCalcProduct = products.find(p => p && p.id === productId);
+      currentCalcProduct = products.find(p => p.id === productId);
       if (!currentCalcProduct) return;
-      document.getElementById('calc-prod-name').innerText = `${currentCalcProduct.name} (${currentCalcProduct.brand || 'Sin Marca'})`;
+      document.getElementById('calc-prod-name').innerText = currentCalcProduct.name;
       
       if (currentCalcProduct.type === 'alimento') {
         document.getElementById('calc-food-body').classList.remove('hidden');
         document.getElementById('calc-meter-body').classList.add('hidden');
-        document.getElementById('calc-prod-details').innerText = `Saco de ${currentCalcProduct.sackWeightKg || 40} Kg - Tasa: ${bcvRate.toFixed(2)} Bs/$`;
-        const priceKgBs = (currentCalcProduct.priceKgUsd || 0) * bcvRate;
-        document.getElementById('calc-ref-sack').innerText = `$${(currentCalcProduct.priceSackUsd || 0).toFixed(2)}`;
-        document.getElementById('calc-ref-kg').innerText = `${priceKgBs.toFixed(2)} Bs/kg`;
         document.getElementById('input-grams').value = 1000;
         switchCalcMode('weight');
         handleGramCalc('grams');
-      } else if (currentCalcProduct.type === 'miscelaneos') {
+      } else {
         document.getElementById('calc-food-body').classList.add('hidden');
         document.getElementById('calc-meter-body').classList.remove('hidden');
-        document.getElementById('calc-prod-details').innerText = `Precio Metro: $${(currentCalcProduct.priceMeterUsd || 0).toFixed(2)} USD - Stock: ${(currentCalcProduct.stockMeters || 0).toFixed(2)}m`;
         document.getElementById('input-meters').value = 1;
         handleMeterCalc();
       }
-
       document.getElementById('modal-calc').classList.remove('hidden');
     }
 
     function closeCalcModal() { document.getElementById('modal-calc').classList.add('hidden'); }
 
     function switchCalcMode(mode) {
-      currentCalcMode = mode;
       if (mode === 'weight') {
         document.getElementById('calc-mode-weight').classList.remove('hidden');
         document.getElementById('calc-mode-money').classList.add('hidden');
-        document.getElementById('tab-calc-weight').className = "py-2.5 px-3 rounded-xl font-bold bg-botalon-purple text-white";
-        document.getElementById('tab-calc-money').className = "py-2.5 px-3 rounded-xl font-bold bg-slate-100 text-slate-500";
       } else {
         document.getElementById('calc-mode-weight').classList.add('hidden');
         document.getElementById('calc-mode-money').classList.remove('hidden');
-        document.getElementById('tab-calc-money').className = "py-2.5 px-3 rounded-xl font-bold bg-botalon-purple text-white";
-        document.getElementById('tab-calc-weight').className = "py-2.5 px-3 rounded-xl font-bold bg-slate-100 text-slate-500";
       }
     }
 
     function handleGramCalc(source) {
-      if (!currentCalcProduct || currentCalcProduct.type !== 'alimento') return;
-      const priceKgBs = (currentCalcProduct.priceKgUsd || 0) * bcvRate;
-      let grams = 0, kilos = 0, totalBs = 0, totalUsd = 0;
+      if (!currentCalcProduct) return;
+      let kilos = 0, totalUsd = 0;
+      if (source === 'grams') kilos = (parseFloat(document.getElementById('input-grams').value) || 0) / 1000;
+      else if (source === 'kilos') kilos = parseFloat(document.getElementById('input-kilos').value) || 0;
+      else if (source === 'usd') totalUsd = parseFloat(document.getElementById('input-usd').value) || 0;
 
-      if (source === 'grams') {
-        grams = parseFloat(document.getElementById('input-grams').value) || 0;
-        kilos = grams / 1000;
-        document.getElementById('input-kilos').value = kilos ? kilos.toFixed(3) : '';
-        document.getElementById('input-sacks').value = kilos ? (kilos / (currentCalcProduct.sackWeightKg || 40)).toFixed(2) : '';
-      } else if (source === 'kilos') {
-        kilos = parseFloat(document.getElementById('input-kilos').value) || 0;
-        grams = kilos * 1000;
-        document.getElementById('input-grams').value = grams ? Math.round(grams) : '';
-        document.getElementById('input-sacks').value = kilos ? (kilos / (currentCalcProduct.sackWeightKg || 40)).toFixed(2) : '';
-      } else if (source === 'sacks') {
-        const sacks = parseFloat(document.getElementById('input-sacks').value) || 0;
-        kilos = sacks * (currentCalcProduct.sackWeightKg || 40);
-        grams = kilos * 1000;
-        document.getElementById('input-grams').value = grams ? Math.round(grams) : '';
-        document.getElementById('input-kilos').value = kilos ? kilos.toFixed(2) : '';
-      } else if (source === 'bs') {
-        totalBs = parseFloat(document.getElementById('input-bs').value) || 0;
-        totalUsd = totalBs / bcvRate;
-        document.getElementById('input-usd').value = totalUsd ? totalUsd.toFixed(2) : '';
-        kilos = priceKgBs > 0 ? (totalBs / priceKgBs) : 0;
-        grams = kilos * 1000;
-      } else if (source === 'usd') {
-        totalUsd = parseFloat(document.getElementById('input-usd').value) || 0;
-        totalBs = totalUsd * bcvRate;
-        document.getElementById('input-bs').value = totalBs ? totalBs.toFixed(2) : '';
-        kilos = (currentCalcProduct.priceKgUsd || 0) > 0 ? (totalUsd / currentCalcProduct.priceKgUsd) : 0;
-        grams = kilos * 1000;
-      }
-
-      if (source === 'grams' || source === 'kilos' || source === 'sacks') {
-        totalUsd = kilos * (currentCalcProduct.priceKgUsd || 0);
-        totalBs = totalUsd * bcvRate;
-      }
+      if (source === 'grams' || source === 'kilos') totalUsd = kilos * (currentCalcProduct.priceKgUsd || 0);
+      else kilos = (currentCalcProduct.priceKgUsd || 0) > 0 ? totalUsd / currentCalcProduct.priceKgUsd : 0;
 
       calculatedKilos = kilos;
       calculatedUsd = totalUsd;
-      document.getElementById('calc-res-weight').innerText = `${kilos.toFixed(3)} Kg (${Math.round(grams)} g)`;
-      document.getElementById('calc-res-bs').innerText = `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`;
+      document.getElementById('calc-res-weight').innerText = `${kilos.toFixed(3)} Kg`;
+      document.getElementById('calc-res-bs').innerText = `${(totalUsd * bcvRate).toFixed(2)} Bs`;
       document.getElementById('calc-res-usd').innerText = `$${totalUsd.toFixed(2)} USD`;
     }
 
     function handleMeterCalc() {
-      if (!currentCalcProduct || currentCalcProduct.type !== 'miscelaneos') return;
+      if (!currentCalcProduct) return;
       const meters = parseFloat(document.getElementById('input-meters').value) || 0;
       calculatedMeters = meters;
       calculatedUsd = meters * (currentCalcProduct.priceMeterUsd || 0);
-      const totalBs = calculatedUsd * bcvRate;
-
       document.getElementById('calc-meter-val').innerText = `${meters.toFixed(2)} m`;
-      document.getElementById('calc-meter-bs').innerText = `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`;
+      document.getElementById('calc-meter-bs').innerText = `${(calculatedUsd * bcvRate).toFixed(2)} Bs`;
       document.getElementById('calc-meter-usd').innerText = `$${calculatedUsd.toFixed(2)} USD`;
     }
 
     function confirmAddToCart() {
       if (!currentCalcProduct) return;
       if (currentCalcProduct.type === 'alimento') {
-        const kilos = calculatedKilos;
-        if (kilos <= 0) { alert('Ingrese una cantidad válida.'); return; }
-        const totalKilosStock = ((currentCalcProduct.closedSacks || 0) * (currentCalcProduct.sackWeightKg || 40)) + (currentCalcProduct.openSackKilos || 0);
-        if (kilos > totalKilosStock) { alert(`Stock insuficiente. Solo dispone de ${totalKilosStock.toFixed(2)} Kg en total.`); return; }
-        cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} (${currentCalcProduct.brand || 'Sin Marca'})`, type: 'bulk', kilos, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
-      } else if (currentCalcProduct.type === 'miscelaneos') {
-        const meters = calculatedMeters;
-        if (meters <= 0) { alert('Ingrese una cantidad de metros válida.'); return; }
-        if (meters > (currentCalcProduct.stockMeters || 0)) { alert(`Stock insuficiente. Solo dispone de ${(currentCalcProduct.stockMeters || 0).toFixed(2)} metros.`); return; }
-        cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} (${currentCalcProduct.brand || 'Sin Marca'})`, type: 'meters', meters, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
+        if (calculatedKilos <= 0) return alert('Cantidad inválida');
+        cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedKilos.toFixed(2)}kg]`, type: 'bulk', kilos: calculatedKilos, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
+      } else {
+        if (calculatedMeters <= 0) return alert('Metros inválidos');
+        cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedMeters.toFixed(2)}m]`, type: 'meters', meters: calculatedMeters, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
       }
-
       closeCalcModal();
       renderCartUI();
     }
 
-    function addFullSackToCart(productId) {
-      const p = products.find(prod => prod && prod.id === productId);
-      if (!p) return;
-      if ((p.closedSacks || 0) < 1) { alert('No quedan sacos cerrados enteros en existencia.'); return; }
-      cart.push({ productId: p.id, name: `${p.name} - ${p.brand || 'Sin Marca'} (Saco ${p.sackWeightKg || 40}kg)`, type: 'sack', kilos: p.sackWeightKg || 40, totalUsd: p.priceSackUsd || 0, totalBs: (p.priceSackUsd || 0) * bcvRate });
+    function addFullSackToCart(id) {
+      const p = products.find(prod => prod.id === id);
+      if (!p || (p.closedSacks || 0) < 1) return alert('No quedan sacos cerrados.');
+      cart.push({ productId: p.id, name: `${p.name} (Saco)`, type: 'sack', totalUsd: p.priceSackUsd || 0, totalBs: (p.priceSackUsd || 0) * bcvRate });
       renderCartUI();
     }
 
@@ -2564,37 +2136,22 @@
       const container = document.getElementById('cart-items');
       if (!container) return;
       container.innerHTML = '';
-
       if (cart.length === 0) {
         container.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs">El carrito está vacío</div>`;
       } else {
         cart.forEach((item, index) => {
-          const div = document.createElement('div');
-          div.className = "bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex justify-between items-center text-xs";
-          let subtext = '1 Unid.';
-          if (item.type === 'bulk') subtext = `${item.kilos.toFixed(3)} Kg (${Math.round(item.kilos * 1000)}g)`;
-          if (item.type === 'sack') subtext = '1 Saco Entero';
-          if (item.type === 'meters') subtext = `${item.meters.toFixed(2)} metros`;
-
-          div.innerHTML = `
-            <div>
-              <h5 class="font-bold text-slate-800">${item.name}</h5>
-              <span class="text-botalon-purple font-semibold text-[11px]">${subtext}</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="text-right">
-                <div class="font-bold text-slate-900">${(item.totalBs || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs</div>
-                <div class="text-[10px] text-slate-400">$${(item.totalUsd || 0).toFixed(2)}</div>
+          container.innerHTML += `
+            <div class="bg-slate-50 border p-3 rounded-xl flex justify-between items-center text-xs">
+              <div><strong>${item.name}</strong></div>
+              <div class="flex items-center gap-3">
+                <span>$${item.totalUsd.toFixed(2)}</span>
+                <button onclick="removeFromCart(${index})" class="text-red-500 font-bold">X</button>
               </div>
-              <button onclick="removeFromCart(${index})" class="text-slate-400 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
           `;
-          container.appendChild(div);
         });
       }
-
       updateCartTotals();
-      if (window.lucide) lucide.createIcons();
     }
 
     function removeFromCart(index) { cart.splice(index, 1); renderCartUI(); }
@@ -2602,124 +2159,10 @@
 
     function updateCartTotals() {
       const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
-      const totalBs = totalUsd * bcvRate;
       setSafeText('cart-subtotal-usd', `$${totalUsd.toFixed(2)}`);
-      setSafeText('cart-total-bs', `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
+      setSafeText('cart-total-bs', `${(totalUsd * bcvRate).toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`);
       setSafeText('cart-total-usd', `$${totalUsd.toFixed(2)} USD`);
     }
-
-    function updateOpenSacks(productId, newSackVal) {
-      const p = products.find(prod => prod && prod.id === productId);
-      if (!p) return;
-      const numSacks = parseFloat(newSackVal) || 0;
-      p.openSackKilos = numSacks * (p.sackWeightKg || 40);
-
-      saveData();
-      renderInventoryTable();
-      renderPosGrid();
-      renderDashboard();
-    }
   </script>
-<!-- ... Todo el contenido y etiquetas de tu página web ... -->
-
-    <!-- Configuración e Integración de Firebase en El Botalón -->
-   <!-- Módulo Integrado de Firestore para El Botalón -->
-<!-- Módulo Integrado de Firestore con Interfaz de El Botalón -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    deleteDoc, 
-    doc, 
-    onSnapshot, 
-    serverTimestamp 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-  // 1. Configuración de Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
-    authDomain: "el-botalon-c9f2b.firebaseapp.com",
-    projectId: "el-botalon-c9f2b",
-    storageBucket: "el-botalon-c9f2b.firebasestorage.app",
-    messagingSenderId: "555179106001",
-    appId: "1:555179106001:web:a310342b0c180781f12ff0",
-    measurementId: "G-78J3H1CQ3X"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const productosRef = collection(db, "productos");
-
-  // 2. Vincular el formulario de la página para GUARDAR
-  const formulario = document.querySelector("form");
-  if (formulario) {
-    formulario.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      
-      // Obtener valores de las cajas de texto de tu HTML
-      const nombreInput = document.querySelector("#nombre") || document.querySelector("input[type='text']");
-      const cantidadInput = document.querySelector("#cantidad") || document.querySelector("input[type='number']");
-      const precioInput = document.querySelector("#precio");
-
-      if (nombreInput && cantidadInput) {
-        try {
-          await addDoc(productosRef, {
-            nombre: nombreInput.value,
-            cantidad: Number(cantidadInput.value),
-            precio: precioInput ? Number(precioInput.value) : 0,
-            creado: serverTimestamp()
-          });
-
-          // Limpiar formulario tras guardar
-          formulario.reset();
-          console.log("¡Producto guardado e integrado a la pantalla!");
-        } catch (error) {
-          console.error("Error al guardar:", error);
-        }
-      }
-    });
-  }
-
-  // 3. Vincular la tabla/lista en tiempo real para MOSTRAR y ELIMINAR
-  onSnapshot(productosRef, (snapshot) => {
-    const tablaCuerpo = document.querySelector("tbody") || document.querySelector("#lista-productos");
-    
-    if (tablaCuerpo) {
-      tablaCuerpo.innerHTML = ""; // Limpiar tabla antes de renderizar
-      
-      snapshot.forEach((docSnapshot) => {
-        const producto = docSnapshot.data();
-        const id = docSnapshot.id;
-
-        const fila = document.createElement("tr");
-        fila.innerHTML = `
-          <td class="p-2 border-b">${producto.nombre || ''}</td>
-          <td class="p-2 border-b">${producto.cantidad || 0}</td>
-          <td class="p-2 border-b">$${producto.precio || 0}</td>
-          <td class="p-2 border-b text-center">
-            <button data-id="${id}" class="btn-eliminar bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-              Eliminar
-            </button>
-          </td>
-        `;
-        tablaCuerpo.appendChild(fila);
-      });
-
-      // Agregar eventos a los botones de eliminar generados
-      document.querySelectorAll(".btn-eliminar").forEach((boton) => {
-        boton.addEventListener("click", async (e) => {
-          const id = e.target.getAttribute("data-id");
-          if (confirm("¿Deseas eliminar este producto del inventario?")) {
-            await deleteDoc(doc(db, "productos", id));
-          }
-        });
-      });
-    }
-  });
-
-  console.log("¡Todas las funciones vinculadas con el formulario y tabla!");
-    </script>
-  </body>
+</body>
 </html>
