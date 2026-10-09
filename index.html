@@ -2620,5 +2620,31 @@
       renderDashboard();
     }
   </script>
-</body>
+<!-- ... Todo el contenido y etiquetas de tu página web ... -->
+
+    <!-- Configuración e Integración de Firebase en El Botalón -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      // Tus claves reales de Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
+        authDomain: "el-botalon-c9f2b.firebaseapp.com",
+        projectId: "el-botalon-c9f2b",
+        storageBucket: "el-botalon-c9f2b.firebasestorage.app",
+        messagingSenderId: "555179106001",
+        appId: "1:555179106001:web:a310342b0c180781f12ff0",
+        measurementId: "G-78J3H1CQ3X"
+      };
+
+      // Inicializar Firebase y Firestore
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // Hacer la base de datos accesible globalmente
+      window.db = db;
+      console.log("¡Firebase conectado exitosamente a El Botalón!");
+    </script>
+  </body>
 </html>
