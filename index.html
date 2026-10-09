@@ -2712,6 +2712,63 @@
       await setDoc(configRef, { bcvRate: Number(nuevaTasa) }, { merge: true });
     }
   };
+// Conexión para guardar en la nube
+  window.dbSync = {
+    async guardarProducto(producto) {
+      if (producto.id) {
+        await setDoc(doc(db, "inventario", String(producto.id)), producto, { merge: true });
+      } else {
+        await addDoc(inventarioRef, producto);
+      }
+    },
+    async eliminarProducto(id) {
+      await deleteDoc(doc(db, "inventario", String(id)));
+    },
+    async registrarVenta(venta) {
+      await addDoc(ventasRef, venta);
+    },
+    async guardarDeudor(deudor) {
+      await setDoc(doc(db, "deudores", String(deudor.id || Date.now())), deudor, { merge: true });
+    },
+    async actualizarTasaBCV(nuevaTasa) {
+      await setDoc(configRef, { bcvRate: Number(nuevaTasa) }, { merge: true });
+    }
+  };
+
+  // Interceptores para conectar las acciones del usuario con Firebase
+  const originalSaveProduct = window.saveProduct;
+  window.saveProduct = async function(event) {
+    if (originalSaveProduct) originalSaveProduct(event);
+    if (window.products && window.products.length > 0) {
+      const ultimoProducto = window.products[window.products.length - 1];
+      if (window.dbSync && window.dbSync.guardarProducto) {
+        await window.dbSync.guardarProducto(ultimoProducto);
+      }
+    }
+  };
+
+  const originalProcessSale = window.processSale;
+  window.processSale = async function() {
+    if (originalProcessSale) originalProcessSale();
+    if (window.sales && window.sales.length > 0) {
+      const ultimaVenta = window.sales[window.sales.length - 1];
+      if (window.dbSync && window.dbSync.registrarVenta) {
+        await window.dbSync.registrarVenta(ultimaVenta);
+      }
+    }
+  };
+
+  const originalEditBcvRate = window.editBcvRate;
+  window.editBcvRate = function() {
+    const nuevaTasa = prompt("Ingrese la nueva tasa BCV (Bs/$):", window.bcvRate || 42.50);
+    if (nuevaTasa && !isNaN(nuevaTasa)) {
+      window.bcvRate = parseFloat(nuevaTasa);
+      if (window.updateBcvUI) window.updateBcvUI();
+      if (window.dbSync && window.dbSync.actualizarTasaBCV) {
+        window.dbSync.actualizarTasaBCV(window.bcvRate);
+      }
+    }
+  };
 
   console.log("¡Sincronización de El Botalón lista!");
 </script>
