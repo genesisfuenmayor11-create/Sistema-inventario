@@ -2625,153 +2625,101 @@
     <!-- Configuración e Integración de Firebase en El Botalón -->
    <!-- Módulo Integrado de Firestore para El Botalón -->
 <!-- Módulo Integrado de Firestore con Interfaz de El Botalón -->
-<!-- Módulo de Sincronización en Tiempo Real con Firebase Firestore -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { 
     getFirestore, 
     collection, 
-    onSnapshot, 
-    doc, 
-    setDoc, 
     addDoc, 
-    deleteDoc 
+    deleteDoc, 
+    doc, 
+    onSnapshot, 
+    serverTimestamp 
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // Configuración de Firebase
+  // 1. Configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
     authDomain: "el-botalon-c9f2b.firebaseapp.com",
     projectId: "el-botalon-c9f2b",
     storageBucket: "el-botalon-c9f2b.firebasestorage.app",
     messagingSenderId: "555179106001",
-    appId: "1:555179106001:web:a310342b0c180781f12ff0"
+    appId: "1:555179106001:web:a310342b0c180781f12ff0",
+    measurementId: "G-78J3H1CQ3X"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const productosRef = collection(db, "productos");
 
-  // Colecciones de Firestore
-  const inventarioRef = collection(db, "inventario");
-  const ventasRef = collection(db, "ventas");
-  const deudoresRef = collection(db, "deudores");
-  const configRef = doc(db, "configuracion", "general");
+  // 2. Vincular el formulario de la página para GUARDAR
+  const formulario = document.querySelector("form");
+  if (formulario) {
+    formulario.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      // Obtener valores de las cajas de texto de tu HTML
+      const nombreInput = document.querySelector("#nombre") || document.querySelector("input[type='text']");
+      const cantidadInput = document.querySelector("#cantidad") || document.querySelector("input[type='number']");
+      const precioInput = document.querySelector("#precio");
 
-  // Escuchadores en Tiempo Real
-  onSnapshot(inventarioRef, (snapshot) => {
-    if (!snapshot.empty) {
-      window.products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      if (typeof window.renderInventoryTable === 'function') window.renderInventoryTable();
-      if (typeof window.renderPosGrid === 'function') window.renderPosGrid();
-      if (typeof window.renderDashboard === 'function') window.renderDashboard();
+      if (nombreInput && cantidadInput) {
+        try {
+          await addDoc(productosRef, {
+            nombre: nombreInput.value,
+            cantidad: Number(cantidadInput.value),
+            precio: precioInput ? Number(precioInput.value) : 0,
+            creado: serverTimestamp()
+          });
+
+          // Limpiar formulario tras guardar
+          formulario.reset();
+          console.log("¡Producto guardado e integrado a la pantalla!");
+        } catch (error) {
+          console.error("Error al guardar:", error);
+        }
+      }
+    });
+  }
+
+  // 3. Vincular la tabla/lista en tiempo real para MOSTRAR y ELIMINAR
+  onSnapshot(productosRef, (snapshot) => {
+    const tablaCuerpo = document.querySelector("tbody") || document.querySelector("#lista-productos");
+    
+    if (tablaCuerpo) {
+      tablaCuerpo.innerHTML = ""; // Limpiar tabla antes de renderizar
+      
+      snapshot.forEach((docSnapshot) => {
+        const producto = docSnapshot.data();
+        const id = docSnapshot.id;
+
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+          <td class="p-2 border-b">${producto.nombre || ''}</td>
+          <td class="p-2 border-b">${producto.cantidad || 0}</td>
+          <td class="p-2 border-b">$${producto.precio || 0}</td>
+          <td class="p-2 border-b text-center">
+            <button data-id="${id}" class="btn-eliminar bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+              Eliminar
+            </button>
+          </td>
+        `;
+        tablaCuerpo.appendChild(fila);
+      });
+
+      // Agregar eventos a los botones de eliminar generados
+      document.querySelectorAll(".btn-eliminar").forEach((boton) => {
+        boton.addEventListener("click", async (e) => {
+          const id = e.target.getAttribute("data-id");
+          if (confirm("¿Deseas eliminar este producto del inventario?")) {
+            await deleteDoc(doc(db, "productos", id));
+          }
+        });
+      });
     }
   });
 
-  onSnapshot(ventasRef, (snapshot) => {
-    if (!snapshot.empty) {
-      window.sales = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      if (typeof window.renderDashboard === 'function') window.renderDashboard();
-      if (typeof window.renderSalesHistory === 'function') window.renderSalesHistory();
-    }
-  });
-
-  onSnapshot(deudoresRef, (snapshot) => {
-    if (!snapshot.empty) {
-      window.debtors = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      if (typeof window.renderDebtors === 'function') window.renderDebtors();
-      if (typeof window.renderDashboard === 'function') window.renderDashboard();
-    }
-  });
-
-  onSnapshot(configRef, (docSnap) => {
-    if (docSnap.exists() && docSnap.data().bcvRate) {
-      window.bcvRate = docSnap.data().bcvRate;
-      if (typeof window.updateBcvUI === 'function') window.updateBcvUI();
-    }
-  });
-
-  // Conexión para guardar
-  window.dbSync = {
-    async guardarProducto(producto) {
-      if (producto.id) {
-        await setDoc(doc(db, "inventario", String(producto.id)), producto, { merge: true });
-      } else {
-        await addDoc(inventarioRef, producto);
-      }
-    },
-    async eliminarProducto(id) {
-      await deleteDoc(doc(db, "inventario", String(id)));
-    },
-    async registrarVenta(venta) {
-      await addDoc(ventasRef, venta);
-    },
-    async guardarDeudor(deudor) {
-      await setDoc(doc(db, "deudores", String(deudor.id || Date.now())), deudor, { merge: true });
-    },
-    async actualizarTasaBCV(nuevaTasa) {
-      await setDoc(configRef, { bcvRate: Number(nuevaTasa) }, { merge: true });
-    }
-  };
-// Conexión para guardar en la nube
-  window.dbSync = {
-    async guardarProducto(producto) {
-      if (producto.id) {
-        await setDoc(doc(db, "inventario", String(producto.id)), producto, { merge: true });
-      } else {
-        await addDoc(inventarioRef, producto);
-      }
-    },
-    async eliminarProducto(id) {
-      await deleteDoc(doc(db, "inventario", String(id)));
-    },
-    async registrarVenta(venta) {
-      await addDoc(ventasRef, venta);
-    },
-    async guardarDeudor(deudor) {
-      await setDoc(doc(db, "deudores", String(deudor.id || Date.now())), deudor, { merge: true });
-    },
-    async actualizarTasaBCV(nuevaTasa) {
-      await setDoc(configRef, { bcvRate: Number(nuevaTasa) }, { merge: true });
-    }
-  };
-
-  // Interceptores para conectar las acciones del usuario con Firebase
-  const originalSaveProduct = window.saveProduct;
-  window.saveProduct = async function(event) {
-    if (originalSaveProduct) originalSaveProduct(event);
-    if (window.products && window.products.length > 0) {
-      const ultimoProducto = window.products[window.products.length - 1];
-      if (window.dbSync && window.dbSync.guardarProducto) {
-        await window.dbSync.guardarProducto(ultimoProducto);
-      }
-    }
-  };
-
-  const originalProcessSale = window.processSale;
-  window.processSale = async function() {
-    if (originalProcessSale) originalProcessSale();
-    if (window.sales && window.sales.length > 0) {
-      const ultimaVenta = window.sales[window.sales.length - 1];
-      if (window.dbSync && window.dbSync.registrarVenta) {
-        await window.dbSync.registrarVenta(ultimaVenta);
-      }
-    }
-  };
-
-  const originalEditBcvRate = window.editBcvRate;
-  window.editBcvRate = function() {
-    const nuevaTasa = prompt("Ingrese la nueva tasa BCV (Bs/$):", window.bcvRate || 42.50);
-    if (nuevaTasa && !isNaN(nuevaTasa)) {
-      window.bcvRate = parseFloat(nuevaTasa);
-      if (window.updateBcvUI) window.updateBcvUI();
-      if (window.dbSync && window.dbSync.actualizarTasaBCV) {
-        window.dbSync.actualizarTasaBCV(window.bcvRate);
-      }
-    }
-  };
-
-
-  console.log("¡Sincronización de El Botalón lista!");
-</script>
+  console.log("¡Todas las funciones vinculadas con el formulario y tabla!");
+    </script>
   </body>
 </html>
