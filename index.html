@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>El Botalón - Control de Inventario y POS</title>
+  <title>Ramos Agroinsumos El Botalon - Control de Inventario y POS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -61,9 +61,9 @@
     <div>
       <div class="p-6 border-b border-slate-100 flex items-center justify-between">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 bg-gradient-to-tr from-botalon-purple to-botalon-pink rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-botalon-purple/20">E</div>
+          <div class="w-10 h-10 bg-gradient-to-tr from-botalon-purple to-botalon-pink rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-botalon-purple/20">R</div>
           <div>
-            <h1 class="font-extrabold text-xl tracking-tight text-slate-900 leading-none">El Botalón <span class="text-xs font-semibold px-2 py-0.5 bg-botalon-purple/10 text-botalon-purple rounded-full">Agro</span></h1>
+            <h1 class="font-extrabold text-sm tracking-tight text-slate-900 leading-tight">Ramos Agroinsumos <span class="text-botalon-purple">El Botalon</span></h1>
             <span class="text-[11px] text-slate-400 font-medium">Control & Punto de Venta</span>
           </div>
         </div>
@@ -470,8 +470,8 @@
       <!-- Área de Impresión del Ticket -->
       <div id="printable-ticket" class="space-y-3 font-mono text-xs">
         <div class="text-center border-b border-dashed border-slate-300 pb-3">
-          <h2 class="font-extrabold text-base text-slate-900 tracking-tight uppercase">EL BOTALÓN AGROPECUARIA</h2>
-          <p class="text-[10px] text-slate-500">Venta de Alimentos, Medicinas y Misceláneos</p>
+          <h2 class="font-extrabold text-sm text-slate-900 tracking-tight uppercase">RAMOS AGROINSUMOS EL BOTALON</h2>
+          <p class="text-[10px] text-slate-500">Venta de Insumos Agropecuarios</p>
           <p id="tkt-date" class="text-[10px] text-slate-400 mt-1">Fecha: --/--/----</p>
           <p id="tkt-id" class="text-[10px] font-bold text-slate-800">Ticket #: VEN-000000</p>
         </div>
@@ -498,7 +498,7 @@
         </div>
 
         <div class="text-center pt-3 border-t border-dashed border-slate-300 text-[10px] text-slate-400">
-          <p class="font-bold text-slate-700">¡Gracias por su compra en El Botalón!</p>
+          <p class="font-bold text-slate-700">¡Gracias por su compra en Ramos Agroinsumos El Botalon!</p>
           <p>Conserve este ticket para cualquier reclamo.</p>
         </div>
       </div>
@@ -1119,7 +1119,7 @@
         history: 'Historial de Ventas'
       };
       const titleEl = document.getElementById('page-title');
-      if (titleEl) titleEl.innerText = titles[tabId] || 'El Botalón';
+      if (titleEl) titleEl.innerText = titles[tabId] || 'Ramos Agroinsumos El Botalon';
       if (window.lucide) lucide.createIcons();
     }
 
