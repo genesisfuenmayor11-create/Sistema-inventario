@@ -2693,23 +2693,7 @@
     }
   });
 
- // Escuchar Tasa BCV desde Firebase (Reemplaza este bloque)
   onSnapshot(configRef, (docSnap) => {
-    if (docSnap.exists() && docSnap.data().bcvRate) {
-      const nuevaTasa = docSnap.data().bcvRate;
-      window.bcvRate = nuevaTasa;
-      
-      // Actualiza la variable interna global si existe
-      try { bcvRate = nuevaTasa; } catch(e) {}
-      
-      // Refresca la interfaz en pantalla
-      if (typeof updateBcvUI === 'function') {
-        updateBcvUI();
-      } else if (typeof window.updateBcvUI === 'function') {
-        window.updateBcvUI();
-      }
-    }
-  });
     if (docSnap.exists() && docSnap.data().bcvRate) {
       window.bcvRate = docSnap.data().bcvRate;
       if (typeof window.updateBcvUI === 'function') window.updateBcvUI();
