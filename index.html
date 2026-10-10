@@ -12,6 +12,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
     import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    // ✅ NUEVO: Importar funciones de autenticación
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
@@ -26,15 +28,73 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getFirestore(app);
+    // ✅ NUEVO: Inicializar Authentication
+    const auth = getAuth(app);
 
     window.db = db;
-    window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit };
+    window.auth = auth;
+    window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit, signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
     console.log("✅ Firebase inicializado correctamente");
 
-    if (window.initCloudApp) {
-      window.initCloudApp();
-    }
+    // ✅ NUEVO: Observar el estado de autenticación
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log(" Usuario autenticado:", user.email);
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        document.getElementById('user-email-display').innerText = user.email;
+        if (window.initCloudApp) window.initCloudApp();
+      } else {
+        console.log(" No hay usuario autenticado");
+        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('main-app').classList.add('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    });
+
+    // ✅ NUEVO: Función global para login
+    window.handleLogin = async function() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorDiv = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+
+      errorDiv.classList.add('hidden');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Entrando...';
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // El onAuthStateChanged se encargará de mostrar la app
+      } catch (error) {
+        console.error("❌ Error de login:", error);
+        let msg = 'Error al iniciar sesión';
+        if (error.code === 'auth/user-not-found') msg = 'Usuario no encontrado';
+        else if (error.code === 'auth/wrong-password') msg = 'Contraseña incorrecta';
+        else if (error.code === 'auth/invalid-email') msg = 'Email inválido';
+        else if (error.code === 'auth/too-many-requests') msg = 'Demasiados intentos. Intenta más tarde';
+        errorDiv.innerText = msg;
+        errorDiv.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Iniciar Sesión';
+      }
+    };
+
+    // ✅ NUEVO: Función global para cerrar sesión
+    window.handleLogout = async function() {
+      if (confirm('¿Seguro que deseas cerrar sesión?')) {
+        await signOut(auth);
+      }
+    };
+
+    // Permitir login con tecla Enter
+    window.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !document.getElementById('login-screen').classList.contains('hidden')) {
+        handleLogin();
+      }
+    });
   </script>
 
   <script>
@@ -83,390 +143,438 @@
     }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen flex flex-col md:flex-row antialiased">
+<body class="text-slate-800 min-h-screen antialiased">
 
-  <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col justify-between shadow-sm">
-    <div>
-      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 bg-gradient-to-tr from-botalon-purple to-botalon-pink rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-botalon-purple/20">R</div>
-          <div>
-            <h1 class="font-extrabold text-sm tracking-tight text-slate-900 leading-tight">Ramos Agroinsumos <span class="text-botalon-purple">El Botalon</span></h1>
-            <span class="text-[11px] text-slate-400 font-medium">Control & Punto de Venta</span>
-          </div>
-        </div>
-      </div>
-
-      <nav class="p-4 space-y-1.5">
-        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-botalon-purple bg-botalon-purple/10">
-          <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-          <span>Resumen General</span>
-        </button>
-        <button onclick="switchTab('pos')" id="nav-pos" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
-          <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-          <span>Vender</span>
-        </button>
-        <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
-          <i data-lucide="package" class="w-5 h-5"></i>
-          <span>Inventario & Precios</span>
-        </button>
-        <button onclick="switchTab('credits')" id="nav-credits" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
-          <i data-lucide="users" class="w-5 h-5"></i>
-          <span>Créditos / Deudores</span>
-        </button>
-        <button onclick="switchTab('history')" id="nav-history" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
-          <i data-lucide="receipt" class="w-5 h-5"></i>
-          <span>Historial de Ventas</span>
-        </button>
-      </nav>
-    </div>
-
-    <div class="p-4 m-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-      <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
-        <span class="font-medium text-slate-600 flex items-center gap-1">
-          <i data-lucide="coins" class="w-3.5 h-3.5 text-botalon-purple"></i> Tasa BCV
-        </span>
-        <button onclick="editBcvRate()" class="text-botalon-purple hover:underline font-bold text-[11px]">Editar</button>
-      </div>
-      <div class="flex items-baseline justify-between mt-1">
-        <span class="text-xs text-slate-400">1 USD =</span>
-        <span id="sidebar-bcv-rate" class="text-lg font-bold text-slate-900">42.50 Bs</span>
-      </div>
-    </div>
-  </aside>
-
-  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-    <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20 shadow-xs">
-      <h2 id="page-title" class="text-lg font-bold text-slate-900 tracking-tight">Resumen General</h2>
-      <div class="flex items-center space-x-2 sm:space-x-3">
-        <div class="hidden sm:flex bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-xs text-slate-600 font-medium items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>BCV:</span>
-          <strong id="topbar-bcv-rate" class="text-slate-900 font-bold">42.50 Bs/$</strong>
-        </div>
-        <button onclick="generatePeriodicReport('weekly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
-          <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-          <span class="hidden md:inline">Reporte</span> Semanal
-        </button>
-        <button onclick="generatePeriodicReport('monthly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
-          <i data-lucide="calendar" class="w-4 h-4"></i>
-          <span class="hidden md:inline">Reporte</span> Mensual
-        </button>
-        <button onclick="openReturnModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 transition flex items-center gap-1">
-          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-          <span>Devolución</span>
-        </button>
-        <button onclick="switchTab('pos')" class="bg-gradient-to-r from-botalon-purple to-botalon-pink text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-botalon-purple/20 hover:opacity-95 transition flex items-center gap-1.5">
-          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-          <span>+ Vender</span>
-        </button>
-      </div>
-    </header>
-
-    <section id="tab-dashboard" class="tab-content p-6 space-y-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+  <!-- ✅ NUEVO: PANTALLA DE LOGIN -->
+  <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-botalon-purple via-purple-700 to-botalon-pink flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6">
+      <div class="text-center space-y-3">
+        <div class="w-16 h-16 bg-gradient-to-tr from-botalon-purple to-botalon-pink rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-lg mx-auto">R</div>
         <div>
-          <h3 class="font-extrabold text-slate-900 text-sm">Fecha de Consulta del Resumen</h3>
-          <p class="text-xs text-slate-400">Seleccione el día en el calendario para calcular ventas y movimientos</p>
-        </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <div class="relative w-full sm:w-auto">
-            <input type="date" id="dash-date-picker" onchange="renderDashboard()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-botalon-purple w-full sm:w-auto">
-          </div>
-          <button onclick="setDashToday()" class="bg-botalon-purple/10 text-botalon-purple hover:bg-botalon-purple/20 px-3 py-2 rounded-xl text-xs font-bold transition">Hoy</button>
+          <h1 class="font-extrabold text-xl text-slate-900">Ramos Agroinsumos</h1>
+          <p class="text-botalon-purple font-bold">El Botalon</p>
+          <p class="text-xs text-slate-500 mt-1">Control & Punto de Venta</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        <div onclick="openMovementsModal('TODOS')" class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs cursor-pointer hover:border-botalon-purple transition group relative">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ventas Del Día (USD)</p>
-              <h3 id="dash-sales-usd" class="text-2xl font-black text-slate-900 mt-1">$0.00</h3>
-            </div>
-            <div class="p-3 bg-botalon-purple/10 text-botalon-purple rounded-xl group-hover:bg-botalon-purple group-hover:text-white transition"><i data-lucide="dollar-sign" class="w-5 h-5"></i></div>
-          </div>
-          <p id="dash-sales-bs" class="mt-2 text-xs font-semibold text-botalon-purple">Bs 0,00 equivalentes</p>
-          <span class="text-[10px] text-slate-400 mt-2 block font-medium group-hover:text-botalon-purple underline">Ver desglose del día →</span>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico</label>
+          <input type="email" id="login-email" placeholder="admin@elbotalon.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:border-botalon-purple focus:ring-2 focus:ring-botalon-purple/20">
         </div>
-        <div onclick="openMovementsModal('Efectivo Bs')" class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs bg-emerald-50/20 cursor-pointer hover:border-emerald-400 transition group relative">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Efectivo Bs. Entrado</p>
-              <h3 id="dash-cash-bs" class="text-2xl font-black text-emerald-700 mt-1">0,00 Bs</h3>
-            </div>
-            <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition"><i data-lucide="banknote" class="w-5 h-5"></i></div>
-          </div>
-          <p id="dash-cash-usd" class="mt-2 text-xs font-medium text-emerald-600">$0.00 USD aprox.</p>
-          <span class="text-[10px] text-emerald-600 mt-2 block font-medium underline">Ver desglose Efectivo Bs →</span>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Contraseña</label>
+          <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:border-botalon-purple focus:ring-2 focus:ring-botalon-purple/20">
         </div>
-        <div onclick="openMovementsModal('Efectivo Divisas ($)')" class="bg-white border border-teal-200 rounded-2xl p-5 shadow-xs bg-teal-50/20 cursor-pointer hover:border-teal-400 transition group relative">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-[10px] font-bold text-teal-600 uppercase tracking-wider">Efectivo Divisas ($)</p>
-              <h3 id="dash-cash-usd-divisa" class="text-2xl font-black text-teal-700 mt-1">$0.00</h3>
-            </div>
-            <div class="p-3 bg-teal-100 text-teal-600 rounded-xl group-hover:bg-teal-600 group-hover:text-white transition"><i data-lucide="wallet" class="w-5 h-5"></i></div>
-          </div>
-          <p id="dash-cash-divisa-bs" class="mt-2 text-xs font-medium text-teal-600">0,00 Bs equivalentes</p>
-          <span class="text-[10px] text-teal-600 mt-2 block font-medium underline">Ver desglose Divisas →</span>
-        </div>
-        <div onclick="openMovementsModal('Pago Móvil')" class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs bg-blue-50/20 cursor-pointer hover:border-blue-400 transition group relative">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Pago Móvil</p>
-              <h3 id="dash-pagomovil-bs" class="text-2xl font-black text-blue-700 mt-1">0,00 Bs</h3>
-            </div>
-            <div class="p-3 bg-blue-100 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition"><i data-lucide="iphone" class="w-5 h-5"></i></div>
-          </div>
-          <p id="dash-pagomovil-usd" class="mt-2 text-xs font-medium text-blue-600">$0.00 USD aprox.</p>
-          <span class="text-[10px] text-blue-600 mt-2 block font-medium underline">Ver desglose Pago Móvil →</span>
-        </div>
-        <div onclick="openMovementsModal('Punto de Venta')" class="bg-white border border-purple-200 rounded-2xl p-5 shadow-xs bg-purple-50/20 cursor-pointer hover:border-purple-400 transition group relative">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-[10px] font-bold text-purple-600 uppercase tracking-wider">Punto de Venta</p>
-              <h3 id="dash-punto-bs" class="text-2xl font-black text-purple-700 mt-1">0,00 Bs</h3>
-            </div>
-            <div class="p-3 bg-purple-100 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
-          </div>
-          <p id="dash-punto-usd" class="mt-2 text-xs font-medium text-purple-600">$0.00 USD aprox.</p>
-          <span class="text-[10px] text-purple-600 mt-2 block font-medium underline">Ver desglose Punto →</span>
-        </div>
-        <div onclick="openMovementsModal('BioPago')" class="bg-white border border-rose-200 rounded-2xl p-5 shadow-xs bg-rose-50/20 cursor-pointer hover:border-rose-400 transition group relative">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wider">BioPago</p>
-              <h3 id="dash-biopago-bs" class="text-2xl font-black text-rose-700 mt-1">0,00 Bs</h3>
-            </div>
-            <div class="p-3 bg-rose-100 text-rose-600 rounded-xl group-hover:bg-rose-600 group-hover:text-white transition"><i data-lucide="fingerprint" class="w-5 h-5"></i></div>
-          </div>
-          <p id="dash-biopago-usd" class="mt-2 text-xs font-medium text-rose-600">$0.00 USD aprox.</p>
-          <span class="text-[10px] text-rose-600 mt-2 block font-medium underline">Ver desglose BioPago →</span>
-        </div>
-        <div onclick="switchTab('credits')" class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs bg-amber-50/20 cursor-pointer hover:border-amber-400 transition group relative">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Cuentas por Cobrar Total</p>
-              <h3 id="dash-credit-total" class="text-2xl font-black text-amber-700 mt-1">$0.00</h3>
-            </div>
-            <div class="p-3 bg-amber-100 text-amber-600 rounded-xl group-hover:bg-amber-600 group-hover:text-white transition"><i data-lucide="user-x" class="w-5 h-5"></i></div>
-          </div>
-          <p id="dash-credit-debtors" class="mt-2 text-xs font-medium text-amber-600">0 deudores pendientes</p>
-          <span class="text-[10px] text-amber-600 mt-2 block font-medium underline">Ir a Cuentas por Cobrar →</span>
-        </div>
+        <div id="login-error" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs font-bold p-3 rounded-xl"></div>
+        <button id="login-btn" onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/30 hover:opacity-95 transition text-sm">
+          Iniciar Sesión
+        </button>
       </div>
 
-      <div class="bg-red-50/60 border border-red-200 rounded-2xl p-5 shadow-xs space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="p-2 bg-red-100 text-red-600 rounded-xl"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+      <p class="text-center text-[10px] text-slate-400">Sistema privado - Acceso restringido</p>
+    </div>
+  </div>
+
+  <!-- ✅ NUEVO: Toda la app original envuelta en un div con id="main-app" y clase "hidden" -->
+  <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row">
+
+    <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col justify-between shadow-sm">
+      <div>
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-tr from-botalon-purple to-botalon-pink rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-botalon-purple/20">R</div>
             <div>
-              <h3 class="font-extrabold text-slate-900 text-sm">Alerta de Stock Bajo ( Quedan 5 o menos )</h3>
-              <p class="text-xs text-red-600 font-medium">Productos por agotarse que requieren reposición inmediata</p>
+              <h1 class="font-extrabold text-sm tracking-tight text-slate-900 leading-tight">Ramos Agroinsumos <span class="text-botalon-purple">El Botalon</span></h1>
+              <span class="text-[11px] text-slate-400 font-medium">Control & Punto de Venta</span>
             </div>
           </div>
-          <button onclick="switchTab('inventory')" class="text-xs font-bold text-red-700 hover:underline">Gestionar Inventario →</button>
         </div>
-        <div id="low-stock-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+
+        <nav class="p-4 space-y-1.5">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-botalon-purple bg-botalon-purple/10">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            <span>Resumen General</span>
+          </button>
+          <button onclick="switchTab('pos')" id="nav-pos" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
+            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+            <span>Vender</span>
+          </button>
+          <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
+            <i data-lucide="package" class="w-5 h-5"></i>
+            <span>Inventario & Precios</span>
+          </button>
+          <button onclick="switchTab('credits')" id="nav-credits" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span>Créditos / Deudores</span>
+          </button>
+          <button onclick="switchTab('history')" id="nav-history" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
+            <i data-lucide="receipt" class="w-5 h-5"></i>
+            <span>Historial de Ventas</span>
+          </button>
+        </nav>
       </div>
 
-      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
-        <h3 class="font-bold text-slate-900 text-base mb-4">Últimas Ventas de la Fecha Seleccionada</h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead>
-              <tr class="text-slate-400 border-b border-slate-100">
-                <th class="pb-3 font-semibold">ID / Hora</th>
-                <th class="pb-3 font-semibold">Detalles</th>
-                <th class="pb-3 font-semibold text-center">Método</th>
-                <th class="pb-3 font-semibold text-right">Total USD</th>
-                <th class="pb-3 font-semibold text-right">Total Bs.</th>
-              </tr>
-            </thead>
-            <tbody id="dash-recent-sales" class="divide-y divide-slate-100 text-slate-700"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="tab-pos" class="tab-content p-6 hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-7 space-y-4">
-          <div class="relative">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
-            <input type="text" id="pos-search" oninput="renderPosGrid()" placeholder="Buscar por nombre, marca o categoría..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-botalon-purple shadow-xs">
+      <div class="p-4 space-y-3">
+        <div class="bg-slate-50 rounded-2xl border border-slate-200/80 p-4">
+          <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+            <span class="font-medium text-slate-600 flex items-center gap-1">
+              <i data-lucide="coins" class="w-3.5 h-3.5 text-botalon-purple"></i> Tasa BCV
+            </span>
+            <button onclick="editBcvRate()" class="text-botalon-purple hover:underline font-bold text-[11px]">Editar</button>
           </div>
-          <div id="pos-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1"></div>
+          <div class="flex items-baseline justify-between mt-1">
+            <span class="text-xs text-slate-400">1 USD =</span>
+            <span id="sidebar-bcv-rate" class="text-lg font-bold text-slate-900">42.50 Bs</span>
+          </div>
         </div>
+        <!-- ✅ NUEVO: Botón de cerrar sesión -->
+        <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition border border-red-200">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </aside>
 
-        <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between h-[calc(100vh-140px)] sticky top-20 shadow-xs">
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20 shadow-xs">
+        <h2 id="page-title" class="text-lg font-bold text-slate-900 tracking-tight">Resumen General</h2>
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <!-- ✅ NUEVO: Mostrar email del usuario -->
+          <div class="hidden sm:flex bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-xs text-slate-600 font-medium items-center gap-2">
+            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+            <span id="user-email-display" class="font-bold text-slate-700">usuario</span>
+          </div>
+          <div class="hidden sm:flex bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-xs text-slate-600 font-medium items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>BCV:</span>
+            <strong id="topbar-bcv-rate" class="text-slate-900 font-bold">42.50 Bs/$</strong>
+          </div>
+          <button onclick="generatePeriodicReport('weekly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+            <span class="hidden md:inline">Reporte</span> Semanal
+          </button>
+          <button onclick="generatePeriodicReport('monthly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span class="hidden md:inline">Reporte</span> Mensual
+          </button>
+          <button onclick="openReturnModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 transition flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span>Devolución</span>
+          </button>
+          <button onclick="switchTab('pos')" class="bg-gradient-to-r from-botalon-purple to-botalon-pink text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-botalon-purple/20 hover:opacity-95 transition flex items-center gap-1.5">
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            <span>+ Vender</span>
+          </button>
+        </div>
+      </header>
+
+      <section id="tab-dashboard" class="tab-content p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div>
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-3">
-              <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                <i data-lucide="shopping-cart" class="w-5 h-5 text-botalon-purple"></i> Ticket de Venta
-              </h3>
-              <button onclick="clearCart()" class="text-xs text-slate-400 hover:text-red-500 transition">Vaciar</button>
+            <h3 class="font-extrabold text-slate-900 text-sm">Fecha de Consulta del Resumen</h3>
+            <p class="text-xs text-slate-400">Seleccione el día en el calendario para calcular ventas y movimientos</p>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="relative w-full sm:w-auto">
+              <input type="date" id="dash-date-picker" onchange="renderDashboard()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-botalon-purple w-full sm:w-auto">
             </div>
-            <div id="cart-items" class="space-y-3 overflow-y-auto max-h-[250px] pr-1"></div>
+            <button onclick="setDashToday()" class="bg-botalon-purple/10 text-botalon-purple hover:bg-botalon-purple/20 px-3 py-2 rounded-xl text-xs font-bold transition">Hoy</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div onclick="openMovementsModal('TODOS')" class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs cursor-pointer hover:border-botalon-purple transition group relative">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ventas Del Día (USD)</p>
+                <h3 id="dash-sales-usd" class="text-2xl font-black text-slate-900 mt-1">$0.00</h3>
+              </div>
+              <div class="p-3 bg-botalon-purple/10 text-botalon-purple rounded-xl group-hover:bg-botalon-purple group-hover:text-white transition"><i data-lucide="dollar-sign" class="w-5 h-5"></i></div>
+            </div>
+            <p id="dash-sales-bs" class="mt-2 text-xs font-semibold text-botalon-purple">Bs 0,00 equivalentes</p>
+            <span class="text-[10px] text-slate-400 mt-2 block font-medium group-hover:text-botalon-purple underline">Ver desglose del día →</span>
+          </div>
+          <div onclick="openMovementsModal('Efectivo Bs')" class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs bg-emerald-50/20 cursor-pointer hover:border-emerald-400 transition group relative">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Efectivo Bs. Entrado</p>
+                <h3 id="dash-cash-bs" class="text-2xl font-black text-emerald-700 mt-1">0,00 Bs</h3>
+              </div>
+              <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+            </div>
+            <p id="dash-cash-usd" class="mt-2 text-xs font-medium text-emerald-600">$0.00 USD aprox.</p>
+            <span class="text-[10px] text-emerald-600 mt-2 block font-medium underline">Ver desglose Efectivo Bs →</span>
+          </div>
+          <div onclick="openMovementsModal('Efectivo Divisas ($)')" class="bg-white border border-teal-200 rounded-2xl p-5 shadow-xs bg-teal-50/20 cursor-pointer hover:border-teal-400 transition group relative">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] font-bold text-teal-600 uppercase tracking-wider">Efectivo Divisas ($)</p>
+                <h3 id="dash-cash-usd-divisa" class="text-2xl font-black text-teal-700 mt-1">$0.00</h3>
+              </div>
+              <div class="p-3 bg-teal-100 text-teal-600 rounded-xl group-hover:bg-teal-600 group-hover:text-white transition"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+            </div>
+            <p id="dash-cash-divisa-bs" class="mt-2 text-xs font-medium text-teal-600">0,00 Bs equivalentes</p>
+            <span class="text-[10px] text-teal-600 mt-2 block font-medium underline">Ver desglose Divisas →</span>
+          </div>
+          <div onclick="openMovementsModal('Pago Móvil')" class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs bg-blue-50/20 cursor-pointer hover:border-blue-400 transition group relative">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Pago Móvil</p>
+                <h3 id="dash-pagomovil-bs" class="text-2xl font-black text-blue-700 mt-1">0,00 Bs</h3>
+              </div>
+              <div class="p-3 bg-blue-100 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition"><i data-lucide="iphone" class="w-5 h-5"></i></div>
+            </div>
+            <p id="dash-pagomovil-usd" class="mt-2 text-xs font-medium text-blue-600">$0.00 USD aprox.</p>
+            <span class="text-[10px] text-blue-600 mt-2 block font-medium underline">Ver desglose Pago Móvil →</span>
+          </div>
+          <div onclick="openMovementsModal('Punto de Venta')" class="bg-white border border-purple-200 rounded-2xl p-5 shadow-xs bg-purple-50/20 cursor-pointer hover:border-purple-400 transition group relative">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] font-bold text-purple-600 uppercase tracking-wider">Punto de Venta</p>
+                <h3 id="dash-punto-bs" class="text-2xl font-black text-purple-700 mt-1">0,00 Bs</h3>
+              </div>
+              <div class="p-3 bg-purple-100 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
+            </div>
+            <p id="dash-punto-usd" class="mt-2 text-xs font-medium text-purple-600">$0.00 USD aprox.</p>
+            <span class="text-[10px] text-purple-600 mt-2 block font-medium underline">Ver desglose Punto →</span>
+          </div>
+          <div onclick="openMovementsModal('BioPago')" class="bg-white border border-rose-200 rounded-2xl p-5 shadow-xs bg-rose-50/20 cursor-pointer hover:border-rose-400 transition group relative">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wider">BioPago</p>
+                <h3 id="dash-biopago-bs" class="text-2xl font-black text-rose-700 mt-1">0,00 Bs</h3>
+              </div>
+              <div class="p-3 bg-rose-100 text-rose-600 rounded-xl group-hover:bg-rose-600 group-hover:text-white transition"><i data-lucide="fingerprint" class="w-5 h-5"></i></div>
+            </div>
+            <p id="dash-biopago-usd" class="mt-2 text-xs font-medium text-rose-600">$0.00 USD aprox.</p>
+            <span class="text-[10px] text-rose-600 mt-2 block font-medium underline">Ver desglose BioPago →</span>
+          </div>
+          <div onclick="switchTab('credits')" class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs bg-amber-50/20 cursor-pointer hover:border-amber-400 transition group relative">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Cuentas por Cobrar Total</p>
+                <h3 id="dash-credit-total" class="text-2xl font-black text-amber-700 mt-1">$0.00</h3>
+              </div>
+              <div class="p-3 bg-amber-100 text-amber-600 rounded-xl group-hover:bg-amber-600 group-hover:text-white transition"><i data-lucide="user-x" class="w-5 h-5"></i></div>
+            </div>
+            <p id="dash-credit-debtors" class="mt-2 text-xs font-medium text-amber-600">0 deudores pendientes</p>
+            <span class="text-[10px] text-amber-600 mt-2 block font-medium underline">Ir a Cuentas por Cobrar →</span>
+          </div>
+        </div>
+
+        <div class="bg-red-50/60 border border-red-200 rounded-2xl p-5 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="p-2 bg-red-100 text-red-600 rounded-xl"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+              <div>
+                <h3 class="font-extrabold text-slate-900 text-sm">Alerta de Stock Bajo ( Quedan 5 o menos )</h3>
+                <p class="text-xs text-red-600 font-medium">Productos por agotarse que requieren reposición inmediata</p>
+              </div>
+            </div>
+            <button onclick="switchTab('inventory')" class="text-xs font-bold text-red-700 hover:underline">Gestionar Inventario →</button>
+          </div>
+          <div id="low-stock-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+          <h3 class="font-bold text-slate-900 text-base mb-4">Últimas Ventas de la Fecha Seleccionada</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="text-slate-400 border-b border-slate-100">
+                  <th class="pb-3 font-semibold">ID / Hora</th>
+                  <th class="pb-3 font-semibold">Detalles</th>
+                  <th class="pb-3 font-semibold text-center">Método</th>
+                  <th class="pb-3 font-semibold text-right">Total USD</th>
+                  <th class="pb-3 font-semibold text-right">Total Bs.</th>
+                </tr>
+              </thead>
+              <tbody id="dash-recent-sales" class="divide-y divide-slate-100 text-slate-700"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-pos" class="tab-content p-6 hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 space-y-4">
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+              <input type="text" id="pos-search" oninput="renderPosGrid()" placeholder="Buscar por nombre, marca o categoría..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-botalon-purple shadow-xs">
+            </div>
+            <div id="pos-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1"></div>
           </div>
 
-          <div class="border-t border-slate-100 pt-4 space-y-3">
-            <div class="space-y-1.5 text-xs">
-              <div class="flex justify-between text-slate-500">
-                <span>Subtotal USD:</span>
-                <span id="cart-subtotal-usd" class="font-bold text-slate-800">$0.00</span>
-              </div>
-              <div class="flex justify-between text-slate-500">
-                <span>Tasa Aplicada (BCV):</span>
-                <span id="cart-bcv-rate" class="font-semibold text-botalon-purple">42.50 Bs/$</span>
-              </div>
-              <div class="flex justify-between text-base font-black text-slate-900 pt-2 border-t border-slate-100">
-                <span>TOTAL A COBRAR:</span>
-                <div class="text-right">
-                  <div id="cart-total-bs" class="text-botalon-purple text-lg font-black">0,00 Bs</div>
-                  <div id="cart-total-usd" class="text-xs text-slate-400 font-medium">$0.00 USD</div>
-                </div>
-              </div>
-            </div>
-
+          <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between h-[calc(100vh-140px)] sticky top-20 shadow-xs">
             <div>
-              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Método de Pago:</label>
-              <select id="cart-payment-method" onchange="handlePaymentMethodChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-botalon-purple">
-                <option value="Efectivo Bs">Efectivo Bolívares (Bs)</option>
-                <option value="Pago Móvil">Pago Móvil</option>
-                <option value="Punto de Venta">Punto de Venta</option>
-                <option value="BioPago">BioPago</option>
-                <option value="Zelle">Zelle</option>
-                <option value="Efectivo Divisas ($)">Efectivo Divisas ($)</option>
-                <option value="Crédito">A Crédito / Deudor</option>
-                <option value="Abono">Abono (Pago Parcial)</option>
-              </select>
+              <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                  <i data-lucide="shopping-cart" class="w-5 h-5 text-botalon-purple"></i> Ticket de Venta
+                </h3>
+                <button onclick="clearCart()" class="text-xs text-slate-400 hover:text-red-500 transition">Vaciar</button>
+              </div>
+              <div id="cart-items" class="space-y-3 overflow-y-auto max-h-[250px] pr-1"></div>
             </div>
 
-            <div id="credit-customer-input" class="hidden space-y-2 bg-amber-50/60 p-3 rounded-xl border border-amber-200">
+            <div class="border-t border-slate-100 pt-4 space-y-3">
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between text-slate-500">
+                  <span>Subtotal USD:</span>
+                  <span id="cart-subtotal-usd" class="font-bold text-slate-800">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                  <span>Tasa Aplicada (BCV):</span>
+                  <span id="cart-bcv-rate" class="font-semibold text-botalon-purple">42.50 Bs/$</span>
+                </div>
+                <div class="flex justify-between text-base font-black text-slate-900 pt-2 border-t border-slate-100">
+                  <span>TOTAL A COBRAR:</span>
+                  <div class="text-right">
+                    <div id="cart-total-bs" class="text-botalon-purple text-lg font-black">0,00 Bs</div>
+                    <div id="cart-total-usd" class="text-xs text-slate-400 font-medium">$0.00 USD</div>
+                  </div>
+                </div>
+              </div>
+
               <div>
-                <label class="block text-[11px] font-bold text-amber-800 mb-1">Seleccionar o Escribir Cliente:</label>
-                <select id="cart-debtor-select" onchange="autoFillDebtorPhone()" class="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-500 mb-1">
-                  <option value="">-- Cliente Nuevo --</option>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Método de Pago:</label>
+                <select id="cart-payment-method" onchange="handlePaymentMethodChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-botalon-purple">
+                  <option value="Efectivo Bs">Efectivo Bolívares (Bs)</option>
+                  <option value="Pago Móvil">Pago Móvil</option>
+                  <option value="Punto de Venta">Punto de Venta</option>
+                  <option value="BioPago">BioPago</option>
+                  <option value="Zelle">Zelle</option>
+                  <option value="Efectivo Divisas ($)">Efectivo Divisas ($)</option>
+                  <option value="Crédito">A Crédito / Deudor</option>
+                  <option value="Abono">Abono (Pago Parcial)</option>
                 </select>
-                <input type="text" id="cart-debtor-name" oninput="checkDebtorNameMatch()" placeholder="Nombre del Cliente" class="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-500">
               </div>
-              <div>
-                <label class="block text-[11px] font-bold text-amber-800 mb-1">Teléfono:</label>
-                <input type="text" id="cart-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-500">
-              </div>
-            </div>
 
-            <div id="abono-input" class="hidden space-y-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
-              <div>
-                <label class="block text-[11px] font-bold text-emerald-800 mb-1">Seleccionar o Escribir Deudor:</label>
-                <select id="abono-debtor-select" onchange="handleAbonoDebtorSelect()" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 mb-1">
-                  <option value="">-- Deudor Existente --</option>
-                  <option value="NUEVO">+ Nuevo Deudor</option>
-                </select>
-                <input type="text" id="abono-debtor-name" oninput="updateAbonoRemaining()" placeholder="Nombre del deudor (si es nuevo)" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 hidden">
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-emerald-800 mb-1">Teléfono (opcional):</label>
-                <input type="text" id="abono-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 hidden">
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-emerald-800 mb-1">Monto que Abona (USD):</label>
-                <input type="number" step="0.01" id="abono-amount" oninput="updateAbonoRemaining()" placeholder="0.00" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
-              </div>
-              <div class="bg-white p-2 rounded-lg border border-emerald-200">
-                <div class="flex justify-between text-xs">
-                  <span class="text-slate-600">Total Venta:</span>
-                  <span id="abono-total-sale" class="font-bold">$0.00</span>
+              <div id="credit-customer-input" class="hidden space-y-2 bg-amber-50/60 p-3 rounded-xl border border-amber-200">
+                <div>
+                  <label class="block text-[11px] font-bold text-amber-800 mb-1">Seleccionar o Escribir Cliente:</label>
+                  <select id="cart-debtor-select" onchange="autoFillDebtorPhone()" class="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-500 mb-1">
+                    <option value="">-- Cliente Nuevo --</option>
+                  </select>
+                  <input type="text" id="cart-debtor-name" oninput="checkDebtorNameMatch()" placeholder="Nombre del Cliente" class="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-500">
                 </div>
-                <div class="flex justify-between text-xs mt-1">
-                  <span class="text-slate-600">Monto Abonado:</span>
-                  <span id="abono-paid" class="font-bold text-emerald-600">$0.00</span>
-                </div>
-                <div class="flex justify-between text-xs mt-1 pt-1 border-t border-emerald-200">
-                  <span class="text-slate-600 font-bold">Restante a Crédito:</span>
-                  <span id="abono-remaining" class="font-bold text-amber-600">$0.00</span>
+                <div>
+                  <label class="block text-[11px] font-bold text-amber-800 mb-1">Teléfono:</label>
+                  <input type="text" id="cart-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-500">
                 </div>
               </div>
-            </div>
 
-            <button onclick="processSale()" class="w-full py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/20 hover:opacity-95 transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4"></i>
-              <span>Procesar Venta & Emitir Ticket</span>
+              <div id="abono-input" class="hidden space-y-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
+                <div>
+                  <label class="block text-[11px] font-bold text-emerald-800 mb-1">Seleccionar o Escribir Deudor:</label>
+                  <select id="abono-debtor-select" onchange="handleAbonoDebtorSelect()" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 mb-1">
+                    <option value="">-- Deudor Existente --</option>
+                    <option value="NUEVO">+ Nuevo Deudor</option>
+                  </select>
+                  <input type="text" id="abono-debtor-name" oninput="updateAbonoRemaining()" placeholder="Nombre del deudor (si es nuevo)" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 hidden">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-emerald-800 mb-1">Teléfono (opcional):</label>
+                  <input type="text" id="abono-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 hidden">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-emerald-800 mb-1">Monto que Abona (USD):</label>
+                  <input type="number" step="0.01" id="abono-amount" oninput="updateAbonoRemaining()" placeholder="0.00" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-emerald-200">
+                  <div class="flex justify-between text-xs">
+                    <span class="text-slate-600">Total Venta:</span>
+                    <span id="abono-total-sale" class="font-bold">$0.00</span>
+                  </div>
+                  <div class="flex justify-between text-xs mt-1">
+                    <span class="text-slate-600">Monto Abonado:</span>
+                    <span id="abono-paid" class="font-bold text-emerald-600">$0.00</span>
+                  </div>
+                  <div class="flex justify-between text-xs mt-1 pt-1 border-t border-emerald-200">
+                    <span class="text-slate-600 font-bold">Restante a Crédito:</span>
+                    <span id="abono-remaining" class="font-bold text-amber-600">$0.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <button onclick="processSale()" class="w-full py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/20 hover:opacity-95 transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span>Procesar Venta & Emitir Ticket</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-credits" class="tab-content p-6 space-y-6 hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h3 class="font-extrabold text-slate-900 text-lg">Cuentas por Cobrar & Deudores</h3>
+            <p class="text-xs text-slate-400">Carpetas de clientes con saldo pendiente de pago</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
+              <button id="btn-filter-pending" onclick="setDebtorFilter(true)" class="px-3 py-1.5 rounded-lg transition bg-amber-600 text-white shadow-xs">Deudas Pendientes</button>
+              <button id="btn-filter-all" onclick="setDebtorFilter(false)" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Ver Todos (Incl. Saldados)</button>
+            </div>
+            <button onclick="openNewDebtorModal()" class="bg-amber-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-700 transition flex items-center gap-2 shadow-xs">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span>+ Nueva Carpeta</span>
             </button>
           </div>
         </div>
-      </div>
-    </section>
+        <div id="debtors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
 
-    <section id="tab-credits" class="tab-content p-6 space-y-6 hidden">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h3 class="font-extrabold text-slate-900 text-lg">Cuentas por Cobrar & Deudores</h3>
-          <p class="text-xs text-slate-400">Carpetas de clientes con saldo pendiente de pago</p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
-            <button id="btn-filter-pending" onclick="setDebtorFilter(true)" class="px-3 py-1.5 rounded-lg transition bg-amber-600 text-white shadow-xs">Deudas Pendientes</button>
-            <button id="btn-filter-all" onclick="setDebtorFilter(false)" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Ver Todos (Incl. Saldados)</button>
+      <section id="tab-inventory" class="tab-content p-6 space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div class="relative w-full sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+            <input type="text" id="inventory-search" oninput="renderInventoryTable()" placeholder="Buscar en inventario..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-botalon-purple shadow-xs">
           </div>
-          <button onclick="openNewDebtorModal()" class="bg-amber-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-700 transition flex items-center gap-2 shadow-xs">
-            <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>+ Nueva Carpeta</span>
+          <button onclick="openProductModal()" class="w-full sm:w-auto bg-botalon-purple text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-botalon-purpleHover transition flex items-center justify-center gap-2 shadow-xs">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Nuevo Producto</span>
           </button>
         </div>
-      </div>
-      <div id="debtors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </section>
+        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200/80">
+                <tr>
+                  <th class="p-4 font-bold">Categoría</th>
+                  <th class="p-4 font-bold">Producto</th>
+                  <th class="p-4 font-bold">Marca</th>
+                  <th class="p-4 font-bold text-center">Stock / Existencia</th>
+                  <th class="p-4 font-bold text-center">Sacos Abiertos</th>
+                  <th class="p-4 font-bold text-right">Precio ($)</th>
+                  <th class="p-4 font-bold text-right">Precio Bs.</th>
+                  <th class="p-4 font-bold text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-    <section id="tab-inventory" class="tab-content p-6 space-y-4 hidden">
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
-        <div class="relative w-full sm:w-80">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
-          <input type="text" id="inventory-search" oninput="renderInventoryTable()" placeholder="Buscar en inventario..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-botalon-purple shadow-xs">
+      <section id="tab-history" class="tab-content p-6 space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <div>
+            <h3 class="font-extrabold text-slate-900 text-base">Historial Agrupado de Transacciones</h3>
+            <p class="text-xs text-slate-400">Seleccione un día específico o consulte todo el registro agrupado por fecha</p>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <input type="date" id="history-date-picker" onchange="renderSalesHistory()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-botalon-purple w-full sm:w-auto">
+            <button onclick="clearHistoryDateFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition">Ver Todos los Días</button>
+          </div>
         </div>
-        <button onclick="openProductModal()" class="w-full sm:w-auto bg-botalon-purple text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-botalon-purpleHover transition flex items-center justify-center gap-2 shadow-xs">
-          <i data-lucide="plus" class="w-4 h-4"></i>
-          <span>Nuevo Producto</span>
-        </button>
-      </div>
-      <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200/80">
-              <tr>
-                <th class="p-4 font-bold">Categoría</th>
-                <th class="p-4 font-bold">Producto</th>
-                <th class="p-4 font-bold">Marca</th>
-                <th class="p-4 font-bold text-center">Stock / Existencia</th>
-                <th class="p-4 font-bold text-center">Sacos Abiertos</th>
-                <th class="p-4 font-bold text-right">Precio ($)</th>
-                <th class="p-4 font-bold text-right">Precio Bs.</th>
-                <th class="p-4 font-bold text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="inventory-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+        <div id="history-container" class="space-y-4"></div>
+      </section>
+    </main>
+  </div>
 
-    <section id="tab-history" class="tab-content p-6 space-y-4 hidden">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h3 class="font-extrabold text-slate-900 text-base">Historial Agrupado de Transacciones</h3>
-          <p class="text-xs text-slate-400">Seleccione un día específico o consulte todo el registro agrupado por fecha</p>
-        </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <input type="date" id="history-date-picker" onchange="renderSalesHistory()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-botalon-purple w-full sm:w-auto">
-          <button onclick="clearHistoryDateFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition">Ver Todos los Días</button>
-        </div>
-      </div>
-      <div id="history-container" class="space-y-4"></div>
-    </section>
-  </main>
-
+  <!-- MODALES (igual que antes) -->
   <div id="modal-ticket" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeTicketModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -792,7 +900,6 @@
     </div>
   </div>
 
-  <!-- NUEVO MODAL: CREAR DEUDOR -->
   <div id="modal-new-debtor" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeNewDebtorModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -835,7 +942,6 @@
     let calculatedUsd = 0;
     let calculatedMeters = 0;
 
-    // ✅ CORRECCIÓN DE ZONA HORARIA: Ahora usa la hora local del navegador (Venezuela)
     function getYMDfromISO(isoString) {
       if (!isoString) return '';
       const d = new Date(isoString);
@@ -867,16 +973,6 @@
     window.onload = function() {
       const today = getTodayYMD();
       document.getElementById('dash-date-picker').value = today;
-
-      if (!window.db) {
-        console.warn("⚠️ Firebase no está inicializado aún");
-        renderDashboard();
-        renderPosGrid();
-        renderInventoryTable();
-        renderDebtorsGrid();
-        renderSalesHistory();
-        populateDebtorSelect();
-      }
       if (window.lucide) lucide.createIcons();
     };
 
@@ -902,7 +998,7 @@
         snapshot.forEach((docSnap) => {
           products.push({ id: docSnap.id, ...docSnap.data() });
         });
-        console.log("📦 Productos cargados:", products.length);
+        console.log(" Productos cargados:", products.length);
         renderInventoryTable();
         renderPosGrid();
         renderDashboard();
@@ -957,18 +1053,13 @@
     }
 
     async function saveDebtorCloud(debtor) {
-      if (!window.db) {
-        console.error("❌ Firebase no está inicializado");
-        return false;
-      }
+      if (!window.db) return false;
       try {
         const { doc, setDoc } = window.firebaseFns;
-        console.log("💾 Intentando guardar deudor:", debtor);
         await setDoc(doc(window.db, "deudores", debtor.id.toString()), debtor);
-        console.log("✅ Deudor guardado exitosamente en Firebase");
         return true;
       } catch (error) {
-        console.error("❌ Error al guardar deudor en Firebase:", error);
+        console.error("❌ Error al guardar deudor:", error);
         return false;
       }
     }
@@ -1633,7 +1724,6 @@
       document.getElementById('modal-new-debtor').classList.add('hidden');
     }
 
-    // ✅ FUNCIÓN DE GUARDADO MEJORADA CON ALERTAS CLARAS
     async function saveNewDebtor() {
       const name = document.getElementById('new-debtor-name').value.trim();
       const phone = document.getElementById('new-debtor-phone').value.trim();
@@ -1662,12 +1752,11 @@
         const { doc, setDoc } = window.firebaseFns;
         await setDoc(doc(window.db, "deudores", newDebtor.id), newDebtor);
         console.log("✅ Deudor guardado en Firebase");
-        
         closeNewDebtorModal();
         alert('✅ ¡Carpeta de cliente creada exitosamente!');
       } catch (error) {
         console.error("❌ Error detallado al guardar:", error);
-        alert('❌ Error al guardar: ' + error.message + '\n\nVerifica que las Reglas de Firestore estén en modo prueba (allow read, write: if true).');
+        alert('❌ Error al guardar: ' + error.message);
       }
     }
 
