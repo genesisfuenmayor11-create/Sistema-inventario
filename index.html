@@ -835,14 +835,15 @@
     let calculatedUsd = 0;
     let calculatedMeters = 0;
 
+    // ✅ CORRECCIÓN DE ZONA HORARIA: Ahora usa la hora local del navegador (Venezuela)
     function getYMDfromISO(isoString) {
-  if (!isoString) return '';
-  const d = new Date(isoString);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+      if (!isoString) return '';
+      const d = new Date(isoString);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
 
     function getTodayYMD() {
       const d = new Date();
@@ -955,7 +956,6 @@
       await setDoc(doc(window.db, "ventas", sale.id.toString()), sale);
     }
 
-    // ✅ FUNCIÓN CORREGIDA CON MANEJO DE ERRORES
     async function saveDebtorCloud(debtor) {
       if (!window.db) {
         console.error("❌ Firebase no está inicializado");
@@ -1633,13 +1633,18 @@
       document.getElementById('modal-new-debtor').classList.add('hidden');
     }
 
-    // ✅ FUNCIÓN CORREGIDA: Ahora es async y espera a que se guarde
+    // ✅ FUNCIÓN DE GUARDADO MEJORADA CON ALERTAS CLARAS
     async function saveNewDebtor() {
       const name = document.getElementById('new-debtor-name').value.trim();
       const phone = document.getElementById('new-debtor-phone').value.trim();
 
       if (!name) {
-        alert('Por favor escriba el nombre del cliente.');
+        alert('⚠️ Por favor escriba el nombre del cliente.');
+        return;
+      }
+
+      if (!window.db) {
+        alert('❌ Error: La base de datos no está conectada. Recarga la página.');
         return;
       }
 
@@ -1651,16 +1656,18 @@
         payments: []
       };
 
-      console.log("📝 Creando nuevo deudor:", newDebtor);
+      console.log("📝 Intentando crear deudor:", newDebtor);
 
-      // Esperamos a que Firebase confirme el guardado
-      const success = await saveDebtorCloud(newDebtor);
-      
-      if (success) {
+      try {
+        const { doc, setDoc } = window.firebaseFns;
+        await setDoc(doc(window.db, "deudores", newDebtor.id), newDebtor);
+        console.log("✅ Deudor guardado en Firebase");
+        
         closeNewDebtorModal();
-        alert('¡Carpeta de cliente creada exitosamente!');
-      } else {
-        alert('❌ Error al guardar la carpeta. Revisa la consola (F12) para ver el motivo.');
+        alert('✅ ¡Carpeta de cliente creada exitosamente!');
+      } catch (error) {
+        console.error("❌ Error detallado al guardar:", error);
+        alert('❌ Error al guardar: ' + error.message + '\n\nVerifica que las Reglas de Firestore estén en modo prueba (allow read, write: if true).');
       }
     }
 
