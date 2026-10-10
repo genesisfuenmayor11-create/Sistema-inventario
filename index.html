@@ -33,14 +33,28 @@
     window.auth = auth;
     window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit, signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
+    // ✅ SISTEMA DE ROLES: Edita aquí los emails y sus permisos
+    window.userRoles = {
+      "admin@elbotalon.com": "admin",
+      "inventario@elbotalon.com": "inventory"
+    };
+    window.defaultRole = "admin";
+
     console.log("✅ Firebase inicializado correctamente");
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log("✅ Usuario autenticado:", user.email);
+        window.currentUserEmail = user.email;
+        window.currentUserRole = window.userRoles[user.email] || window.defaultRole;
+        
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('main-app').classList.remove('hidden');
         document.getElementById('user-email-display').innerText = user.email;
+        document.getElementById('user-role-display').innerText = window.currentUserRole === 'admin' ? 'Administrador' : 'Solo Inventario';
+        
+        applyRoleRestrictions();
+        
         if (window.initCloudApp) window.initCloudApp();
       } else {
         document.getElementById('login-screen').classList.remove('hidden');
@@ -48,6 +62,63 @@
       }
       if (window.lucide) lucide.createIcons();
     });
+
+    window.applyRoleRestrictions = function() {
+      const role = window.currentUserRole;
+      const isAdmin = role === 'admin';
+      
+      console.log("🔒 Rol aplicado:", role);
+      
+      // Elementos que se ocultan para rol "inventory"
+      const hideForInventory = [
+        'btn-edit-bcv', 'btn-weekly-report', 'btn-monthly-report',
+        'btn-return', 'btn-sell', 'btn-process-sale', 'btn-clear-cart',
+        'btn-new-debtor', 'btn-register-payment', 'btn-edit-customer-name',
+        'btn-edit-customer-phone', 'btn-delete-debtor', 'btn-filter-pending',
+        'btn-filter-all', 'btn-save-payment',
+        'dash-sales-usd', 'dash-sales-bs', 'dash-cash-bs', 'dash-cash-usd',
+        'dash-cash-usd-divisa', 'dash-cash-divisa-bs', 'dash-pagomovil-bs',
+        'dash-pagomovil-usd', 'dash-punto-bs', 'dash-punto-usd',
+        'dash-biopago-bs', 'dash-biopago-usd', 'dash-credit-total',
+        'dash-credit-debtors', 'dash-recent-sales',
+        'mov-modal-total-bs', 'mov-modal-total-usd',
+        'report-total-usd', 'report-total-bs', 'report-methods-breakdown',
+        'cart-payment-method', 'credit-customer-input', 'abono-input',
+        'cart-subtotal-usd', 'cart-total-bs', 'cart-total-usd', 'cart-bcv-rate'
+      ];
+      
+      hideForInventory.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (!isAdmin) {
+            el.classList.add('hidden');
+            el.style.display = 'none';
+          } else {
+            el.classList.remove('hidden');
+            el.style.display = '';
+          }
+        }
+      });
+      
+      // Ocultar navegación a POS y Créditos para inventory
+      if (!isAdmin) {
+        const navPos = document.getElementById('nav-pos');
+        const navCredits = document.getElementById('nav-credits');
+        if (navPos) navPos.style.display = 'none';
+        if (navCredits) navCredits.style.display = 'none';
+        
+        // Si está en POS o Créditos, redirigir a Inventario
+        const currentTab = document.querySelector('.tab-content:not(.hidden)');
+        if (currentTab && (currentTab.id === 'tab-pos' || currentTab.id === 'tab-credits')) {
+          switchTab('inventory');
+        }
+      } else {
+        const navPos = document.getElementById('nav-pos');
+        const navCredits = document.getElementById('nav-credits');
+        if (navPos) navPos.style.display = '';
+        if (navCredits) navCredits.style.display = '';
+      }
+    };
 
     window.handleLogin = async function() {
       const email = document.getElementById('login-email').value.trim();
@@ -123,7 +194,7 @@
 </head>
 <body class="text-slate-800 min-h-screen antialiased">
 
-  <!-- PANTALLA DE LOGIN -->
+  <!-- LOGIN -->
   <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-botalon-purple via-purple-700 to-botalon-pink flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6">
       <div class="text-center space-y-3">
@@ -150,7 +221,7 @@
     </div>
   </div>
 
-  <!-- APP PRINCIPAL -->
+  <!-- APP -->
   <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row">
     <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col justify-between shadow-sm">
       <div>
@@ -187,12 +258,17 @@
             <span class="font-medium text-slate-600 flex items-center gap-1">
               <i data-lucide="coins" class="w-3.5 h-3.5 text-botalon-purple"></i> Tasa BCV
             </span>
-            <button onclick="editBcvRate()" class="text-botalon-purple hover:underline font-bold text-[11px]">Editar</button>
+            <button id="btn-edit-bcv" onclick="editBcvRate()" class="text-botalon-purple hover:underline font-bold text-[11px]">Editar</button>
           </div>
           <div class="flex items-baseline justify-between mt-1">
             <span class="text-xs text-slate-400">1 USD =</span>
             <span id="sidebar-bcv-rate" class="text-lg font-bold text-slate-900">42.50 Bs</span>
           </div>
+        </div>
+        <div class="bg-blue-50 rounded-xl p-3 border border-blue-200">
+          <div class="text-[10px] font-bold text-blue-700 uppercase">Usuario</div>
+          <div id="user-email-display" class="text-xs font-bold text-slate-800 truncate">usuario</div>
+          <div id="user-role-display" class="text-[10px] text-blue-600 font-semibold">Rol</div>
         </div>
         <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition border border-red-200">
           <i data-lucide="log-out" class="w-4 h-4"></i><span>Cerrar Sesión</span>
@@ -205,24 +281,20 @@
         <h2 id="page-title" class="text-lg font-bold text-slate-900 tracking-tight">Resumen General</h2>
         <div class="flex items-center space-x-2 sm:space-x-3">
           <div class="hidden sm:flex bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-xs text-slate-600 font-medium items-center gap-2">
-            <i data-lucide="user" class="w-3.5 h-3.5"></i>
-            <span id="user-email-display" class="font-bold text-slate-700">usuario</span>
-          </div>
-          <div class="hidden sm:flex bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-xs text-slate-600 font-medium items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span>BCV:</span>
             <strong id="topbar-bcv-rate" class="text-slate-900 font-bold">42.50 Bs/$</strong>
           </div>
-          <button onclick="generatePeriodicReport('weekly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+          <button id="btn-weekly-report" onclick="generatePeriodicReport('weekly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
             <i data-lucide="bar-chart-2" class="w-4 h-4"></i><span class="hidden md:inline">Reporte</span> Semanal
           </button>
-          <button onclick="generatePeriodicReport('monthly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+          <button id="btn-monthly-report" onclick="generatePeriodicReport('monthly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
             <i data-lucide="calendar" class="w-4 h-4"></i><span class="hidden md:inline">Reporte</span> Mensual
           </button>
-          <button onclick="openReturnModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 transition flex items-center gap-1">
+          <button id="btn-return" onclick="openReturnModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 transition flex items-center gap-1">
             <i data-lucide="rotate-ccw" class="w-4 h-4"></i><span>Devolución</span>
           </button>
-          <button onclick="switchTab('pos')" class="bg-gradient-to-r from-botalon-purple to-botalon-pink text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-botalon-purple/20 hover:opacity-95 transition flex items-center gap-1.5">
+          <button id="btn-sell" onclick="switchTab('pos')" class="bg-gradient-to-r from-botalon-purple to-botalon-pink text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-botalon-purple/20 hover:opacity-95 transition flex items-center gap-1.5">
             <i data-lucide="shopping-bag" class="w-4 h-4"></i><span>+ Vender</span>
           </button>
         </div>
@@ -247,10 +319,9 @@
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ventas Del Día (USD)</p>
                 <h3 id="dash-sales-usd" class="text-2xl font-black text-slate-900 mt-1">$0.00</h3>
               </div>
-              <div class="p-3 bg-botalon-purple/10 text-botalon-purple rounded-xl group-hover:bg-botalon-purple group-hover:text-white transition"><i data-lucide="dollar-sign" class="w-5 h-5"></i></div>
+              <div class="p-3 bg-botalon-purple/10 text-botalon-purple rounded-xl"><i data-lucide="dollar-sign" class="w-5 h-5"></i></div>
             </div>
             <p id="dash-sales-bs" class="mt-2 text-xs font-semibold text-botalon-purple">Bs 0,00 equivalentes</p>
-            <span class="text-[10px] text-slate-400 mt-2 block font-medium group-hover:text-botalon-purple underline">Ver desglose del día →</span>
           </div>
           <div onclick="openMovementsModal('Efectivo Bs')" class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs bg-emerald-50/20 cursor-pointer hover:border-emerald-400 transition group relative">
             <div class="flex justify-between items-start">
@@ -258,10 +329,9 @@
                 <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Efectivo Bs. Entrado</p>
                 <h3 id="dash-cash-bs" class="text-2xl font-black text-emerald-700 mt-1">0,00 Bs</h3>
               </div>
-              <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+              <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl"><i data-lucide="banknote" class="w-5 h-5"></i></div>
             </div>
             <p id="dash-cash-usd" class="mt-2 text-xs font-medium text-emerald-600">$0.00 USD aprox.</p>
-            <span class="text-[10px] text-emerald-600 mt-2 block font-medium underline">Ver desglose Efectivo Bs →</span>
           </div>
           <div onclick="openMovementsModal('Efectivo Divisas ($)')" class="bg-white border border-teal-200 rounded-2xl p-5 shadow-xs bg-teal-50/20 cursor-pointer hover:border-teal-400 transition group relative">
             <div class="flex justify-between items-start">
@@ -269,10 +339,9 @@
                 <p class="text-[10px] font-bold text-teal-600 uppercase tracking-wider">Efectivo Divisas ($)</p>
                 <h3 id="dash-cash-usd-divisa" class="text-2xl font-black text-teal-700 mt-1">$0.00</h3>
               </div>
-              <div class="p-3 bg-teal-100 text-teal-600 rounded-xl group-hover:bg-teal-600 group-hover:text-white transition"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+              <div class="p-3 bg-teal-100 text-teal-600 rounded-xl"><i data-lucide="wallet" class="w-5 h-5"></i></div>
             </div>
             <p id="dash-cash-divisa-bs" class="mt-2 text-xs font-medium text-teal-600">0,00 Bs equivalentes</p>
-            <span class="text-[10px] text-teal-600 mt-2 block font-medium underline">Ver desglose Divisas →</span>
           </div>
           <div onclick="openMovementsModal('Pago Móvil')" class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs bg-blue-50/20 cursor-pointer hover:border-blue-400 transition group relative">
             <div class="flex justify-between items-start">
@@ -280,10 +349,9 @@
                 <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Pago Móvil</p>
                 <h3 id="dash-pagomovil-bs" class="text-2xl font-black text-blue-700 mt-1">0,00 Bs</h3>
               </div>
-              <div class="p-3 bg-blue-100 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition"><i data-lucide="iphone" class="w-5 h-5"></i></div>
+              <div class="p-3 bg-blue-100 text-blue-600 rounded-xl"><i data-lucide="iphone" class="w-5 h-5"></i></div>
             </div>
             <p id="dash-pagomovil-usd" class="mt-2 text-xs font-medium text-blue-600">$0.00 USD aprox.</p>
-            <span class="text-[10px] text-blue-600 mt-2 block font-medium underline">Ver desglose Pago Móvil →</span>
           </div>
           <div onclick="openMovementsModal('Punto de Venta')" class="bg-white border border-purple-200 rounded-2xl p-5 shadow-xs bg-purple-50/20 cursor-pointer hover:border-purple-400 transition group relative">
             <div class="flex justify-between items-start">
@@ -291,10 +359,9 @@
                 <p class="text-[10px] font-bold text-purple-600 uppercase tracking-wider">Punto de Venta</p>
                 <h3 id="dash-punto-bs" class="text-2xl font-black text-purple-700 mt-1">0,00 Bs</h3>
               </div>
-              <div class="p-3 bg-purple-100 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
+              <div class="p-3 bg-purple-100 text-purple-600 rounded-xl"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
             </div>
             <p id="dash-punto-usd" class="mt-2 text-xs font-medium text-purple-600">$0.00 USD aprox.</p>
-            <span class="text-[10px] text-purple-600 mt-2 block font-medium underline">Ver desglose Punto →</span>
           </div>
           <div onclick="openMovementsModal('BioPago')" class="bg-white border border-rose-200 rounded-2xl p-5 shadow-xs bg-rose-50/20 cursor-pointer hover:border-rose-400 transition group relative">
             <div class="flex justify-between items-start">
@@ -302,10 +369,9 @@
                 <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wider">BioPago</p>
                 <h3 id="dash-biopago-bs" class="text-2xl font-black text-rose-700 mt-1">0,00 Bs</h3>
               </div>
-              <div class="p-3 bg-rose-100 text-rose-600 rounded-xl group-hover:bg-rose-600 group-hover:text-white transition"><i data-lucide="fingerprint" class="w-5 h-5"></i></div>
+              <div class="p-3 bg-rose-100 text-rose-600 rounded-xl"><i data-lucide="fingerprint" class="w-5 h-5"></i></div>
             </div>
             <p id="dash-biopago-usd" class="mt-2 text-xs font-medium text-rose-600">$0.00 USD aprox.</p>
-            <span class="text-[10px] text-rose-600 mt-2 block font-medium underline">Ver desglose BioPago →</span>
           </div>
           <div onclick="switchTab('credits')" class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs bg-amber-50/20 cursor-pointer hover:border-amber-400 transition group relative">
             <div class="flex justify-between items-start">
@@ -313,10 +379,9 @@
                 <p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Cuentas por Cobrar Total</p>
                 <h3 id="dash-credit-total" class="text-2xl font-black text-amber-700 mt-1">$0.00</h3>
               </div>
-              <div class="p-3 bg-amber-100 text-amber-600 rounded-xl group-hover:bg-amber-600 group-hover:text-white transition"><i data-lucide="user-x" class="w-5 h-5"></i></div>
+              <div class="p-3 bg-amber-100 text-amber-600 rounded-xl"><i data-lucide="user-x" class="w-5 h-5"></i></div>
             </div>
             <p id="dash-credit-debtors" class="mt-2 text-xs font-medium text-amber-600">0 deudores pendientes</p>
-            <span class="text-[10px] text-amber-600 mt-2 block font-medium underline">Ir a Cuentas por Cobrar →</span>
           </div>
         </div>
 
@@ -369,7 +434,7 @@
                 <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
                   <i data-lucide="shopping-cart" class="w-5 h-5 text-botalon-purple"></i> Ticket de Venta
                 </h3>
-                <button onclick="clearCart()" class="text-xs text-slate-400 hover:text-red-500 transition">Vaciar</button>
+                <button id="btn-clear-cart" onclick="clearCart()" class="text-xs text-slate-400 hover:text-red-500 transition">Vaciar</button>
               </div>
               <div id="cart-items" class="space-y-3 overflow-y-auto max-h-[250px] pr-1"></div>
             </div>
@@ -454,7 +519,7 @@
                 </div>
               </div>
 
-              <button onclick="processSale()" class="w-full py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/20 hover:opacity-95 transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+              <button id="btn-process-sale" onclick="processSale()" class="w-full py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/20 hover:opacity-95 transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
                 <i data-lucide="check-circle" class="w-4 h-4"></i><span>Procesar Venta & Emitir Ticket</span>
               </button>
             </div>
@@ -473,7 +538,7 @@
               <button id="btn-filter-pending" onclick="setDebtorFilter(true)" class="px-3 py-1.5 rounded-lg transition bg-amber-600 text-white shadow-xs">Deudas Pendientes</button>
               <button id="btn-filter-all" onclick="setDebtorFilter(false)" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Ver Todos (Incl. Saldados)</button>
             </div>
-            <button onclick="openNewDebtorModal()" class="bg-amber-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-700 transition flex items-center gap-2 shadow-xs">
+            <button id="btn-new-debtor" onclick="openNewDebtorModal()" class="bg-amber-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-700 transition flex items-center gap-2 shadow-xs">
               <i data-lucide="user-plus" class="w-4 h-4"></i><span>+ Nueva Carpeta</span>
             </button>
           </div>
@@ -547,8 +612,7 @@
           <div class="flex justify-between text-sm font-black text-botalon-purple"><span>TOTAL BS:</span><span id="tkt-total-bs">0,00 Bs</span></div>
         </div>
         <div class="text-center pt-3 border-t border-dashed border-slate-300 text-[10px] text-slate-400">
-          <p class="font-bold text-slate-700">¡Gracias por su compra en Ramos Agroinsumos El Botalon!</p>
-          <p>Conserve este ticket para cualquier reclamo.</p>
+          <p class="font-bold text-slate-700">¡Gracias por su compra!</p>
         </div>
       </div>
       <div class="no-print pt-2 flex gap-2">
@@ -664,16 +728,16 @@
           <div>
             <div class="flex items-center gap-2">
               <h3 id="folder-customer-name" class="font-black text-xl text-slate-900">Nombre Cliente</h3>
-              <button onclick="editCustomerName()" class="text-botalon-purple hover:underline text-[11px] font-bold">Editar Nombre</button>
+              <button id="btn-edit-customer-name" onclick="editCustomerName()" class="text-botalon-purple hover:underline text-[11px] font-bold">Editar Nombre</button>
             </div>
             <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
               <i data-lucide="phone" class="w-3.5 h-3.5 text-amber-600"></i>
               <span id="folder-customer-phone" class="font-bold text-slate-700">Sin teléfono</span>
-              <button onclick="editCustomerPhone()" class="text-botalon-purple hover:underline text-[11px] font-bold ml-1">Editar Teléfono</button>
+              <button id="btn-edit-customer-phone" onclick="editCustomerPhone()" class="text-botalon-purple hover:underline text-[11px] font-bold ml-1">Editar Teléfono</button>
             </div>
           </div>
         </div>
-        <button onclick="deleteDebtor(activeCustomer ? activeCustomer.id : '')" class="mr-8 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition flex items-center gap-1">
+        <button id="btn-delete-debtor" onclick="deleteDebtor(activeCustomer ? activeCustomer.id : '')" class="mr-8 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition flex items-center gap-1">
           <i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>Eliminar Carpeta</span>
         </button>
       </div>
@@ -684,7 +748,7 @@
       </div>
       <div class="flex justify-between items-center pt-2">
         <h4 class="font-bold text-slate-900 text-sm">Productos Consumidos a Crédito</h4>
-        <button onclick="openPaymentModal()" class="bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-xs">
+        <button id="btn-register-payment" onclick="openPaymentModal()" class="bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-xs">
           <i data-lucide="plus-circle" class="w-4 h-4"></i><span>+ Registrar Abono</span>
         </button>
       </div>
@@ -746,7 +810,7 @@
             <option value="Zelle">Zelle</option>
           </select>
         </div>
-        <button onclick="savePayment()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition shadow-md">Guardar Abono</button>
+        <button id="btn-save-payment" onclick="savePayment()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition shadow-md">Guardar Abono</button>
       </div>
     </div>
   </div>
@@ -792,7 +856,6 @@
           <div class="text-right"><div id="calc-meter-bs" class="text-xl font-black text-indigo-600">0,00 Bs</div><div id="calc-meter-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div></div>
         </div>
       </div>
-      <!-- ✅ NUEVO: Calculadora para Mecate (cliente pide kilos) -->
       <div id="calc-mecate-body" class="space-y-4 hidden">
         <div class="bg-indigo-50 p-3 rounded-2xl border border-indigo-100 text-center">
           <div class="grid grid-cols-3 gap-2">
@@ -833,7 +896,7 @@
             <option value="alimento">Alimento (Sacos / Granel)</option>
             <option value="medicamento">Medicamento (Unidades / Frasco)</option>
             <option value="miscelaneos">Misceláneos (Venta por Metros)</option>
-            <option value="mecate"> Mecate (Stock en m, Venta en Kg)</option>
+            <option value="mecate">Mecate (Stock en m, Venta en Kg)</option>
             <option value="talabarteria">Talabartería</option>
             <option value="ferreteria">Ferretería</option>
           </select>
@@ -872,7 +935,6 @@
             <div><label class="block font-semibold text-slate-600 mb-1">Precio por Metro ($):</label><input type="number" step="0.01" id="form-misc-price-meter" value="1.50" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           </div>
         </div>
-        <!-- ✅ NUEVO: Sección Mecate -->
         <div id="section-mecate" class="space-y-4 hidden">
           <div class="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3 text-[11px] text-indigo-700 font-medium">
             💡 El stock se maneja en <strong>metros</strong>. Al vender, el cliente pide <strong>kilos</strong> y el sistema descuenta automáticamente los metros equivalentes.
@@ -949,7 +1011,6 @@
     let debtors = [];
     let activeCustomer = null;
     let showOnlyPendingDebtors = true;
-
     let currentCalcProduct = null;
     let currentCalcMode = 'weight';
     let calculatedKilos = 0;
@@ -957,6 +1018,18 @@
     let calculatedMeters = 0;
     let calculatedMecateKg = 0;
     let calculatedMecateMetros = 0;
+
+    function isAdmin() {
+      return window.currentUserRole === 'admin';
+    }
+
+    function checkAdminAccess(action) {
+      if (!isAdmin()) {
+        alert('❌ No tienes permisos para: ' + action);
+        return false;
+      }
+      return true;
+    }
 
     function getYMDfromISO(isoString) {
       if (!isoString) return '';
@@ -993,7 +1066,7 @@
     };
 
     window.initCloudApp = function() {
-      console.log(" Inicializando app en la nube...");
+      console.log("🚀 Inicializando app en la nube...");
       const db = window.db;
       const { collection, onSnapshot, doc, setDoc, query, orderBy, limit } = window.firebaseFns;
 
@@ -1014,7 +1087,7 @@
         snapshot.forEach((docSnap) => {
           products.push({ id: docSnap.id, ...docSnap.data() });
         });
-        console.log(" Productos cargados:", products.length);
+        console.log("📦 Productos cargados:", products.length);
         renderInventoryTable();
         renderPosGrid();
         renderDashboard();
@@ -1096,6 +1169,7 @@
     }
 
     function editBcvRate() {
+      if (!checkAdminAccess('editar la tasa BCV')) return;
       const val = prompt('Ingrese la Tasa de Cambio BCV (Bs. / USD):', bcvRate);
       if (val && !isNaN(val) && parseFloat(val) > 0) {
         bcvRate = parseFloat(val);
@@ -1108,6 +1182,12 @@
     }
 
     function switchTab(tabId) {
+      // Validar acceso según rol
+      if (!isAdmin() && (tabId === 'pos' || tabId === 'credits')) {
+        alert('❌ No tienes permisos para acceder a esta sección.');
+        return;
+      }
+
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('text-botalon-purple', 'bg-botalon-purple/10');
@@ -1280,6 +1360,7 @@
     function printTicket() { window.print(); }
 
     function generatePeriodicReport(period) {
+      if (!checkAdminAccess('generar reportes')) return;
       const now = new Date();
       let startDate = new Date();
 
@@ -1382,6 +1463,7 @@
     }
 
     function openReturnModal() {
+      if (!checkAdminAccess('registrar devoluciones')) return;
       const searchInput = document.getElementById('return-search-input');
       if (searchInput) searchInput.value = '';
       const select = document.getElementById('return-product-select');
@@ -1455,6 +1537,7 @@
     }
 
     function processReturn() {
+      if (!checkAdminAccess('procesar devoluciones')) return;
       const pid = document.getElementById('return-product-select').value;
       const qty = parseFloat(document.getElementById('return-amount-input').value) || 0;
 
@@ -1481,7 +1564,6 @@
       } else if (p.type === 'miscelaneos') {
         updateDoc(productRef, { stockMeters: increment(qty) });
       } else if (p.type === 'mecate') {
-        // ✅ Cliente devuelve kilos → se suman metros al stock
         const metrosDevueltos = qty * (p.factorConversion || 1);
         updateDoc(productRef, { stockMeters: increment(metrosDevueltos) });
       } else {
@@ -1493,6 +1575,7 @@
     }
 
     function openMovementsModal(methodFilter) {
+      if (!checkAdminAccess('ver desglose de movimientos')) return;
       const selectedYMD = document.getElementById('dash-date-picker').value;
       const daySales = salesHistory.filter(s => getYMDfromISO(s.dateISO) === selectedYMD);
 
@@ -1690,6 +1773,7 @@
     }
 
     function setDebtorFilter(onlyPending) {
+      if (!checkAdminAccess('cambiar filtro de deudores')) return;
       showOnlyPendingDebtors = onlyPending;
       renderDebtorsGrid();
     }
@@ -1741,10 +1825,12 @@
     }
 
     function deleteDebtor(id) {
+      if (!checkAdminAccess('eliminar deudores')) return;
       if (confirm('¿Eliminar esta carpeta de cliente?')) deleteDebtorCloud(id);
     }
 
     function openNewDebtorModal() {
+      if (!checkAdminAccess('crear deudores')) return;
       document.getElementById('new-debtor-name').value = '';
       document.getElementById('new-debtor-phone').value = '';
       document.getElementById('modal-new-debtor').classList.remove('hidden');
@@ -1756,11 +1842,12 @@
     }
 
     async function saveNewDebtor() {
+      if (!checkAdminAccess('crear deudores')) return;
       const name = document.getElementById('new-debtor-name').value.trim();
       const phone = document.getElementById('new-debtor-phone').value.trim();
 
       if (!name) {
-        alert('️ Por favor escriba el nombre del cliente.');
+        alert('⚠️ Por favor escriba el nombre del cliente.');
         return;
       }
 
@@ -1787,17 +1874,19 @@
         alert('✅ ¡Carpeta de cliente creada exitosamente!');
       } catch (error) {
         console.error("❌ Error detallado al guardar:", error);
-        alert('❌ Error al guardar: ' + error.message);
+        alert(' Error al guardar: ' + error.message);
       }
     }
 
     function editCustomerName() {
+      if (!checkAdminAccess('editar nombre de cliente')) return;
       if (!activeCustomer) return;
       const name = prompt('Nuevo nombre:', activeCustomer.name);
       if (name) { activeCustomer.name = name.trim(); saveDebtorCloud(activeCustomer); openCustomerFolder(activeCustomer.id); }
     }
 
     function editCustomerPhone() {
+      if (!checkAdminAccess('editar teléfono de cliente')) return;
       if (!activeCustomer) return;
       const phone = prompt('Nuevo teléfono:', activeCustomer.phone);
       if (phone !== null) { activeCustomer.phone = phone.trim(); saveDebtorCloud(activeCustomer); openCustomerFolder(activeCustomer.id); }
@@ -1834,7 +1923,11 @@
     }
 
     function closeCustomerFolder() { document.getElementById('modal-customer-folder').classList.add('hidden'); }
-    function openPaymentModal() { document.getElementById('pay-amount').value = ''; document.getElementById('modal-payment').classList.remove('hidden'); }
+    function openPaymentModal() { 
+      if (!checkAdminAccess('registrar abonos')) return;
+      document.getElementById('pay-amount').value = ''; 
+      document.getElementById('modal-payment').classList.remove('hidden'); 
+    }
     function closePaymentModal() { document.getElementById('modal-payment').classList.add('hidden'); }
 
     function togglePayCurrency() {
@@ -1843,6 +1936,7 @@
     }
 
     function savePayment() {
+      if (!checkAdminAccess('guardar abonos')) return;
       if (!activeCustomer) return;
       const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
       if (amount <= 0) return alert('Ingrese un monto válido.');
@@ -1875,6 +1969,7 @@
     }
 
     function processSale() {
+      if (!checkAdminAccess('procesar ventas')) return;
       if (cart.length === 0) return alert('El carrito está vacío.');
       const method = document.getElementById('cart-payment-method').value;
       let debtorName = '', debtorPhone = '';
@@ -1923,7 +2018,6 @@
             } else if (p.type === 'miscelaneos') {
               updateDoc(productRef, { stockMeters: increment(-item.meters) });
             } else if (p.type === 'mecate') {
-              // ✅ Cliente pidió kilos → descontar metros equivalentes
               const metrosADescontar = (item.kilos || 0) * (p.factorConversion || 1);
               updateDoc(productRef, { stockMeters: increment(-metrosADescontar) });
             } else {
@@ -2004,7 +2098,6 @@
           } else if (p.type === 'miscelaneos') {
             updateDoc(productRef, { stockMeters: increment(-item.meters) });
           } else if (p.type === 'mecate') {
-            // ✅ Cliente pidió kilos → descontar metros equivalentes
             const metrosADescontar = (item.kilos || 0) * (p.factorConversion || 1);
             updateDoc(productRef, { stockMeters: increment(-metrosADescontar) });
           } else {
@@ -2074,7 +2167,6 @@
       if (source === 'sack') document.getElementById('form-price-kg').value = (priceSack / weight).toFixed(3);
     }
 
-    // ✅ NUEVO: Calcular precio por metro automáticamente para Mecate
     function autoCalcMecatePrices() {
       const factor = parseFloat(document.getElementById('form-mecate-factor').value) || 1;
       const priceKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
@@ -2121,7 +2213,6 @@
             <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Vender Metros</button>
           `;
         } else if (p.type === 'mecate') {
-          // ✅ NUEVO: Tarjeta para Mecate
           const stockKg = (p.stockMeters || 0) / (p.factorConversion || 1);
           card.innerHTML = `
             <div>
@@ -2172,7 +2263,6 @@
           stockText = `${(p.stockMeters || 0).toFixed(2)}m`;
           priceText = `$${(p.priceMeterUsd || 0).toFixed(2)}/m`;
         } else if (p.type === 'mecate') {
-          // ✅ Mostrar stock en metros + equivalencia en kilos
           const stockKg = (p.stockMeters || 0) / (p.factorConversion || 1);
           stockText = `${(p.stockMeters || 0).toFixed(2)} m`;
           equivText = `${(p.factorConversion || 0)} m/kg ≈ ${stockKg.toFixed(2)} kg`;
@@ -2224,7 +2314,6 @@
       toggleProductCategoryFields();
       document.getElementById('modal-prod-title').innerText = 'Editar Producto';
       
-      // Cargar valores según tipo
       if (p.type === 'mecate') {
         document.getElementById('form-mecate-meters').value = p.stockMeters || 0;
         document.getElementById('form-mecate-factor').value = p.factorConversion || 1;
@@ -2256,7 +2345,6 @@
         newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
         newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
       } else if (type === 'mecate') {
-        // ✅ NUEVO: Guardar producto tipo Mecate
         const factor = parseFloat(document.getElementById('form-mecate-factor').value) || 1;
         const priceKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
         newProduct.stockMeters = parseFloat(document.getElementById('form-mecate-meters').value) || 0;
@@ -2289,7 +2377,6 @@
       if (!currentCalcProduct) return;
       document.getElementById('calc-prod-name').innerText = currentCalcProduct.name;
       
-      // Ocultar todos los cuerpos de calculadora
       document.getElementById('calc-food-body').classList.add('hidden');
       document.getElementById('calc-meter-body').classList.add('hidden');
       document.getElementById('calc-mecate-body').classList.add('hidden');
@@ -2304,7 +2391,6 @@
         document.getElementById('input-meters').value = 1;
         handleMeterCalc();
       } else if (currentCalcProduct.type === 'mecate') {
-        // ✅ NUEVO: Mostrar calculadora de Mecate
         document.getElementById('calc-mecate-body').classList.remove('hidden');
         document.getElementById('calc-mecate-stock').innerText = `${(currentCalcProduct.stockMeters || 0).toFixed(2)} m`;
         document.getElementById('calc-mecate-factor').innerText = `${currentCalcProduct.factorConversion || 1} m/kg`;
@@ -2354,7 +2440,6 @@
       document.getElementById('calc-meter-usd').innerText = `$${calculatedUsd.toFixed(2)} USD`;
     }
 
-    // ✅ NUEVO: Calculadora para Mecate (cliente pide kilos)
     function handleMecateCalc() {
       if (!currentCalcProduct || currentCalcProduct.type !== 'mecate') return;
       const kilos = parseFloat(document.getElementById('input-mecate-kg').value) || 0;
@@ -2383,7 +2468,6 @@
         if (calculatedMeters <= 0) return alert('Metros inválidos');
         cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedMeters.toFixed(2)}m]`, type: 'meters', meters: calculatedMeters, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
       } else if (currentCalcProduct.type === 'mecate') {
-        // ✅ NUEVO: Agregar Mecate al carrito
         if (calculatedMecateKg <= 0) return alert('Cantidad inválida');
         const stockKg = (currentCalcProduct.stockMeters || 0) / (currentCalcProduct.factorConversion || 1);
         if (calculatedMecateKg > stockKg) return alert(`Stock insuficiente. Disponible: ${stockKg.toFixed(2)} kg (≈${(currentCalcProduct.stockMeters || 0).toFixed(2)} m)`);
@@ -2431,7 +2515,11 @@
     }
 
     function removeFromCart(index) { cart.splice(index, 1); renderCartUI(); }
-    function clearCart() { cart = []; renderCartUI(); }
+    function clearCart() { 
+      if (!checkAdminAccess('vaciar carrito')) return;
+      cart = []; 
+      renderCartUI(); 
+    }
 
     function updateCartTotals() {
       const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
@@ -2439,7 +2527,7 @@
       setSafeText('cart-total-bs', `${(totalUsd * bcvRate).toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`);
       setSafeText('cart-total-usd', `$${totalUsd.toFixed(2)} USD`);
       
-      if (document.getElementById('cart-payment-method').value === 'Abono') {
+      if (document.getElementById('cart-payment-method') && document.getElementById('cart-payment-method').value === 'Abono') {
         updateAbonoRemaining();
       }
     }
