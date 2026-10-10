@@ -2313,6 +2313,54 @@
     function closeProductModal() { document.getElementById('modal-product').classList.add('hidden'); }
 
     function editProduct(id) {
+  const p = products.find(prod => prod.id === id);
+  if (!p) return;
+
+  // 1. Cargar datos básicos
+  document.getElementById('prod-id').value = p.id;
+  document.getElementById('form-type').value = p.type;
+  document.getElementById('form-name').value = p.name;
+  document.getElementById('form-brand').value = p.brand || '';
+
+  // 2. Mostrar la sección correcta según el tipo
+  toggleProductCategoryFields();
+
+  // 3. Cargar los valores específicos según el tipo de producto
+  if (p.type === 'alimento') {
+    document.getElementById('form-sack-weight').value = p.sackWeightKg || 40;
+    document.getElementById('form-sack-stock').value = p.closedSacks || 0;
+    document.getElementById('form-open-sacks').value = p.openSackKilos || 0;
+    document.getElementById('form-price-sack').value = p.priceSackUsd || 0;
+    document.getElementById('form-price-kg').value = p.priceKgUsd || 0;
+  } 
+  else if (p.type === 'medicamento') {
+    document.getElementById('form-med-stock').value = p.stockUnits || 0;
+    document.getElementById('form-med-price').value = p.priceUnitUsd || 0;
+  } 
+  else if (p.type === 'miscelaneos') {
+    document.getElementById('form-misc-meters').value = p.stockMeters || 0;
+    document.getElementById('form-misc-price-meter').value = p.priceMeterUsd || 0;
+  } 
+  else if (p.type === 'mecate') {
+    document.getElementById('form-mecate-meters').value = p.stockMeters || 0;
+    document.getElementById('form-mecate-factor').value = p.factorConversion || 1;
+    document.getElementById('form-mecate-price-kg').value = p.pricePerKg || 0;
+    document.getElementById('form-mecate-price-meter').value = p.pricePerMeter || 0;
+  } 
+  else {
+    // Talabartería y Ferretería (tipo estándar)
+    document.getElementById('form-std-stock').value = p.stockUnits || 0;
+    document.getElementById('form-std-price').value = p.priceUnitUsd || 0;
+  }
+
+  // 4. Cambiar el título del modal
+  document.getElementById('modal-prod-title').innerText = 'Editar Producto: ' + p.name;
+
+  // 5. Mostrar el modal
+  document.getElementById('modal-product').classList.remove('hidden');
+  
+  if (window.lucide) lucide.createIcons();
+}
       const p = products.find(prod => prod.id === id);
       if (!p) return;
       document.getElementById('prod-id').value = p.id;
@@ -2332,43 +2380,62 @@
       document.getElementById('modal-product').classList.remove('hidden');
     }
 
-    function saveProductDirect(e) {
-      if (e) e.preventDefault();
-      const id = document.getElementById('prod-id').value;
-      const type = document.getElementById('form-type').value;
-      const name = document.getElementById('form-name').value.trim();
-      const brand = document.getElementById('form-brand').value.trim();
+  function saveProductDirect(e) {
+  if (e) e.preventDefault();
+  const id = document.getElementById('prod-id').value;
+  const type = document.getElementById('form-type').value;
+  const name = document.getElementById('form-name').value.trim();
+  const brand = document.getElementById('form-brand').value.trim();
 
-      if (!name) return alert('Escriba el nombre del producto.');
+  if (!name) return alert('Escriba el nombre del producto.');
 
-      let newProduct = { id: id ? id : Date.now().toString(), type, name, brand };
+  // Si estamos editando un producto existente, mantener los datos que no se muestran
+  let existingProduct = null;
+  if (id) {
+    existingProduct = products.find(p => p.id === id);
+  }
 
-      if (type === 'alimento') {
-        newProduct.sackWeightKg = parseFloat(document.getElementById('form-sack-weight').value) || 40;
-        newProduct.closedSacks = parseInt(document.getElementById('form-sack-stock').value) || 0;
-        newProduct.openSackKilos = 0;
-        newProduct.priceSackUsd = parseFloat(document.getElementById('form-price-sack').value) || 0;
-        newProduct.priceKgUsd = parseFloat(document.getElementById('form-price-kg').value) || 0;
-      } else if (type === 'miscelaneos') {
-        newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
-        newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
-      } else if (type === 'mecate') {
-        const factor = parseFloat(document.getElementById('form-mecate-factor').value) || 1;
-        const priceKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
-        newProduct.stockMeters = parseFloat(document.getElementById('form-mecate-meters').value) || 0;
-        newProduct.factorConversion = factor;
-        newProduct.pricePerKg = priceKg;
-        newProduct.pricePerMeter = priceKg / factor;
-      } else {
-        newProduct.stockUnits = parseInt(document.getElementById('form-med-stock').value || document.getElementById('form-std-stock').value) || 0;
-        newProduct.priceUnitUsd = parseFloat(document.getElementById('form-med-price').value || document.getElementById('form-std-price').value) || 0;
-      }
+  let newProduct = { 
+    id: id ? id : Date.now().toString(), 
+    type, 
+    name, 
+    brand 
+  };
 
-      saveProductCloud(newProduct);
-      closeProductModal();
-      alert('¡Producto guardado en la nube!');
-    }
+  // Si existe, preservar campos de otros tipos que no se están editando
+  if (existingProduct) {
+    newProduct = { ...existingProduct, ...newProduct };
+  }
 
+  if (type === 'alimento') {
+    newProduct.sackWeightKg = parseFloat(document.getElementById('form-sack-weight').value) || 40;
+    newProduct.closedSacks = parseInt(document.getElementById('form-sack-stock').value) || 0;
+    newProduct.openSackKilos = parseFloat(document.getElementById('form-open-sacks').value) || 0;
+    newProduct.priceSackUsd = parseFloat(document.getElementById('form-price-sack').value) || 0;
+    newProduct.priceKgUsd = parseFloat(document.getElementById('form-price-kg').value) || 0;
+  } else if (type === 'medicamento') {
+    newProduct.stockUnits = parseInt(document.getElementById('form-med-stock').value) || 0;
+    newProduct.priceUnitUsd = parseFloat(document.getElementById('form-med-price').value) || 0;
+  } else if (type === 'miscelaneos') {
+    newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
+    newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
+  } else if (type === 'mecate') {
+    const factor = parseFloat(document.getElementById('form-mecate-factor').value) || 1;
+    const priceKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
+    newProduct.stockMeters = parseFloat(document.getElementById('form-mecate-meters').value) || 0;
+    newProduct.factorConversion = factor;
+    newProduct.pricePerKg = priceKg;
+    newProduct.pricePerMeter = priceKg / factor;
+  } else {
+    // Talabartería y Ferretería
+    newProduct.stockUnits = parseInt(document.getElementById('form-std-stock').value) || 0;
+    newProduct.priceUnitUsd = parseFloat(document.getElementById('form-std-price').value) || 0;
+  }
+
+  saveProductCloud(newProduct);
+  closeProductModal();
+  alert('✅ ¡Producto guardado exitosamente!');
+}
     function deleteProduct(id) {
       if (confirm('¿Eliminar producto?')) deleteProductCloud(id);
     }
