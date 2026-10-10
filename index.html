@@ -30,6 +30,9 @@
     window.db = db;
     window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit };
 
+    console.log('✅ Firebase inicializado correctamente');
+    console.log('DB:', window.db);
+
     if (window.initCloudApp) {
       window.initCloudApp();
     }
@@ -790,7 +793,6 @@
     </div>
   </div>
 
-  <!-- NUEVO MODAL: CREAR DEUDOR -->
   <div id="modal-new-debtor" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeNewDebtorModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -862,6 +864,7 @@
       document.getElementById('dash-date-picker').value = today;
 
       if (!window.db) {
+        console.warn('⚠️ Firebase no está inicializado aún');
         renderDashboard();
         renderPosGrid();
         renderInventoryTable();
@@ -873,6 +876,7 @@
     };
 
     window.initCloudApp = function() {
+      console.log(' Inicializando app en la nube...');
       const db = window.db;
       const { collection, onSnapshot, doc, setDoc, query, orderBy, limit } = window.firebaseFns;
 
@@ -893,6 +897,7 @@
         snapshot.forEach((docSnap) => {
           products.push({ id: docSnap.id, ...docSnap.data() });
         });
+        console.log('📦 Productos cargados:', products.length);
         renderInventoryTable();
         renderPosGrid();
         renderDashboard();
@@ -904,6 +909,7 @@
         snapshot.forEach((docSnap) => {
           salesHistory.push({ id: docSnap.id, ...docSnap.data() });
         });
+        console.log('🧾 Ventas cargadas:', salesHistory.length);
         renderDashboard();
         renderSalesHistory();
       });
@@ -913,6 +919,7 @@
         snapshot.forEach((docSnap) => {
           debtors.push({ id: docSnap.id, ...docSnap.data() });
         });
+        console.log('👥 Deudores cargados:', debtors.length);
         renderDebtorsGrid();
         renderDashboard();
         populateDebtorSelect();
@@ -945,9 +952,22 @@
     }
 
     async function saveDebtorCloud(debtor) {
-      if (!window.db) return;
-      const { doc, setDoc } = window.firebaseFns;
-      await setDoc(doc(window.db, "deudores", debtor.id.toString()), debtor);
+      if (!window.db) {
+        console.error('❌ Firebase no está inicializado');
+        alert('Error: Firebase no está conectado. Recarga la página.');
+        return false;
+      }
+      try {
+        const { doc, setDoc } = window.firebaseFns;
+        console.log('💾 Guardando deudor:', debtor);
+        await setDoc(doc(window.db, "deudores", debtor.id.toString()), debtor);
+        console.log('✅ Deudor guardado exitosamente en Firebase');
+        return true;
+      } catch (error) {
+        console.error(' Error al guardar deudor:', error);
+        alert('Error al guardar: ' + error.message);
+        return false;
+      }
     }
 
     async function deleteDebtorCloud(debtorId) {
@@ -1603,13 +1623,14 @@
       document.getElementById('new-debtor-name').value = '';
       document.getElementById('new-debtor-phone').value = '';
       document.getElementById('modal-new-debtor').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
     }
 
     function closeNewDebtorModal() {
       document.getElementById('modal-new-debtor').classList.add('hidden');
     }
 
-    function saveNewDebtor() {
+    async function saveNewDebtor() {
       const name = document.getElementById('new-debtor-name').value.trim();
       const phone = document.getElementById('new-debtor-phone').value.trim();
 
@@ -1626,9 +1647,16 @@
         payments: []
       };
 
-      saveDebtorCloud(newDebtor);
-      closeNewDebtorModal();
-      alert('¡Carpeta de cliente creada exitosamente!');
+      console.log(' Creando nuevo deudor:', newDebtor);
+
+      const success = await saveDebtorCloud(newDebtor);
+      
+      if (success) {
+        closeNewDebtorModal();
+        alert('¡Carpeta de cliente creada exitosamente!');
+      } else {
+        alert('No se pudo crear la carpeta. Revisa la consola (F12) para ver el error.');
+      }
     }
 
     function editCustomerName() {
@@ -1703,464 +1731,4 @@
 
       const debt = (activeCustomer.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
       const paid = (activeCustomer.payments || []).reduce((acc, p) => acc + (p.amountUsd || 0), 0);
-      if (debt - paid <= 0.001) {
-        activeCustomer.items = [];
-        activeCustomer.payments = [{ id: 'RES-' + Date.now().toString().slice(-6), dateISO: now.toISOString(), dateDisplay: now.toLocaleString('es-VE'), method: 'Saldado Total', amountUsd: 0, amountBs: 0 }];
-      }
-
-      saveDebtorCloud(activeCustomer);
-      closePaymentModal();
-      openCustomerFolder(activeCustomer.id);
-      alert('¡Abono guardado!');
-    }
-
-    function processSale() {
-      if (cart.length === 0) return alert('El carrito está vacío.');
-      const method = document.getElementById('cart-payment-method').value;
-      let debtorName = '', debtorPhone = '';
-
-      if (method === 'Crédito') {
-        debtorName = (document.getElementById('cart-debtor-name').value || '').trim();
-        debtorPhone = (document.getElementById('cart-debtor-phone').value || '').trim();
-        if (!debtorName) return alert('Escriba el nombre del deudor.');
-      } else if (method === 'Abono') {
-        const debtorId = document.getElementById('abono-debtor-select').value;
-        const abonoAmount = parseFloat(document.getElementById('abono-amount').value) || 0;
-        const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
-
-        if (!debtorId) return alert('Seleccione un deudor.');
-        if (abonoAmount <= 0) return alert('Ingrese el monto que abona.');
-        if (abonoAmount > totalUsd) return alert('El abono no puede ser mayor al total de la venta.');
-
-        let debtor = null;
-        let isNewDebtor = false;
-
-        if (debtorId === 'NUEVO') {
-          const newDebtorName = (document.getElementById('abono-debtor-name').value || '').trim();
-          const newDebtorPhone = (document.getElementById('abono-debtor-phone').value || '').trim();
-          if (!newDebtorName) return alert('Escriba el nombre del nuevo deudor.');
-          
-          debtor = { id: 'CLI-' + Date.now().toString().slice(-6), name: newDebtorName, phone: newDebtorPhone, items: [], payments: [] };
-          isNewDebtor = true;
-        } else {
-          debtor = debtors.find(d => d.id === debtorId);
-          if (!debtor) return alert('Deudor no encontrado.');
-        }
-
-        const remaining = totalUsd - abonoAmount;
-
-        const { doc, updateDoc, increment } = window.firebaseFns;
-        cart.forEach(item => {
-          const p = products.find(prod => prod && prod.id === item.productId);
-          if (p) {
-            const productRef = doc(window.db, "productos", p.id);
-            if (p.type === 'alimento') {
-              if (item.type === 'sack') {
-                updateDoc(productRef, { closedSacks: increment(-1) });
-              } else {
-                updateDoc(productRef, { openSackKilos: increment(-item.kilos) });
-              }
-            } else if (p.type === 'miscelaneos') {
-              updateDoc(productRef, { stockMeters: increment(-item.meters) });
-            } else {
-              updateDoc(productRef, { stockUnits: increment(-1) });
-            }
-          }
-        });
-
-        const totalBs = totalUsd * bcvRate;
-        const abonoBs = abonoAmount * bcvRate;
-        const remainingBs = remaining * bcvRate;
-
-        const now = new Date();
-        if (!debtor.payments) debtor.payments = [];
-        debtor.payments.push({
-          id: 'ABO-' + Date.now().toString().slice(-6),
-          dateISO: now.toISOString(),
-          dateDisplay: now.toLocaleString('es-VE'),
-          currency: 'USD',
-          method: `Abono desde venta`,
-          amountUsd: abonoAmount,
-          amountBs: abonoBs
-        });
-
-        if (remaining > 0.001) {
-          cart.forEach(i => {
-            debtor.items.push({
-              id: 'CRE-' + Date.now().toString().slice(-6),
-              dateISO: now.toISOString(),
-              dateDisplay: now.toLocaleString('es-VE'),
-              productName: i.name,
-              totalUsd: i.totalUsd,
-              totalBs: i.totalBs
-            });
-          });
-        }
-
-        saveDebtorCloud(debtor);
-        if (isNewDebtor) {
-          debtors.push(debtor);
-        }
-
-        const record = {
-          id: 'VEN-' + Date.now().toString().slice(-6),
-          dateISO: now.toISOString(),
-          dateDisplay: now.toLocaleString('es-VE'),
-          items: [...cart],
-          method: `Abono ${debtor.name} ($${abonoAmount.toFixed(2)} / Rest: $${remaining.toFixed(2)})`,
-          totalUsd,
-          totalBs,
-          bcv: bcvRate,
-          abonoAmount,
-          abonoBs,
-          remaining,
-          remainingBs,
-          debtorName: debtor.name,
-          debtorId: debtor.id,
-          isNewDebtor: isNewDebtor
-        };
-
-        saveSaleCloud(record);
-        openTicketModal(record);
-        clearCart();
-        return;
-      }
-
-      const { doc, updateDoc, increment } = window.firebaseFns;
-      cart.forEach(item => {
-        const p = products.find(prod => prod && prod.id === item.productId);
-        if (p) {
-          const productRef = doc(window.db, "productos", p.id);
-          if (p.type === 'alimento') {
-            if (item.type === 'sack') {
-              updateDoc(productRef, { closedSacks: increment(-1) });
-            } else {
-              updateDoc(productRef, { openSackKilos: increment(-item.kilos) });
-            }
-          } else if (p.type === 'miscelaneos') {
-            updateDoc(productRef, { stockMeters: increment(-item.meters) });
-          } else {
-            updateDoc(productRef, { stockUnits: increment(-1) });
-          }
-        }
-      });
-
-      const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
-      const totalBs = totalUsd * bcvRate;
-
-      if (method === 'Crédito') {
-        let debtor = debtors.find(d => d.name.toLowerCase() === debtorName.toLowerCase());
-        if (!debtor) {
-          debtor = { id: 'CLI-' + Date.now().toString().slice(-6), name: debtorName, phone: debtorPhone, items: [], payments: [] };
-        }
-        const now = new Date();
-        cart.forEach(i => {
-          debtor.items.push({
-            id: 'CRE-' + Date.now().toString().slice(-6),
-            dateISO: now.toISOString(),
-            dateDisplay: now.toLocaleString('es-VE'),
-            productName: i.name, totalUsd: i.totalUsd, totalBs: i.totalBs
-          });
-        });
-        saveDebtorCloud(debtor);
-      }
-
-      const now = new Date();
-      const record = {
-        id: 'VEN-' + Date.now().toString().slice(-6),
-        dateISO: now.toISOString(),
-        dateDisplay: now.toLocaleString('es-VE'),
-        items: [...cart],
-        method: method === 'Crédito' ? `Crédito (${debtorName})` : method,
-        totalUsd,
-        totalBs,
-        bcv: bcvRate
-      };
-
-      saveSaleCloud(record);
-      openTicketModal(record);
-      clearCart();
-    }
-
-    function toggleProductCategoryFields() {
-      const type = document.getElementById('form-type').value;
-      document.getElementById('section-alimento').classList.add('hidden');
-      document.getElementById('section-medicamento').classList.add('hidden');
-      document.getElementById('section-miscelaneos').classList.add('hidden');
-      document.getElementById('section-standard').classList.add('hidden');
-
-      if (type === 'alimento') document.getElementById('section-alimento').classList.remove('hidden');
-      else if (type === 'medicamento') document.getElementById('section-medicamento').classList.remove('hidden');
-      else if (type === 'miscelaneos') document.getElementById('section-miscelaneos').classList.remove('hidden');
-      else document.getElementById('section-standard').classList.remove('hidden');
-    }
-
-    function autoCalcPrices(source = 'sack') {
-      const weight = parseFloat(document.getElementById('form-sack-weight').value) || 1;
-      const priceSack = parseFloat(document.getElementById('form-price-sack').value) || 0;
-      if (source === 'sack') document.getElementById('form-price-kg').value = (priceSack / weight).toFixed(3);
-    }
-
-    function renderPosGrid() {
-      const grid = document.getElementById('pos-grid');
-      if (!grid) return;
-      const queryStr = (document.getElementById('pos-search')?.value || '').toLowerCase();
-      grid.innerHTML = '';
-
-      const filtered = products.filter(p => p && ((p.name && p.name.toLowerCase().includes(queryStr)) || (p.brand && p.brand.toLowerCase().includes(queryStr))));
-
-      filtered.forEach(p => {
-        const card = document.createElement('div');
-        card.className = "bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex flex-col justify-between space-y-3";
-
-        if (p.type === 'alimento') {
-          card.innerHTML = `
-            <div>
-              <span class="text-[10px] font-bold text-botalon-purple uppercase bg-botalon-purple/10 px-2 py-0.5 rounded-full">Alimento</span>
-              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
-              <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
-            </div>
-            <div class="bg-slate-50 p-2.5 rounded-xl text-xs space-y-1">
-              <div>Saco: <strong>$${(p.priceSackUsd || 0).toFixed(2)}</strong></div>
-              <div class="text-botalon-purple font-bold">Kilo: ${((p.priceKgUsd || 0) * bcvRate).toFixed(2)} Bs</div>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="addFullSackToCart('${p.id}')" class="py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold">+1 Saco</button>
-              <button onclick="openCalcModal('${p.id}')" class="py-2 bg-botalon-purple text-white rounded-xl text-xs font-bold">Granel</button>
-            </div>
-          `;
-        } else if (p.type === 'miscelaneos') {
-          card.innerHTML = `
-            <div>
-              <span class="text-[10px] font-bold text-indigo-600 uppercase bg-indigo-50 px-2 py-0.5 rounded-full">Misceláneos</span>
-              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
-              <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
-            </div>
-            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-indigo-600 font-bold">Precio/m: $${(p.priceMeterUsd || 0).toFixed(2)}</div>
-            <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Vender Metros</button>
-          `;
-        } else {
-          card.innerHTML = `
-            <div>
-              <span class="text-[10px] font-bold uppercase bg-slate-100 px-2 py-0.5 rounded-full">${p.type}</span>
-              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
-              <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
-            </div>
-            <div class="bg-slate-50 p-2.5 rounded-xl text-xs">Precio: <strong>$${(p.priceUnitUsd || 0).toFixed(2)}</strong></div>
-            <button onclick="addStandardToCart('${p.id}')" class="w-full py-2 bg-slate-900 text-white rounded-xl text-xs font-bold">Agregar</button>
-          `;
-        }
-        grid.appendChild(card);
-      });
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function renderInventoryTable() {
-      const tbody = document.getElementById('inventory-table-body');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      products.forEach(p => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition";
-        const stockText = p.type === 'alimento' ? `${p.closedSacks || 0} sacos` : p.type === 'miscelaneos' ? `${(p.stockMeters || 0).toFixed(2)}m` : `${p.stockUnits || 0} unids`;
-        const priceText = p.type === 'alimento' ? `$${(p.priceSackUsd || 0).toFixed(2)}` : p.type === 'miscelaneos' ? `$${(p.priceMeterUsd || 0).toFixed(2)}/m` : `$${(p.priceUnitUsd || 0).toFixed(2)}`;
-
-        tr.innerHTML = `
-          <td class="p-4 uppercase font-bold text-[10px]">${p.type}</td>
-          <td class="p-4 font-bold">${p.name}</td>
-          <td class="p-4 text-slate-600">${p.brand || 'N/A'}</td>
-          <td class="p-4 text-center font-bold">${stockText}</td>
-          <td class="p-4 text-center">${p.type === 'alimento' ? `${(p.openSackKilos || 0).toFixed(1)} Kg` : 'N/A'}</td>
-          <td class="p-4 text-right font-bold">${priceText}</td>
-          <td class="p-4 text-right font-bold text-botalon-purple">${(parseFloat(p.priceSackUsd || p.priceUnitUsd || p.priceMeterUsd || 0) * bcvRate).toFixed(2)} Bs</td>
-          <td class="p-4 text-center space-x-1">
-            <button onclick="editProduct('${p.id}')" class="text-slate-400 hover:text-slate-800">Editar</button>
-            <button onclick="deleteProduct('${p.id}')" class="text-red-500">Eliminar</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function openProductModal() {
-      document.getElementById('prod-id').value = '';
-      document.getElementById('form-name').value = '';
-      document.getElementById('form-brand').value = '';
-      document.getElementById('modal-prod-title').innerText = 'Registrar Producto';
-      toggleProductCategoryFields();
-      document.getElementById('modal-product').classList.remove('hidden');
-    }
-
-    function closeProductModal() { document.getElementById('modal-product').classList.add('hidden'); }
-
-    function editProduct(id) {
-      const p = products.find(prod => prod.id === id);
-      if (!p) return;
-      document.getElementById('prod-id').value = p.id;
-      document.getElementById('form-type').value = p.type;
-      document.getElementById('form-name').value = p.name;
-      document.getElementById('form-brand').value = p.brand || '';
-      toggleProductCategoryFields();
-      document.getElementById('modal-prod-title').innerText = 'Editar Producto';
-      document.getElementById('modal-product').classList.remove('hidden');
-    }
-
-    function saveProductDirect(e) {
-      if (e) e.preventDefault();
-      const id = document.getElementById('prod-id').value;
-      const type = document.getElementById('form-type').value;
-      const name = document.getElementById('form-name').value.trim();
-      const brand = document.getElementById('form-brand').value.trim();
-
-      if (!name) return alert('Escriba el nombre del producto.');
-
-      let newProduct = { id: id ? id : Date.now().toString(), type, name, brand };
-
-      if (type === 'alimento') {
-        newProduct.sackWeightKg = parseFloat(document.getElementById('form-sack-weight').value) || 40;
-        newProduct.closedSacks = parseInt(document.getElementById('form-sack-stock').value) || 0;
-        newProduct.openSackKilos = 0;
-        newProduct.priceSackUsd = parseFloat(document.getElementById('form-price-sack').value) || 0;
-        newProduct.priceKgUsd = parseFloat(document.getElementById('form-price-kg').value) || 0;
-      } else if (type === 'miscelaneos') {
-        newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
-        newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
-      } else {
-        newProduct.stockUnits = parseInt(document.getElementById('form-med-stock').value || document.getElementById('form-std-stock').value) || 0;
-        newProduct.priceUnitUsd = parseFloat(document.getElementById('form-med-price').value || document.getElementById('form-std-price').value) || 0;
-      }
-
-      saveProductCloud(newProduct);
-      closeProductModal();
-      alert('¡Producto guardado en la nube!');
-    }
-
-    function deleteProduct(id) {
-      if (confirm('¿Eliminar producto?')) deleteProductCloud(id);
-    }
-
-    function addStandardToCart(id) {
-      const p = products.find(prod => prod.id === id);
-      if (!p || (p.stockUnits || 0) <= 0) return alert('Sin stock disponible.');
-      cart.push({ productId: p.id, name: `${p.name} (${p.brand || ''})`, type: p.type, totalUsd: p.priceUnitUsd || 0, totalBs: (p.priceUnitUsd || 0) * bcvRate });
-      renderCartUI();
-    }
-
-    function openCalcModal(productId) {
-      currentCalcProduct = products.find(p => p.id === productId);
-      if (!currentCalcProduct) return;
-      document.getElementById('calc-prod-name').innerText = currentCalcProduct.name;
-      
-      if (currentCalcProduct.type === 'alimento') {
-        document.getElementById('calc-food-body').classList.remove('hidden');
-        document.getElementById('calc-meter-body').classList.add('hidden');
-        document.getElementById('input-grams').value = 1000;
-        switchCalcMode('weight');
-        handleGramCalc('grams');
-      } else {
-        document.getElementById('calc-food-body').classList.add('hidden');
-        document.getElementById('calc-meter-body').classList.remove('hidden');
-        document.getElementById('input-meters').value = 1;
-        handleMeterCalc();
-      }
-      document.getElementById('modal-calc').classList.remove('hidden');
-    }
-
-    function closeCalcModal() { document.getElementById('modal-calc').classList.add('hidden'); }
-
-    function switchCalcMode(mode) {
-      if (mode === 'weight') {
-        document.getElementById('calc-mode-weight').classList.remove('hidden');
-        document.getElementById('calc-mode-money').classList.add('hidden');
-      } else {
-        document.getElementById('calc-mode-weight').classList.add('hidden');
-        document.getElementById('calc-mode-money').classList.remove('hidden');
-      }
-    }
-
-    function handleGramCalc(source) {
-      if (!currentCalcProduct) return;
-      let kilos = 0, totalUsd = 0;
-      if (source === 'grams') kilos = (parseFloat(document.getElementById('input-grams').value) || 0) / 1000;
-      else if (source === 'kilos') kilos = parseFloat(document.getElementById('input-kilos').value) || 0;
-      else if (source === 'usd') totalUsd = parseFloat(document.getElementById('input-usd').value) || 0;
-
-      if (source === 'grams' || source === 'kilos') totalUsd = kilos * (currentCalcProduct.priceKgUsd || 0);
-      else kilos = (currentCalcProduct.priceKgUsd || 0) > 0 ? totalUsd / currentCalcProduct.priceKgUsd : 0;
-
-      calculatedKilos = kilos;
-      calculatedUsd = totalUsd;
-      document.getElementById('calc-res-weight').innerText = `${kilos.toFixed(3)} Kg`;
-      document.getElementById('calc-res-bs').innerText = `${(totalUsd * bcvRate).toFixed(2)} Bs`;
-      document.getElementById('calc-res-usd').innerText = `$${totalUsd.toFixed(2)} USD`;
-    }
-
-    function handleMeterCalc() {
-      if (!currentCalcProduct) return;
-      const meters = parseFloat(document.getElementById('input-meters').value) || 0;
-      calculatedMeters = meters;
-      calculatedUsd = meters * (currentCalcProduct.priceMeterUsd || 0);
-      document.getElementById('calc-meter-val').innerText = `${meters.toFixed(2)} m`;
-      document.getElementById('calc-meter-bs').innerText = `${(calculatedUsd * bcvRate).toFixed(2)} Bs`;
-      document.getElementById('calc-meter-usd').innerText = `$${calculatedUsd.toFixed(2)} USD`;
-    }
-
-    function confirmAddToCart() {
-      if (!currentCalcProduct) return;
-      if (currentCalcProduct.type === 'alimento') {
-        if (calculatedKilos <= 0) return alert('Cantidad inválida');
-        cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedKilos.toFixed(2)}kg]`, type: 'bulk', kilos: calculatedKilos, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
-      } else {
-        if (calculatedMeters <= 0) return alert('Metros inválidos');
-        cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedMeters.toFixed(2)}m]`, type: 'meters', meters: calculatedMeters, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
-      }
-      closeCalcModal();
-      renderCartUI();
-    }
-
-    function addFullSackToCart(id) {
-      const p = products.find(prod => prod.id === id);
-      if (!p || (p.closedSacks || 0) < 1) return alert('No quedan sacos cerrados.');
-      cart.push({ productId: p.id, name: `${p.name} (Saco)`, type: 'sack', totalUsd: p.priceSackUsd || 0, totalBs: (p.priceSackUsd || 0) * bcvRate });
-      renderCartUI();
-    }
-
-    function renderCartUI() {
-      const container = document.getElementById('cart-items');
-      if (!container) return;
-      container.innerHTML = '';
-      if (cart.length === 0) {
-        container.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs">El carrito está vacío</div>`;
-      } else {
-        cart.forEach((item, index) => {
-          container.innerHTML += `
-            <div class="bg-slate-50 border p-3 rounded-xl flex justify-between items-center text-xs">
-              <div><strong>${item.name}</strong></div>
-              <div class="flex items-center gap-3">
-                <span>$${item.totalUsd.toFixed(2)}</span>
-                <button onclick="removeFromCart(${index})" class="text-red-500 font-bold">X</button>
-              </div>
-            </div>
-          `;
-        });
-      }
-      updateCartTotals();
-    }
-
-    function removeFromCart(index) { cart.splice(index, 1); renderCartUI(); }
-    function clearCart() { cart = []; renderCartUI(); }
-
-    function updateCartTotals() {
-      const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
-      setSafeText('cart-subtotal-usd', `$${totalUsd.toFixed(2)}`);
-      setSafeText('cart-total-bs', `${(totalUsd * bcvRate).toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`);
-      setSafeText('cart-total-usd', `$${totalUsd.toFixed(2)} USD`);
-      
-      if (document.getElementById('cart-payment-method').value === 'Abono') {
-        updateAbonoRemaining();
-      }
-    }
-  </script>
-</body>
-</html>
+      if (debt -
