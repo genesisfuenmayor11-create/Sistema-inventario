@@ -8,14 +8,11 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- FIREBASE SDKS Y CONFIGURACIÓN EN TIEMPO REAL -->
   <script type="module">
-    // 1. Importar las funciones necesarias (Se agregaron increment, query, orderBy, limit)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
     import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // 2. Tu configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
       authDomain: "el-botalon-c9f2b.firebaseapp.com",
@@ -26,16 +23,13 @@
       measurementId: "G-78J3H1CQ3X"
     };
 
-    // 3. Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getFirestore(app);
 
-    // 4. Exponer las variables y funciones al objeto 'window'
     window.db = db;
     window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit };
 
-    // 5. Iniciar la aplicación en la nube
     if (window.initCloudApp) {
       window.initCloudApp();
     }
@@ -89,7 +83,6 @@
 </head>
 <body class="text-slate-800 min-h-screen flex flex-col md:flex-row antialiased">
 
-  <!-- Sidebar / Menú Lateral -->
   <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col justify-between shadow-sm">
     <div>
       <div class="p-6 border-b border-slate-100 flex items-center justify-between">
@@ -140,7 +133,6 @@
     </div>
   </aside>
 
-  <!-- Área Principal -->
   <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
     <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20 shadow-xs">
       <h2 id="page-title" class="text-lg font-bold text-slate-900 tracking-tight">Resumen General</h2>
@@ -169,7 +161,6 @@
       </div>
     </header>
 
-    <!-- DASHBOARD -->
     <section id="tab-dashboard" class="tab-content p-6 space-y-6">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <div>
@@ -297,7 +288,6 @@
       </div>
     </section>
 
-    <!-- POS / VENDER -->
     <section id="tab-pos" class="tab-content p-6 hidden">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-7 space-y-4">
@@ -348,6 +338,7 @@
                 <option value="Zelle">Zelle</option>
                 <option value="Efectivo Divisas ($)">Efectivo Divisas ($)</option>
                 <option value="Crédito">A Crédito / Deudor</option>
+                <option value="Abono">Abono (Pago Parcial)</option>
               </select>
             </div>
 
@@ -365,6 +356,33 @@
               </div>
             </div>
 
+            <div id="abono-input" class="hidden space-y-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
+              <div>
+                <label class="block text-[11px] font-bold text-emerald-800 mb-1">Seleccionar Deudor:</label>
+                <select id="abono-debtor-select" onchange="updateAbonoRemaining()" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                  <option value="">-- Seleccione un deudor --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-emerald-800 mb-1">Monto que Abona (USD):</label>
+                <input type="number" step="0.01" id="abono-amount" oninput="updateAbonoRemaining()" placeholder="0.00" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+              </div>
+              <div class="bg-white p-2 rounded-lg border border-emerald-200">
+                <div class="flex justify-between text-xs">
+                  <span class="text-slate-600">Total Venta:</span>
+                  <span id="abono-total-sale" class="font-bold">$0.00</span>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-slate-600">Monto Abonado:</span>
+                  <span id="abono-paid" class="font-bold text-emerald-600">$0.00</span>
+                </div>
+                <div class="flex justify-between text-xs mt-1 pt-1 border-t border-emerald-200">
+                  <span class="text-slate-600 font-bold">Restante a Crédito:</span>
+                  <span id="abono-remaining" class="font-bold text-amber-600">$0.00</span>
+                </div>
+              </div>
+            </div>
+
             <button onclick="processSale()" class="w-full py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/20 hover:opacity-95 transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
               <i data-lucide="check-circle" class="w-4 h-4"></i>
               <span>Procesar Venta & Emitir Ticket</span>
@@ -374,7 +392,6 @@
       </div>
     </section>
 
-    <!-- CRÉDITOS Y DEUDORES -->
     <section id="tab-credits" class="tab-content p-6 space-y-6 hidden">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -395,7 +412,6 @@
       <div id="debtors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
-    <!-- INVENTARIO -->
     <section id="tab-inventory" class="tab-content p-6 space-y-4 hidden">
       <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
         <div class="relative w-full sm:w-80">
@@ -428,7 +444,6 @@
       </div>
     </section>
 
-    <!-- HISTORIAL DE VENTAS -->
     <section id="tab-history" class="tab-content p-6 space-y-4 hidden">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <div>
@@ -444,7 +459,6 @@
     </section>
   </main>
 
-  <!-- MODAL: TICKET -->
   <div id="modal-ticket" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeTicketModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -474,7 +488,6 @@
     </div>
   </div>
 
-  <!-- MODAL: REPORTE PERIÓDICO -->
   <div id="modal-periodic-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePeriodicReportModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -499,7 +512,6 @@
     </div>
   </div>
 
-  <!-- MODAL: DEVOLUCIÓN -->
   <div id="modal-return" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeReturnModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -536,7 +548,6 @@
     </div>
   </div>
 
-  <!-- MODAL: MOVIMIENTOS -->
   <div id="modal-movements" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[85vh] overflow-y-auto space-y-4">
       <button onclick="closeMovementsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -571,7 +582,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CARPETA CLIENTE -->
   <div id="modal-customer-folder" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto space-y-5">
       <button onclick="closeCustomerFolder()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -637,7 +647,6 @@
     </div>
   </div>
 
-  <!-- MODAL: REGISTRAR ABONO -->
   <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -670,7 +679,6 @@
     </div>
   </div>
 
-  <!-- MODAL CALCULADORA -->
   <div id="modal-calc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative">
       <button onclick="closeCalcModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -715,7 +723,6 @@
     </div>
   </div>
 
-  <!-- MODAL: PRODUCTO -->
   <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeProductModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -792,7 +799,6 @@
     let calculatedUsd = 0;
     let calculatedMeters = 0;
 
-    // Función robusta para extraer YYYY-MM-DD de un string ISO
     function getYMDfromISO(isoString) {
       if (!isoString) return '';
       return isoString.split('T')[0];
@@ -803,6 +809,18 @@
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       return `${d.getFullYear()}-${month}-${day}`;
+    }
+
+    function formatItemsGrouped(items) {
+      if (!items || items.length === 0) return '';
+      const grouped = {};
+      items.forEach(i => {
+        const name = i.name || 'Producto sin nombre';
+        grouped[name] = (grouped[name] || 0) + 1;
+      });
+      return Object.entries(grouped)
+        .map(([name, count]) => count > 1 ? `${count}x ${name}` : name)
+        .join(', ');
     }
 
     window.onload = function() {
@@ -841,14 +859,11 @@
         snapshot.forEach((docSnap) => {
           products.push({ id: docSnap.id, ...docSnap.data() });
         });
-        // NOTA: Se eliminó el auto-seed para evitar duplicados en conexiones simultáneas.
-        // Agrega tus productos iniciales manualmente desde la interfaz la primera vez.
         renderInventoryTable();
         renderPosGrid();
         renderDashboard();
       });
 
-      // OPTIMIZACIÓN: Solo trae las últimas 200 ventas ordenadas por fecha, evitando saturar la app
       const qVentas = query(collection(db, "ventas"), orderBy("dateISO", "desc"), limit(200));
       onSnapshot(qVentas, (snapshot) => {
         salesHistory = [];
@@ -867,6 +882,7 @@
         renderDebtorsGrid();
         renderDashboard();
         populateDebtorSelect();
+        populateAbonoDebtorSelect();
       });
     };
 
@@ -964,23 +980,12 @@
       document.getElementById('dash-date-picker').value = getTodayYMD();
       renderDashboard();
     }
-function formatItemsGrouped(items) {
-  if (!items || items.length === 0) return '';
-  const grouped = {};
-  items.forEach(i => {
-    const name = i.name || 'Producto sin nombre';
-    grouped[name] = (grouped[name] || 0) + 1;
-  });
-  return Object.entries(grouped)
-    .map(([name, count]) => count > 1 ? `${count}x ${name}` : name)
-    .join(', ');
-}
+
     function renderDashboard() {
       const selectedYMD = document.getElementById('dash-date-picker').value;
       const history = salesHistory || [];
       const rate = bcvRate || 42.50;
 
-      // FILTRO ROBUSTO USANDO dateISO
       const daySales = history.filter(s => getYMDfromISO(s.dateISO) === selectedYMD);
 
       const totalUsd = daySales.reduce((acc, s) => acc + (s.totalUsd || 0), 0);
@@ -1066,37 +1071,37 @@ function formatItemsGrouped(items) {
       itemsContainer.innerHTML = '';
 
       const groupedItems = {};
-(saleRecord.items || []).forEach(i => {
-  const name = i.name || 'Producto';
-  if (!groupedItems[name]) {
-    groupedItems[name] = { count: 0, totalUsd: 0, totalBs: 0, type: i.type, kilos: 0, meters: 0 };
-  }
-  groupedItems[name].count++;
-  groupedItems[name].totalUsd += (i.totalUsd || 0);
-  groupedItems[name].totalBs += (i.totalBs || 0);
-  if (i.type === 'bulk') groupedItems[name].kilos += (i.kilos || 0);
-  if (i.type === 'meters') groupedItems[name].meters += (i.meters || 0);
-});
+      (saleRecord.items || []).forEach(i => {
+        const name = i.name || 'Producto';
+        if (!groupedItems[name]) {
+          groupedItems[name] = { count: 0, totalUsd: 0, totalBs: 0, type: i.type, kilos: 0, meters: 0 };
+        }
+        groupedItems[name].count++;
+        groupedItems[name].totalUsd += (i.totalUsd || 0);
+        groupedItems[name].totalBs += (i.totalBs || 0);
+        if (i.type === 'bulk') groupedItems[name].kilos += (i.kilos || 0);
+        if (i.type === 'meters') groupedItems[name].meters += (i.meters || 0);
+      });
 
-Object.entries(groupedItems).forEach(([name, data]) => {
-  let qtyLabel = `${data.count}x`;
-  if (data.type === 'bulk') qtyLabel = `${data.kilos.toFixed(2)}kg`;
-  if (data.type === 'meters') qtyLabel = `${data.meters.toFixed(2)}m`;
+      Object.entries(groupedItems).forEach(([name, data]) => {
+        let qtyLabel = `${data.count}x`;
+        if (data.type === 'bulk') qtyLabel = `${data.kilos.toFixed(2)}kg`;
+        if (data.type === 'meters') qtyLabel = `${data.meters.toFixed(2)}m`;
 
-  const row = document.createElement('div');
-  row.className = "flex justify-between items-start";
-  row.innerHTML = `
-    <div class="pr-2">
-      <span class="font-bold block">${name}</span>
-      <span class="text-[10px] text-slate-500">Cant: ${qtyLabel}</span>
-    </div>
-    <div class="text-right">
-      <span class="font-bold block">$${data.totalUsd.toFixed(2)}</span>
-      <span class="text-[10px] text-slate-500">${data.totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</span>
-    </div>
-  `;
-  itemsContainer.appendChild(row);
-});
+        const row = document.createElement('div');
+        row.className = "flex justify-between items-start";
+        row.innerHTML = `
+          <div class="pr-2">
+            <span class="font-bold block">${name}</span>
+            <span class="text-[10px] text-slate-500">Cant: ${qtyLabel}</span>
+          </div>
+          <div class="text-right">
+            <span class="font-bold block">$${data.totalUsd.toFixed(2)}</span>
+            <span class="text-[10px] text-slate-500">${data.totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</span>
+          </div>
+        `;
+        itemsContainer.appendChild(row);
+      });
 
       document.getElementById('modal-ticket').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
@@ -1131,7 +1136,7 @@ Object.entries(groupedItems).forEach(([name, data]) => {
       setSafeText('report-total-usd', `$${totalUsd.toFixed(2)}`);
       setSafeText('report-total-bs', `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
 
-      const methods = ['Efectivo Bs', 'Efectivo Divisas ($)', 'Pago Móvil', 'Punto de Venta', 'BioPago', 'Zelle', 'Crédito'];
+      const methods = ['Efectivo Bs', 'Efectivo Divisas ($)', 'Pago Móvil', 'Punto de Venta', 'BioPago', 'Zelle', 'Crédito', 'Abono'];
       const bdContainer = document.getElementById('report-methods-breakdown');
       bdContainer.innerHTML = '';
 
@@ -1417,12 +1422,19 @@ Object.entries(groupedItems).forEach(([name, data]) => {
 
     function handlePaymentMethodChange() {
       const method = document.getElementById('cart-payment-method').value;
-      const input = document.getElementById('credit-customer-input');
+      const creditInput = document.getElementById('credit-customer-input');
+      const abonoInput = document.getElementById('abono-input');
+
+      creditInput.classList.add('hidden');
+      abonoInput.classList.add('hidden');
+
       if (method === 'Crédito') {
-        input.classList.remove('hidden');
+        creditInput.classList.remove('hidden');
         populateDebtorSelect();
-      } else {
-        input.classList.add('hidden');
+      } else if (method === 'Abono') {
+        abonoInput.classList.remove('hidden');
+        populateAbonoDebtorSelect();
+        updateAbonoRemaining();
       }
     }
 
@@ -1436,6 +1448,28 @@ Object.entries(groupedItems).forEach(([name, data]) => {
         opt.innerText = `${d.name} (${d.phone || 'Sin tlf'})`;
         select.appendChild(opt);
       });
+    }
+
+    function populateAbonoDebtorSelect() {
+      const select = document.getElementById('abono-debtor-select');
+      if (!select) return;
+      select.innerHTML = '<option value="">-- Seleccione un deudor --</option>';
+      debtors.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.innerText = `${d.name} (${d.phone || 'Sin tlf'})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function updateAbonoRemaining() {
+      const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
+      const abonoAmount = parseFloat(document.getElementById('abono-amount').value) || 0;
+      const remaining = Math.max(0, totalUsd - abonoAmount);
+
+      setSafeText('abono-total-sale', `$${totalUsd.toFixed(2)}`);
+      setSafeText('abono-paid', `$${abonoAmount.toFixed(2)}`);
+      setSafeText('abono-remaining', `$${remaining.toFixed(2)}`);
     }
 
     function autoFillDebtorPhone() {
@@ -1611,9 +1645,97 @@ Object.entries(groupedItems).forEach(([name, data]) => {
         debtorName = (document.getElementById('cart-debtor-name').value || '').trim();
         debtorPhone = (document.getElementById('cart-debtor-phone').value || '').trim();
         if (!debtorName) return alert('Escriba el nombre del deudor.');
+      } else if (method === 'Abono') {
+        const debtorId = document.getElementById('abono-debtor-select').value;
+        const abonoAmount = parseFloat(document.getElementById('abono-amount').value) || 0;
+        const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
+
+        if (!debtorId) return alert('Seleccione un deudor.');
+        if (abonoAmount <= 0) return alert('Ingrese el monto que abona.');
+        if (abonoAmount > totalUsd) return alert('El abono no puede ser mayor al total de la venta.');
+
+        const debtor = debtors.find(d => d.id === debtorId);
+        if (!debtor) return alert('Deudor no encontrado.');
+
+        const remaining = totalUsd - abonoAmount;
+
+        // Actualizar inventario
+        const { doc, updateDoc, increment } = window.firebaseFns;
+        cart.forEach(item => {
+          const p = products.find(prod => prod && prod.id === item.productId);
+          if (p) {
+            const productRef = doc(window.db, "productos", p.id);
+            if (p.type === 'alimento') {
+              if (item.type === 'sack') {
+                updateDoc(productRef, { closedSacks: increment(-1) });
+              } else {
+                updateDoc(productRef, { openSackKilos: increment(-item.kilos) });
+              }
+            } else if (p.type === 'miscelaneos') {
+              updateDoc(productRef, { stockMeters: increment(-item.meters) });
+            } else {
+              updateDoc(productRef, { stockUnits: increment(-1) });
+            }
+          }
+        });
+
+        const totalBs = totalUsd * bcvRate;
+        const abonoBs = abonoAmount * bcvRate;
+        const remainingBs = remaining * bcvRate;
+
+        // Registrar el abono en el deudor
+        const now = new Date();
+        if (!debtor.payments) debtor.payments = [];
+        debtor.payments.push({
+          id: 'ABO-' + Date.now().toString().slice(-6),
+          dateISO: now.toISOString(),
+          dateDisplay: now.toLocaleString('es-VE'),
+          currency: 'USD',
+          method: `Abono desde venta ${method}`,
+          amountUsd: abonoAmount,
+          amountBs: abonoBs
+        });
+
+        // Si hay monto restante, agregarlo como crédito
+        if (remaining > 0.001) {
+          cart.forEach(i => {
+            debtor.items.push({
+              id: 'CRE-' + Date.now().toString().slice(-6),
+              dateISO: now.toISOString(),
+              dateDisplay: now.toLocaleString('es-VE'),
+              productName: i.name,
+              totalUsd: i.totalUsd,
+              totalBs: i.totalBs
+            });
+          });
+        }
+
+        saveDebtorCloud(debtor);
+
+        const record = {
+          id: 'VEN-' + Date.now().toString().slice(-6),
+          dateISO: now.toISOString(),
+          dateDisplay: now.toLocaleString('es-VE'),
+          items: [...cart],
+          method: `Abono ${debtor.name} ($${abonoAmount.toFixed(2)})`,
+          totalUsd,
+          totalBs,
+          bcv: bcvRate,
+          abonoAmount,
+          abonoBs,
+          remaining,
+          remainingBs,
+          debtorName: debtor.name,
+          debtorId: debtor.id
+        };
+
+        saveSaleCloud(record);
+        openTicketModal(record);
+        clearCart();
+        return;
       }
 
-      // CORRECCIÓN CRÍTICA: Usar increment() para evitar condiciones de carrera en el inventario
+      // Procesar venta normal (no abono)
       const { doc, updateDoc, increment } = window.firebaseFns;
       cart.forEach(item => {
         const p = products.find(prod => prod && prod.id === item.productId);
@@ -1643,28 +1765,28 @@ Object.entries(groupedItems).forEach(([name, data]) => {
         }
         const now = new Date();
         cart.forEach(i => {
-          debtor.items.push({ 
-            id: 'CRE-' + Date.now().toString().slice(-6), 
+          debtor.items.push({
+            id: 'CRE-' + Date.now().toString().slice(-6),
             dateISO: now.toISOString(),
             dateDisplay: now.toLocaleString('es-VE'),
-            productName: i.name, totalUsd: i.totalUsd, totalBs: i.totalBs 
+            productName: i.name, totalUsd: i.totalUsd, totalBs: i.totalBs
           });
         });
         saveDebtorCloud(debtor);
       }
 
       const now = new Date();
-      const record = { 
-        id: 'VEN-' + Date.now().toString().slice(-6), 
+      const record = {
+        id: 'VEN-' + Date.now().toString().slice(-6),
         dateISO: now.toISOString(),
         dateDisplay: now.toLocaleString('es-VE'),
-        items: [...cart], 
-        method: method === 'Crédito' ? `Crédito (${debtorName})` : method, 
-        totalUsd, 
-        totalBs, 
-        bcv: bcvRate 
+        items: [...cart],
+        method: method === 'Crédito' ? `Crédito (${debtorName})` : method,
+        totalUsd,
+        totalBs,
+        bcv: bcvRate
       };
-      
+
       saveSaleCloud(record);
       openTicketModal(record);
       clearCart();
@@ -1944,6 +2066,11 @@ Object.entries(groupedItems).forEach(([name, data]) => {
       setSafeText('cart-subtotal-usd', `$${totalUsd.toFixed(2)}`);
       setSafeText('cart-total-bs', `${(totalUsd * bcvRate).toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`);
       setSafeText('cart-total-usd', `$${totalUsd.toFixed(2)} USD`);
+      
+      // Actualizar también el resumen de abono si está visible
+      if (document.getElementById('cart-payment-method').value === 'Abono') {
+        updateAbonoRemaining();
+      }
     }
   </script>
 </body>
