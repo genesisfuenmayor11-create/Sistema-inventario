@@ -30,6 +30,8 @@
     window.db = db;
     window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit };
 
+    console.log("✅ Firebase inicializado correctamente");
+
     if (window.initCloudApp) {
       window.initCloudApp();
     }
@@ -862,6 +864,7 @@
       document.getElementById('dash-date-picker').value = today;
 
       if (!window.db) {
+        console.warn("⚠️ Firebase no está inicializado aún");
         renderDashboard();
         renderPosGrid();
         renderInventoryTable();
@@ -873,6 +876,7 @@
     };
 
     window.initCloudApp = function() {
+      console.log("🚀 Inicializando app en la nube...");
       const db = window.db;
       const { collection, onSnapshot, doc, setDoc, query, orderBy, limit } = window.firebaseFns;
 
@@ -893,6 +897,7 @@
         snapshot.forEach((docSnap) => {
           products.push({ id: docSnap.id, ...docSnap.data() });
         });
+        console.log("📦 Productos cargados:", products.length);
         renderInventoryTable();
         renderPosGrid();
         renderDashboard();
@@ -904,6 +909,7 @@
         snapshot.forEach((docSnap) => {
           salesHistory.push({ id: docSnap.id, ...docSnap.data() });
         });
+        console.log("🧾 Ventas cargadas:", salesHistory.length);
         renderDashboard();
         renderSalesHistory();
       });
@@ -913,6 +919,7 @@
         snapshot.forEach((docSnap) => {
           debtors.push({ id: docSnap.id, ...docSnap.data() });
         });
+        console.log("👥 Deudores cargados:", debtors.length);
         renderDebtorsGrid();
         renderDashboard();
         populateDebtorSelect();
@@ -944,10 +951,22 @@
       await setDoc(doc(window.db, "ventas", sale.id.toString()), sale);
     }
 
+    // ✅ FUNCIÓN CORREGIDA CON MANEJO DE ERRORES
     async function saveDebtorCloud(debtor) {
-      if (!window.db) return;
-      const { doc, setDoc } = window.firebaseFns;
-      await setDoc(doc(window.db, "deudores", debtor.id.toString()), debtor);
+      if (!window.db) {
+        console.error("❌ Firebase no está inicializado");
+        return false;
+      }
+      try {
+        const { doc, setDoc } = window.firebaseFns;
+        console.log("💾 Intentando guardar deudor:", debtor);
+        await setDoc(doc(window.db, "deudores", debtor.id.toString()), debtor);
+        console.log("✅ Deudor guardado exitosamente en Firebase");
+        return true;
+      } catch (error) {
+        console.error("❌ Error al guardar deudor en Firebase:", error);
+        return false;
+      }
     }
 
     async function deleteDebtorCloud(debtorId) {
@@ -1603,13 +1622,15 @@
       document.getElementById('new-debtor-name').value = '';
       document.getElementById('new-debtor-phone').value = '';
       document.getElementById('modal-new-debtor').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
     }
 
     function closeNewDebtorModal() {
       document.getElementById('modal-new-debtor').classList.add('hidden');
     }
 
-    function saveNewDebtor() {
+    // ✅ FUNCIÓN CORREGIDA: Ahora es async y espera a que se guarde
+    async function saveNewDebtor() {
       const name = document.getElementById('new-debtor-name').value.trim();
       const phone = document.getElementById('new-debtor-phone').value.trim();
 
@@ -1626,9 +1647,17 @@
         payments: []
       };
 
-      saveDebtorCloud(newDebtor);
-      closeNewDebtorModal();
-      alert('¡Carpeta de cliente creada exitosamente!');
+      console.log("📝 Creando nuevo deudor:", newDebtor);
+
+      // Esperamos a que Firebase confirme el guardado
+      const success = await saveDebtorCloud(newDebtor);
+      
+      if (success) {
+        closeNewDebtorModal();
+        alert('¡Carpeta de cliente creada exitosamente!');
+      } else {
+        alert('❌ Error al guardar la carpeta. Revisa la consola (F12) para ver el motivo.');
+      }
     }
 
     function editCustomerName() {
