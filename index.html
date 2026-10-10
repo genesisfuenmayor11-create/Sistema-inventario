@@ -964,7 +964,17 @@
       document.getElementById('dash-date-picker').value = getTodayYMD();
       renderDashboard();
     }
-
+function formatItemsGrouped(items) {
+  if (!items || items.length === 0) return '';
+  const grouped = {};
+  items.forEach(i => {
+    const name = i.name || 'Producto sin nombre';
+    grouped[name] = (grouped[name] || 0) + 1;
+  });
+  return Object.entries(grouped)
+    .map(([name, count]) => count > 1 ? `${count}x ${name}` : name)
+    .join(', ');
+}
     function renderDashboard() {
       const selectedYMD = document.getElementById('dash-date-picker').value;
       const history = salesHistory || [];
@@ -1028,7 +1038,7 @@
           recentBody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">No hay transacciones registradas para este día.</td></tr>`;
         } else {
           daySales.slice(0, 10).forEach(s => {
-            const itemsStr = (s.items || []).map(i => i.name).join(', ');
+            const itemsStr = formatItemsGrouped(s.items);
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td class="py-3 text-slate-400 font-medium">${s.id || ''}</td>
@@ -1055,25 +1065,38 @@
       const itemsContainer = document.getElementById('tkt-items');
       itemsContainer.innerHTML = '';
 
-      (saleRecord.items || []).forEach(i => {
-        let qtyLabel = '1x';
-        if (i.type === 'bulk') qtyLabel = `${i.kilos.toFixed(2)}kg`;
-        if (i.type === 'meters') qtyLabel = `${i.meters.toFixed(2)}m`;
+      const groupedItems = {};
+(saleRecord.items || []).forEach(i => {
+  const name = i.name || 'Producto';
+  if (!groupedItems[name]) {
+    groupedItems[name] = { count: 0, totalUsd: 0, totalBs: 0, type: i.type, kilos: 0, meters: 0 };
+  }
+  groupedItems[name].count++;
+  groupedItems[name].totalUsd += (i.totalUsd || 0);
+  groupedItems[name].totalBs += (i.totalBs || 0);
+  if (i.type === 'bulk') groupedItems[name].kilos += (i.kilos || 0);
+  if (i.type === 'meters') groupedItems[name].meters += (i.meters || 0);
+});
 
-        const row = document.createElement('div');
-        row.className = "flex justify-between items-start";
-        row.innerHTML = `
-          <div class="pr-2">
-            <span class="font-bold block">${i.name}</span>
-            <span class="text-[10px] text-slate-500">Cant: ${qtyLabel}</span>
-          </div>
-          <div class="text-right">
-            <span class="font-bold block">$${i.totalUsd.toFixed(2)}</span>
-            <span class="text-[10px] text-slate-500">${i.totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</span>
-          </div>
-        `;
-        itemsContainer.appendChild(row);
-      });
+Object.entries(groupedItems).forEach(([name, data]) => {
+  let qtyLabel = `${data.count}x`;
+  if (data.type === 'bulk') qtyLabel = `${data.kilos.toFixed(2)}kg`;
+  if (data.type === 'meters') qtyLabel = `${data.meters.toFixed(2)}m`;
+
+  const row = document.createElement('div');
+  row.className = "flex justify-between items-start";
+  row.innerHTML = `
+    <div class="pr-2">
+      <span class="font-bold block">${name}</span>
+      <span class="text-[10px] text-slate-500">Cant: ${qtyLabel}</span>
+    </div>
+    <div class="text-right">
+      <span class="font-bold block">$${data.totalUsd.toFixed(2)}</span>
+      <span class="text-[10px] text-slate-500">${data.totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs</span>
+    </div>
+  `;
+  itemsContainer.appendChild(row);
+});
 
       document.getElementById('modal-ticket').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
@@ -1313,7 +1336,7 @@
         tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">No existen movimientos.</td></tr>`;
       } else {
         filteredMovements.forEach(m => {
-          const itemsStr = (m.items || []).map(i => i.name).join(', ');
+          const itemsStr = formatItemsGrouped(m.items);
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td class="p-3 text-slate-400 font-medium">${m.id}</td>
@@ -1362,7 +1385,7 @@
 
         let tableRowsHtml = '';
         salesInDate.forEach(s => {
-          const itemsDetail = (s.items || []).map(i => i.name).join(', ');
+          const itemsDetail = formatItemsGrouped(s.items);
           tableRowsHtml += `
             <tr class="hover:bg-slate-50 transition">
               <td class="p-3.5 text-slate-400 font-medium">${s.dateDisplay || s.date || ''}</td>
