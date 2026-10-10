@@ -10,45 +10,35 @@
   
   <!-- FIREBASE SDKS Y CONFIGURACIÓN EN TIEMPO REAL -->
   <script type="module">
+    // 1. Importar las funciones necesarias (Se agregaron increment, query, orderBy, limit)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
-  authDomain: "el-botalon-c9f2b.firebaseapp.com",
-  projectId: "el-botalon-c9f2b",
-  storageBucket: "el-botalon-c9f2b.firebasestorage.app",
-  messagingSenderId: "555179106001",
-  appId: "1:555179106001:web:a310342b0c180781f12ff0",
-  measurementId: "G-78J3H1CQ3X"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_AUTH_DOMAIN",
-      projectId: "TU_PROJECT_ID",
-      storageBucket: "TU_STORAGE_BUCKET",
-      messagingSenderId: "TU_MESSAGING_SENDER_ID",
-      appId: "TU_APP_ID"
+    // 2. Tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDy-hR64UPdN3n0GUg6zHCLqQcGVBwVVsI",
+      authDomain: "el-botalon-c9f2b.firebaseapp.com",
+      projectId: "el-botalon-c9f2b",
+      storageBucket: "el-botalon-c9f2b.firebasestorage.app",
+      messagingSenderId: "555179106001",
+      appId: "1:555179106001:web:a310342b0c180781f12ff0",
+      measurementId: "G-78J3H1CQ3X"
     };
 
+    // 3. Inicializar Firebase
     const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
     const db = getFirestore(app);
 
+    // 4. Exponer las variables y funciones al objeto 'window'
     window.db = db;
-    window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc };
+    window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit };
 
-    if (window.initCloudApp) window.initCloudApp();
+    // 5. Iniciar la aplicación en la nube
+    if (window.initCloudApp) {
+      window.initCloudApp();
+    }
   </script>
 
   <script>
@@ -117,22 +107,18 @@ const analytics = getAnalytics(app);
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
           <span>Resumen General</span>
         </button>
-
         <button onclick="switchTab('pos')" id="nav-pos" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
           <i data-lucide="shopping-cart" class="w-5 h-5"></i>
           <span>Vender</span>
         </button>
-
         <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
           <i data-lucide="package" class="w-5 h-5"></i>
           <span>Inventario & Precios</span>
         </button>
-
         <button onclick="switchTab('credits')" id="nav-credits" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
           <i data-lucide="users" class="w-5 h-5"></i>
           <span>Créditos / Deudores</span>
         </button>
-
         <button onclick="switchTab('history')" id="nav-history" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
           <i data-lucide="receipt" class="w-5 h-5"></i>
           <span>Historial de Ventas</span>
@@ -164,22 +150,18 @@ const analytics = getAnalytics(app);
           <span>BCV:</span>
           <strong id="topbar-bcv-rate" class="text-slate-900 font-bold">42.50 Bs/$</strong>
         </div>
-
         <button onclick="generatePeriodicReport('weekly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
           <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
           <span class="hidden md:inline">Reporte</span> Semanal
         </button>
-
         <button onclick="generatePeriodicReport('monthly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
           <i data-lucide="calendar" class="w-4 h-4"></i>
           <span class="hidden md:inline">Reporte</span> Mensual
         </button>
-
         <button onclick="openReturnModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 transition flex items-center gap-1">
           <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
           <span>Devolución</span>
         </button>
-
         <button onclick="switchTab('pos')" class="bg-gradient-to-r from-botalon-purple to-botalon-pink text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-botalon-purple/20 hover:opacity-95 transition flex items-center gap-1.5">
           <i data-lucide="shopping-bag" class="w-4 h-4"></i>
           <span>+ Vender</span>
@@ -198,9 +180,7 @@ const analytics = getAnalytics(app);
           <div class="relative w-full sm:w-auto">
             <input type="date" id="dash-date-picker" onchange="renderDashboard()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-botalon-purple w-full sm:w-auto">
           </div>
-          <button onclick="setDashToday()" class="bg-botalon-purple/10 text-botalon-purple hover:bg-botalon-purple/20 px-3 py-2 rounded-xl text-xs font-bold transition">
-            Hoy
-          </button>
+          <button onclick="setDashToday()" class="bg-botalon-purple/10 text-botalon-purple hover:bg-botalon-purple/20 px-3 py-2 rounded-xl text-xs font-bold transition">Hoy</button>
         </div>
       </div>
 
@@ -216,7 +196,6 @@ const analytics = getAnalytics(app);
           <p id="dash-sales-bs" class="mt-2 text-xs font-semibold text-botalon-purple">Bs 0,00 equivalentes</p>
           <span class="text-[10px] text-slate-400 mt-2 block font-medium group-hover:text-botalon-purple underline">Ver desglose del día →</span>
         </div>
-
         <div onclick="openMovementsModal('Efectivo Bs')" class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs bg-emerald-50/20 cursor-pointer hover:border-emerald-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -228,7 +207,6 @@ const analytics = getAnalytics(app);
           <p id="dash-cash-usd" class="mt-2 text-xs font-medium text-emerald-600">$0.00 USD aprox.</p>
           <span class="text-[10px] text-emerald-600 mt-2 block font-medium underline">Ver desglose Efectivo Bs →</span>
         </div>
-
         <div onclick="openMovementsModal('Efectivo Divisas ($)')" class="bg-white border border-teal-200 rounded-2xl p-5 shadow-xs bg-teal-50/20 cursor-pointer hover:border-teal-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -240,7 +218,6 @@ const analytics = getAnalytics(app);
           <p id="dash-cash-divisa-bs" class="mt-2 text-xs font-medium text-teal-600">0,00 Bs equivalentes</p>
           <span class="text-[10px] text-teal-600 mt-2 block font-medium underline">Ver desglose Divisas →</span>
         </div>
-
         <div onclick="openMovementsModal('Pago Móvil')" class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs bg-blue-50/20 cursor-pointer hover:border-blue-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -252,7 +229,6 @@ const analytics = getAnalytics(app);
           <p id="dash-pagomovil-usd" class="mt-2 text-xs font-medium text-blue-600">$0.00 USD aprox.</p>
           <span class="text-[10px] text-blue-600 mt-2 block font-medium underline">Ver desglose Pago Móvil →</span>
         </div>
-
         <div onclick="openMovementsModal('Punto de Venta')" class="bg-white border border-purple-200 rounded-2xl p-5 shadow-xs bg-purple-50/20 cursor-pointer hover:border-purple-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -264,7 +240,6 @@ const analytics = getAnalytics(app);
           <p id="dash-punto-usd" class="mt-2 text-xs font-medium text-purple-600">$0.00 USD aprox.</p>
           <span class="text-[10px] text-purple-600 mt-2 block font-medium underline">Ver desglose Punto →</span>
         </div>
-
         <div onclick="openMovementsModal('BioPago')" class="bg-white border border-rose-200 rounded-2xl p-5 shadow-xs bg-rose-50/20 cursor-pointer hover:border-rose-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -276,7 +251,6 @@ const analytics = getAnalytics(app);
           <p id="dash-biopago-usd" class="mt-2 text-xs font-medium text-rose-600">$0.00 USD aprox.</p>
           <span class="text-[10px] text-rose-600 mt-2 block font-medium underline">Ver desglose BioPago →</span>
         </div>
-
         <div onclick="switchTab('credits')" class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs bg-amber-50/20 cursor-pointer hover:border-amber-400 transition group relative">
           <div class="flex justify-between items-start">
             <div>
@@ -293,9 +267,7 @@ const analytics = getAnalytics(app);
       <div class="bg-red-50/60 border border-red-200 rounded-2xl p-5 shadow-xs space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="p-2 bg-red-100 text-red-600 rounded-xl">
-              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-            </div>
+            <div class="p-2 bg-red-100 text-red-600 rounded-xl"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
             <div>
               <h3 class="font-extrabold text-slate-900 text-sm">Alerta de Stock Bajo ( Quedan 5 o menos )</h3>
               <p class="text-xs text-red-600 font-medium">Productos por agotarse que requieren reposición inmediata</p>
@@ -303,7 +275,6 @@ const analytics = getAnalytics(app);
           </div>
           <button onclick="switchTab('inventory')" class="text-xs font-bold text-red-700 hover:underline">Gestionar Inventario →</button>
         </div>
-
         <div id="low-stock-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
       </div>
 
@@ -388,7 +359,6 @@ const analytics = getAnalytics(app);
                 </select>
                 <input type="text" id="cart-debtor-name" oninput="checkDebtorNameMatch()" placeholder="Nombre del Cliente" class="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-500">
               </div>
-
               <div>
                 <label class="block text-[11px] font-bold text-amber-800 mb-1">Teléfono:</label>
                 <input type="text" id="cart-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-amber-500">
@@ -411,24 +381,17 @@ const analytics = getAnalytics(app);
           <h3 class="font-extrabold text-slate-900 text-lg">Cuentas por Cobrar & Deudores</h3>
           <p class="text-xs text-slate-400">Carpetas de clientes con saldo pendiente de pago</p>
         </div>
-
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
-            <button id="btn-filter-pending" onclick="setDebtorFilter(true)" class="px-3 py-1.5 rounded-lg transition bg-amber-600 text-white shadow-xs">
-              Deudas Pendientes
-            </button>
-            <button id="btn-filter-all" onclick="setDebtorFilter(false)" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
-              Ver Todos (Incl. Saldados)
-            </button>
+            <button id="btn-filter-pending" onclick="setDebtorFilter(true)" class="px-3 py-1.5 rounded-lg transition bg-amber-600 text-white shadow-xs">Deudas Pendientes</button>
+            <button id="btn-filter-all" onclick="setDebtorFilter(false)" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Ver Todos (Incl. Saldados)</button>
           </div>
-
           <button onclick="openNewDebtorModal()" class="bg-amber-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-700 transition flex items-center gap-2 shadow-xs">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
             <span>+ Nueva Carpeta</span>
           </button>
         </div>
       </div>
-
       <div id="debtors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
@@ -444,7 +407,6 @@ const analytics = getAnalytics(app);
           <span>Nuevo Producto</span>
         </button>
       </div>
-
       <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
@@ -473,15 +435,11 @@ const analytics = getAnalytics(app);
           <h3 class="font-extrabold text-slate-900 text-base">Historial Agrupado de Transacciones</h3>
           <p class="text-xs text-slate-400">Seleccione un día específico o consulte todo el registro agrupado por fecha</p>
         </div>
-
         <div class="flex items-center gap-2 w-full sm:w-auto">
           <input type="date" id="history-date-picker" onchange="renderSalesHistory()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-botalon-purple w-full sm:w-auto">
-          <button onclick="clearHistoryDateFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition">
-            Ver Todos los Días
-          </button>
+          <button onclick="clearHistoryDateFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition">Ver Todos los Días</button>
         </div>
       </div>
-
       <div id="history-container" class="space-y-4"></div>
     </section>
   </main>
@@ -489,10 +447,7 @@ const analytics = getAnalytics(app);
   <!-- MODAL: TICKET -->
   <div id="modal-ticket" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
-      <button onclick="closeTicketModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
+      <button onclick="closeTicketModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
       <div id="printable-ticket" class="space-y-3 font-mono text-xs">
         <div class="text-center border-b border-dashed border-slate-300 pb-3">
           <h2 class="font-extrabold text-sm text-slate-900 tracking-tight uppercase">RAMOS AGROINSUMOS EL BOTALON</h2>
@@ -500,42 +455,21 @@ const analytics = getAnalytics(app);
           <p id="tkt-date" class="text-[10px] text-slate-400 mt-1">Fecha: --/--/----</p>
           <p id="tkt-id" class="text-[10px] font-bold text-slate-800">Ticket #: VEN-000000</p>
         </div>
-
         <div id="tkt-items" class="space-y-1.5 border-b border-dashed border-slate-300 pb-3"></div>
-
         <div class="space-y-1 text-right text-xs">
-          <div class="flex justify-between text-slate-600">
-            <span>Método Pago:</span>
-            <strong id="tkt-method" class="text-slate-900">Efectivo</strong>
-          </div>
-          <div class="flex justify-between text-slate-600">
-            <span>Tasa BCV Aplicada:</span>
-            <span id="tkt-bcv" class="font-bold">0.00 Bs/$</span>
-          </div>
-          <div class="flex justify-between text-sm font-black text-slate-900 pt-1 border-t border-slate-200">
-            <span>TOTAL USD:</span>
-            <span id="tkt-total-usd">$0.00</span>
-          </div>
-          <div class="flex justify-between text-sm font-black text-botalon-purple">
-            <span>TOTAL BS:</span>
-            <span id="tkt-total-bs">0,00 Bs</span>
-          </div>
+          <div class="flex justify-between text-slate-600"><span>Método Pago:</span><strong id="tkt-method" class="text-slate-900">Efectivo</strong></div>
+          <div class="flex justify-between text-slate-600"><span>Tasa BCV Aplicada:</span><span id="tkt-bcv" class="font-bold">0.00 Bs/$</span></div>
+          <div class="flex justify-between text-sm font-black text-slate-900 pt-1 border-t border-slate-200"><span>TOTAL USD:</span><span id="tkt-total-usd">$0.00</span></div>
+          <div class="flex justify-between text-sm font-black text-botalon-purple"><span>TOTAL BS:</span><span id="tkt-total-bs">0,00 Bs</span></div>
         </div>
-
         <div class="text-center pt-3 border-t border-dashed border-slate-300 text-[10px] text-slate-400">
           <p class="font-bold text-slate-700">¡Gracias por su compra en Ramos Agroinsumos El Botalon!</p>
           <p>Conserve este ticket para cualquier reclamo.</p>
         </div>
       </div>
-
       <div class="no-print pt-2 flex gap-2">
-        <button onclick="printTicket()" class="flex-1 py-3 bg-botalon-purple hover:bg-botalon-purpleHover text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md">
-          <i data-lucide="printer" class="w-4 h-4"></i>
-          <span>Imprimir Ticket</span>
-        </button>
-        <button onclick="closeTicketModal()" class="py-3 px-4 bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold rounded-xl text-xs transition">
-          Cerrar
-        </button>
+        <button onclick="printTicket()" class="flex-1 py-3 bg-botalon-purple hover:bg-botalon-purpleHover text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md"><i data-lucide="printer" class="w-4 h-4"></i><span>Imprimir Ticket</span></button>
+        <button onclick="closeTicketModal()" class="py-3 px-4 bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold rounded-xl text-xs transition">Cerrar</button>
       </div>
     </div>
   </div>
@@ -543,41 +477,24 @@ const analytics = getAnalytics(app);
   <!-- MODAL: REPORTE PERIÓDICO -->
   <div id="modal-periodic-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
-      <button onclick="closePeriodicReportModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
+      <button onclick="closePeriodicReportModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
       <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-        <div class="p-3 bg-indigo-100 text-indigo-700 rounded-2xl">
-          <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
-        </div>
+        <div class="p-3 bg-indigo-100 text-indigo-700 rounded-2xl"><i data-lucide="bar-chart-3" class="w-6 h-6"></i></div>
         <div>
           <h3 id="report-title" class="font-extrabold text-lg text-slate-900">Reporte de Ventas</h3>
           <p id="report-subtitle" class="text-xs text-slate-400 font-medium">Resumen consolidado</p>
         </div>
       </div>
-
       <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
-        <div>
-          <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total Recaudado USD</span>
-          <span id="report-total-usd" class="text-xl font-black text-slate-900">$0.00</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-extrabold uppercase text-botalon-purple block">Total Recaudado Bs</span>
-          <span id="report-total-bs" class="text-lg font-black text-botalon-purple">0,00 Bs</span>
-        </div>
+        <div><span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total Recaudado USD</span><span id="report-total-usd" class="text-xl font-black text-slate-900">$0.00</span></div>
+        <div><span class="text-[10px] font-extrabold uppercase text-botalon-purple block">Total Recaudado Bs</span><span id="report-total-bs" class="text-lg font-black text-botalon-purple">0,00 Bs</span></div>
       </div>
-
       <div class="space-y-2">
         <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Desglose por Métodos de Pago:</h4>
         <div id="report-methods-breakdown" class="space-y-1.5 text-xs"></div>
       </div>
-
       <div class="no-print pt-2 flex gap-2">
-        <button onclick="window.print()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md">
-          <i data-lucide="printer" class="w-4 h-4"></i>
-          <span>Imprimir / Exportar Reporte</span>
-        </button>
+        <button onclick="window.print()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md"><i data-lucide="printer" class="w-4 h-4"></i><span>Imprimir / Exportar Reporte</span></button>
       </div>
     </div>
   </div>
@@ -585,20 +502,14 @@ const analytics = getAnalytics(app);
   <!-- MODAL: DEVOLUCIÓN -->
   <div id="modal-return" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
-      <button onclick="closeReturnModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
+      <button onclick="closeReturnModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
       <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-        <div class="p-3 bg-amber-100 text-amber-700 rounded-2xl">
-          <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
-        </div>
+        <div class="p-3 bg-amber-100 text-amber-700 rounded-2xl"><i data-lucide="rotate-ccw" class="w-6 h-6"></i></div>
         <div>
           <h3 class="font-extrabold text-lg text-slate-900">Registrar Devolución</h3>
           <p class="text-xs text-slate-400 font-medium">Reincorporar mercancía al inventario</p>
         </div>
       </div>
-
       <div class="space-y-3 text-xs">
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Buscar Producto a Devolver:</label>
@@ -606,19 +517,16 @@ const analytics = getAnalytics(app);
             <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400"></i>
             <input type="text" id="return-search-input" oninput="filterReturnProductsSelect()" placeholder="Escriba para buscar en inventario..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium">
           </div>
-
           <select id="return-product-select" onchange="handleReturnProductSelect()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-bold focus:outline-none focus:border-amber-500">
             <option value="">-- Escriba en el buscador de arriba --</option>
           </select>
         </div>
-
         <div id="return-amount-box" class="hidden space-y-3">
           <div>
             <label id="return-amount-label" class="block font-semibold text-slate-600 mb-1">Cantidad Devuelta:</label>
             <input type="number" step="0.01" id="return-amount-input" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-amber-500">
             <p id="return-type-info" class="text-[10px] text-amber-600 font-medium mt-1"></p>
           </div>
-
           <button onclick="processReturn()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-1.5">
             <i data-lucide="plus-circle" class="w-4 h-4"></i>
             <span>Sumar Devolución al Inventario</span>
@@ -631,20 +539,14 @@ const analytics = getAnalytics(app);
   <!-- MODAL: MOVIMIENTOS -->
   <div id="modal-movements" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[85vh] overflow-y-auto space-y-4">
-      <button onclick="closeMovementsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
+      <button onclick="closeMovementsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
       <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-        <div class="p-3 bg-botalon-purple/10 text-botalon-purple rounded-2xl">
-          <i data-lucide="list-filter" class="w-6 h-6"></i>
-        </div>
+        <div class="p-3 bg-botalon-purple/10 text-botalon-purple rounded-2xl"><i data-lucide="list-filter" class="w-6 h-6"></i></div>
         <div>
           <h3 id="mov-modal-title" class="font-black text-lg text-slate-900">Desglose de Movimientos</h3>
           <p id="mov-modal-subtitle" class="text-xs text-slate-400 font-medium">Movimientos para el día seleccionado</p>
         </div>
       </div>
-
       <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center text-xs">
         <span class="font-bold text-slate-500 uppercase">Monto Total Acumulado Método:</span>
         <div class="text-right">
@@ -652,7 +554,6 @@ const analytics = getAnalytics(app);
           <div id="mov-modal-total-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div>
         </div>
       </div>
-
       <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
@@ -673,15 +574,10 @@ const analytics = getAnalytics(app);
   <!-- MODAL: CARPETA CLIENTE -->
   <div id="modal-customer-folder" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto space-y-5">
-      <button onclick="closeCustomerFolder()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
+      <button onclick="closeCustomerFolder()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
       <div class="flex items-center justify-between border-b border-slate-100 pb-4">
         <div class="flex items-center gap-3">
-          <div class="p-3.5 bg-amber-100 text-amber-700 rounded-2xl">
-            <i data-lucide="folder-open" class="w-6 h-6"></i>
-          </div>
+          <div class="p-3.5 bg-amber-100 text-amber-700 rounded-2xl"><i data-lucide="folder-open" class="w-6 h-6"></i></div>
           <div>
             <div class="flex items-center gap-2">
               <h3 id="folder-customer-name" class="font-black text-xl text-slate-900">Nombre Cliente</h3>
@@ -699,22 +595,11 @@ const analytics = getAnalytics(app);
           <span>Eliminar Carpeta</span>
         </button>
       </div>
-
       <div class="grid grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
-        <div>
-          <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total Solicitado</span>
-          <span id="folder-total-debt" class="text-base font-black text-slate-900">$0.00</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-extrabold uppercase text-emerald-600 block">Total Abonado</span>
-          <span id="folder-total-paid" class="text-base font-black text-emerald-600">$0.00</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-extrabold uppercase text-amber-600 block">Saldo Restante</span>
-          <span id="folder-remaining-balance" class="text-lg font-black text-amber-600">$0.00</span>
-        </div>
+        <div><span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total Solicitado</span><span id="folder-total-debt" class="text-base font-black text-slate-900">$0.00</span></div>
+        <div><span class="text-[10px] font-extrabold uppercase text-emerald-600 block">Total Abonado</span><span id="folder-total-paid" class="text-base font-black text-emerald-600">$0.00</span></div>
+        <div><span class="text-[10px] font-extrabold uppercase text-amber-600 block">Saldo Restante</span><span id="folder-remaining-balance" class="text-lg font-black text-amber-600">$0.00</span></div>
       </div>
-
       <div class="flex justify-between items-center pt-2">
         <h4 class="font-bold text-slate-900 text-sm">Productos Consumidos a Crédito</h4>
         <button onclick="openPaymentModal()" class="bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-xs">
@@ -722,7 +607,6 @@ const analytics = getAnalytics(app);
           <span>+ Registrar Abono</span>
         </button>
       </div>
-
       <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
@@ -736,7 +620,6 @@ const analytics = getAnalytics(app);
           <tbody id="folder-items-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
         </table>
       </div>
-
       <h4 class="font-bold text-slate-900 text-sm pt-2">Historial de Abonos / Pagos</h4>
       <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <table class="w-full text-left text-xs">
@@ -757,12 +640,8 @@ const analytics = getAnalytics(app);
   <!-- MODAL: REGISTRAR ABONO -->
   <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
-      <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
+      <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
       <h3 class="font-extrabold text-lg text-slate-900">Registrar Abono de Dinero</h3>
-
       <div class="space-y-3 text-xs">
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Moneda del Abono:</label>
@@ -771,12 +650,10 @@ const analytics = getAnalytics(app);
             <option value="BS">Bolívares (Bs)</option>
           </select>
         </div>
-
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Monto Abonado:</label>
           <input type="number" step="0.01" id="pay-amount" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-botalon-purple">
         </div>
-
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Método de Pago:</label>
           <select id="pay-method" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-botalon-purple">
@@ -788,10 +665,7 @@ const analytics = getAnalytics(app);
             <option value="Zelle">Zelle</option>
           </select>
         </div>
-
-        <button onclick="savePayment()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition shadow-md">
-          Guardar Abono
-        </button>
+        <button onclick="savePayment()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition shadow-md">Guardar Abono</button>
       </div>
     </div>
   </div>
@@ -799,110 +673,55 @@ const analytics = getAnalytics(app);
   <!-- MODAL CALCULADORA -->
   <div id="modal-calc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative">
-      <button onclick="closeCalcModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
+      <button onclick="closeCalcModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
       <div class="flex items-center gap-3 mb-4">
-        <div class="p-3 bg-botalon-purple/10 text-botalon-purple rounded-2xl">
-          <i data-lucide="calculator" class="w-6 h-6"></i>
-        </div>
+        <div class="p-3 bg-botalon-purple/10 text-botalon-purple rounded-2xl"><i data-lucide="calculator" class="w-6 h-6"></i></div>
         <div>
           <h3 id="calc-prod-name" class="font-extrabold text-lg text-slate-900">Nombre del Producto</h3>
           <p id="calc-prod-details" class="text-xs text-slate-400 font-medium">Detalle del producto</p>
         </div>
       </div>
-
       <div id="calc-food-body" class="space-y-4">
         <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center mb-2">
-          <div>
-            <span class="text-[10px] uppercase font-bold text-slate-400 block">Precio Saco</span>
-            <span id="calc-ref-sack" class="text-xs font-black text-slate-800">$0.00</span>
-          </div>
-          <div>
-            <span class="text-[10px] uppercase font-bold text-slate-400 block">Precio / Kilo</span>
-            <span id="calc-ref-kg" class="text-xs font-black text-botalon-purple">0,00 Bs/kg</span>
-          </div>
+          <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Precio Saco</span><span id="calc-ref-sack" class="text-xs font-black text-slate-800">$0.00</span></div>
+          <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Precio / Kilo</span><span id="calc-ref-kg" class="text-xs font-black text-botalon-purple">0,00 Bs/kg</span></div>
         </div>
-
         <div class="grid grid-cols-2 gap-2 text-xs">
           <button id="tab-calc-weight" onclick="switchCalcMode('weight')" class="py-2.5 px-3 rounded-xl font-bold bg-botalon-purple text-white">Por Peso (Gramos / Kg)</button>
           <button id="tab-calc-money" onclick="switchCalcMode('money')" class="py-2.5 px-3 rounded-xl font-bold bg-slate-100 text-slate-500">Por Monto ($ / Bs)</button>
         </div>
-
         <div id="calc-mode-weight" class="grid grid-cols-3 gap-3">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">Gramos (g):</label>
-            <input type="number" id="input-grams" oninput="handleGramCalc('grams')" placeholder="Ej: 1600" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">Kilos (Kg):</label>
-            <input type="number" step="0.001" id="input-kilos" oninput="handleGramCalc('kilos')" placeholder="Ej: 1.6" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">Sacos:</label>
-            <input type="number" step="0.1" id="input-sacks" oninput="handleGramCalc('sacks')" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple">
-          </div>
+          <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Gramos (g):</label><input type="number" id="input-grams" oninput="handleGramCalc('grams')" placeholder="Ej: 1600" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple"></div>
+          <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Kilos (Kg):</label><input type="number" step="0.001" id="input-kilos" oninput="handleGramCalc('kilos')" placeholder="Ej: 1.6" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple"></div>
+          <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Sacos:</label><input type="number" step="0.1" id="input-sacks" oninput="handleGramCalc('sacks')" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple"></div>
         </div>
-
         <div id="calc-mode-money" class="grid grid-cols-2 gap-3 hidden">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">Monto en Bs:</label>
-            <input type="number" step="0.01" id="input-bs" oninput="handleGramCalc('bs')" placeholder="Ej: 500" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">Monto en USD ($):</label>
-            <input type="number" step="0.01" id="input-usd" oninput="handleGramCalc('usd')" placeholder="Ej: 10" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple">
-          </div>
+          <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Monto en Bs:</label><input type="number" step="0.01" id="input-bs" oninput="handleGramCalc('bs')" placeholder="Ej: 500" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple"></div>
+          <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Monto en USD ($):</label><input type="number" step="0.01" id="input-usd" oninput="handleGramCalc('usd')" placeholder="Ej: 10" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple"></div>
         </div>
-
         <div class="bg-botalon-purple/5 border border-botalon-purple/20 rounded-2xl p-4 flex justify-between items-center">
-          <div>
-            <span class="text-[10px] font-extrabold uppercase text-botalon-purple block">Calculado:</span>
-            <div id="calc-res-weight" class="text-sm font-black text-slate-800">0,00 Kg</div>
-          </div>
-          <div class="text-right">
-            <div id="calc-res-bs" class="text-xl font-black text-botalon-purple">0,00 Bs</div>
-            <div id="calc-res-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div>
-          </div>
+          <div><span class="text-[10px] font-extrabold uppercase text-botalon-purple block">Calculado:</span><div id="calc-res-weight" class="text-sm font-black text-slate-800">0,00 Kg</div></div>
+          <div class="text-right"><div id="calc-res-bs" class="text-xl font-black text-botalon-purple">0,00 Bs</div><div id="calc-res-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div></div>
         </div>
       </div>
-
       <div id="calc-meter-body" class="space-y-4 hidden">
-        <div>
-          <label class="block text-[11px] font-bold text-slate-500 mb-1">Cantidad de Metros a Vender:</label>
-          <input type="number" step="0.01" id="input-meters" oninput="handleMeterCalc()" placeholder="Ej: 5.5" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple">
-        </div>
+        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Cantidad de Metros a Vender:</label><input type="number" step="0.01" id="input-meters" oninput="handleMeterCalc()" placeholder="Ej: 5.5" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple"></div>
         <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex justify-between items-center">
-          <div>
-            <span class="text-[10px] font-extrabold uppercase text-indigo-600 block">Total Metros:</span>
-            <div id="calc-meter-val" class="text-sm font-black text-slate-800">0.00 m</div>
-          </div>
-          <div class="text-right">
-            <div id="calc-meter-bs" class="text-xl font-black text-indigo-600">0,00 Bs</div>
-            <div id="calc-meter-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div>
-          </div>
+          <div><span class="text-[10px] font-extrabold uppercase text-indigo-600 block">Total Metros:</span><div id="calc-meter-val" class="text-sm font-black text-slate-800">0.00 m</div></div>
+          <div class="text-right"><div id="calc-meter-bs" class="text-xl font-black text-indigo-600">0,00 Bs</div><div id="calc-meter-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div></div>
         </div>
       </div>
-
-      <button onclick="confirmAddToCart()" class="w-full mt-4 py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-md hover:opacity-95 transition text-xs uppercase tracking-wider">
-        Agregar al Carrito
-      </button>
+      <button onclick="confirmAddToCart()" class="w-full mt-4 py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-md hover:opacity-95 transition text-xs uppercase tracking-wider">Agregar al Carrito</button>
     </div>
   </div>
 
   <!-- MODAL: PRODUCTO -->
   <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
-      <button onclick="closeProductModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
+      <button onclick="closeProductModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
       <h3 id="modal-prod-title" class="font-extrabold text-lg text-slate-900 mb-4">Registrar Producto</h3>
-
       <div class="space-y-4 text-xs">
         <input type="hidden" id="prod-id">
-
         <div>
           <label class="block font-bold text-slate-700 mb-1">Tipo de Producto:</label>
           <select id="form-type" onchange="toggleProductCategoryFields()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-bold focus:outline-none focus:border-botalon-purple">
@@ -913,91 +732,47 @@ const analytics = getAnalytics(app);
             <option value="ferreteria">Ferretería</option>
           </select>
         </div>
-
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Nombre del Producto:</label>
           <input type="text" id="form-name" placeholder="Ej: Manguera, Silla de montar, Martillo..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
         </div>
-
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Marca / Fabricante:</label>
           <input type="text" id="form-brand" placeholder="Ej: Truper, Bellota, Generico..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
         </div>
-
         <div id="section-alimento" class="space-y-4">
           <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Peso por Saco (Kg):</label>
-              <input type="number" step="0.1" id="form-sack-weight" value="40" oninput="autoCalcPrices('sack')" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Sacos Cerrados Stock:</label>
-              <input type="number" id="form-sack-stock" value="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
-            </div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Peso por Saco (Kg):</label><input type="number" step="0.1" id="form-sack-weight" value="40" oninput="autoCalcPrices('sack')" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Sacos Cerrados Stock:</label><input type="number" id="form-sack-stock" value="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           </div>
-
-          <div>
-            <label class="block font-semibold text-botalon-purple mb-1">Sacos Abiertos Actualmente (Granel):</label>
-            <input type="number" step="0.01" id="form-open-sacks" value="0" placeholder="Ej: 1 o 0.5 sacos" class="w-full bg-botalon-purple/5 border border-botalon-purple/30 rounded-xl p-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-botalon-purple">
-          </div>
-
+          <div><label class="block font-semibold text-botalon-purple mb-1">Sacos Abiertos Actualmente (Granel):</label><input type="number" step="0.01" id="form-open-sacks" value="0" placeholder="Ej: 1 o 0.5 sacos" class="w-full bg-botalon-purple/5 border border-botalon-purple/30 rounded-xl p-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
             <span class="text-[11px] font-bold text-botalon-purple block uppercase">Costos y Precios ($ USD):</span>
             <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Costo por Saco ($):</label>
-                <input type="number" step="0.01" id="form-price-sack" value="25.00" oninput="autoCalcPrices('sack')" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-botalon-purple">
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Precio / Kilo ($):</label>
-                <input type="number" step="0.001" id="form-price-kg" value="0.625" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-botalon-purple focus:outline-none focus:border-botalon-purple">
-              </div>
+              <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Costo por Saco ($):</label><input type="number" step="0.01" id="form-price-sack" value="25.00" oninput="autoCalcPrices('sack')" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-botalon-purple"></div>
+              <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Precio / Kilo ($):</label><input type="number" step="0.001" id="form-price-kg" value="0.625" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-botalon-purple focus:outline-none focus:border-botalon-purple"></div>
             </div>
           </div>
         </div>
-
         <div id="section-medicamento" class="space-y-4 hidden">
           <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Unidades Stock:</label>
-              <input type="number" id="form-med-stock" value="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Precio Unitario ($):</label>
-              <input type="number" step="0.01" id="form-med-price" value="5.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
-            </div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Unidades Stock:</label><input type="number" id="form-med-stock" value="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Precio Unitario ($):</label><input type="number" step="0.01" id="form-med-price" value="5.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           </div>
         </div>
-
         <div id="section-miscelaneos" class="space-y-4 hidden">
           <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Metros Totales Disponibles:</label>
-              <input type="number" step="0.01" id="form-misc-meters" value="100" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Precio por Metro ($):</label>
-              <input type="number" step="0.01" id="form-misc-price-meter" value="1.50" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
-            </div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Metros Totales Disponibles:</label><input type="number" step="0.01" id="form-misc-meters" value="100" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Precio por Metro ($):</label><input type="number" step="0.01" id="form-misc-price-meter" value="1.50" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           </div>
         </div>
-
         <div id="section-standard" class="space-y-4 hidden">
           <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Cantidad Stock:</label>
-              <input type="number" id="form-std-stock" value="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-600 mb-1">Precio del Producto ($):</label>
-              <input type="number" step="0.01" id="form-std-price" value="15.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
-            </div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Cantidad Stock:</label><input type="number" id="form-std-stock" value="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Precio del Producto ($):</label><input type="number" step="0.01" id="form-std-price" value="15.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           </div>
         </div>
-
-        <button type="button" onclick="saveProductDirect(event)" class="w-full py-3.5 bg-botalon-purple text-white font-bold rounded-xl hover:bg-botalon-purpleHover transition shadow-md">
-          Guardar Producto
-        </button>
+        <button type="button" onclick="saveProductDirect(event)" class="w-full py-3.5 bg-botalon-purple text-white font-bold rounded-xl hover:bg-botalon-purpleHover transition shadow-md">Guardar Producto</button>
       </div>
     </div>
   </div>
@@ -1017,33 +792,17 @@ const analytics = getAnalytics(app);
     let calculatedUsd = 0;
     let calculatedMeters = 0;
 
-    const seedProducts = [
-      { id: '1', type: 'alimento', name: 'Alimento Pollos Engorde', brand: 'Purina', sackWeightKg: 40, priceSackUsd: 24.00, priceKgUsd: 0.60, closedSacks: 4, openSackKilos: 10.0 },
-      { id: '2', type: 'medicamento', name: 'Iverdrop 1% Inyectable', brand: 'Veterin', stockUnits: 3, priceUnitUsd: 8.50 },
-      { id: '3', type: 'miscelaneos', name: 'Manguera Riego 1/2"', brand: 'Pavia', stockMeters: 4.5, priceMeterUsd: 1.25 },
-      { id: '4', type: 'talabarteria', name: 'Silla de Montar Trabajo', brand: 'Cuero Venezuela', stockUnits: 2, priceUnitUsd: 120.00 },
-      { id: '5', type: 'ferreteria', name: 'Machete Rambo 22"', brand: 'Bellota', stockUnits: 15, priceUnitUsd: 12.50 }
-    ];
+    // Función robusta para extraer YYYY-MM-DD de un string ISO
+    function getYMDfromISO(isoString) {
+      if (!isoString) return '';
+      return isoString.split('T')[0];
+    }
 
     function getTodayYMD() {
       const d = new Date();
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       return `${d.getFullYear()}-${month}-${day}`;
-    }
-
-    function parseDateToYMD(dateString) {
-      if (!dateString) return '';
-      const parts = dateString.split(',');
-      if (!parts[0]) return '';
-      const dateParts = parts[0].trim().split('/');
-      if (dateParts.length === 3) {
-        const day = dateParts[0].padStart(2, '0');
-        const month = dateParts[1].padStart(2, '0');
-        const year = dateParts[2];
-        return `${year}-${month}-${day}`;
-      }
-      return '';
     }
 
     window.onload = function() {
@@ -1063,7 +822,7 @@ const analytics = getAnalytics(app);
 
     window.initCloudApp = function() {
       const db = window.db;
-      const { collection, onSnapshot, doc, setDoc } = window.firebaseFns;
+      const { collection, onSnapshot, doc, setDoc, query, orderBy, limit } = window.firebaseFns;
 
       onSnapshot(doc(db, "configuracion", "bcv"), (docSnap) => {
         if (docSnap.exists()) {
@@ -1082,21 +841,20 @@ const analytics = getAnalytics(app);
         snapshot.forEach((docSnap) => {
           products.push({ id: docSnap.id, ...docSnap.data() });
         });
-        if (products.length === 0) {
-          seedProducts.forEach(p => saveProductCloud(p));
-        } else {
-          renderInventoryTable();
-          renderPosGrid();
-          renderDashboard();
-        }
+        // NOTA: Se eliminó el auto-seed para evitar duplicados en conexiones simultáneas.
+        // Agrega tus productos iniciales manualmente desde la interfaz la primera vez.
+        renderInventoryTable();
+        renderPosGrid();
+        renderDashboard();
       });
 
-      onSnapshot(collection(db, "ventas"), (snapshot) => {
+      // OPTIMIZACIÓN: Solo trae las últimas 200 ventas ordenadas por fecha, evitando saturar la app
+      const qVentas = query(collection(db, "ventas"), orderBy("dateISO", "desc"), limit(200));
+      onSnapshot(qVentas, (snapshot) => {
         salesHistory = [];
         snapshot.forEach((docSnap) => {
           salesHistory.push({ id: docSnap.id, ...docSnap.data() });
         });
-        salesHistory.sort((a, b) => b.id.localeCompare(a.id));
         renderDashboard();
         renderSalesHistory();
       });
@@ -1212,7 +970,8 @@ const analytics = getAnalytics(app);
       const history = salesHistory || [];
       const rate = bcvRate || 42.50;
 
-      const daySales = history.filter(s => parseDateToYMD(s.date) === selectedYMD);
+      // FILTRO ROBUSTO USANDO dateISO
+      const daySales = history.filter(s => getYMDfromISO(s.dateISO) === selectedYMD);
 
       const totalUsd = daySales.reduce((acc, s) => acc + (s.totalUsd || 0), 0);
       const totalBs = daySales.reduce((acc, s) => acc + (s.totalBs || 0), 0);
@@ -1247,22 +1006,16 @@ const analytics = getAnalytics(app);
 
       setSafeText('dash-sales-usd', `$${totalUsd.toFixed(2)}`);
       setSafeText('dash-sales-bs', `${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs equivalentes`);
-
       setSafeText('dash-cash-bs', `${cashBsTotal.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
       setSafeText('dash-cash-usd', `$${cashBsUsd.toFixed(2)} USD aprox.`);
-
       setSafeText('dash-cash-usd-divisa', `$${cashUsdDivisaTotal.toFixed(2)}`);
       setSafeText('dash-cash-divisa-bs', `${cashUsdDivisaBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs equivalentes`);
-
       setSafeText('dash-pagomovil-bs', `${pagoMovilTotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
       setSafeText('dash-pagomovil-usd', `$${pagoMovilUsd.toFixed(2)} USD aprox.`);
-
       setSafeText('dash-punto-bs', `${puntoTotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
       setSafeText('dash-punto-usd', `$${puntoUsd.toFixed(2)} USD aprox.`);
-
       setSafeText('dash-biopago-bs', `${biopagoTotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
       setSafeText('dash-biopago-usd', `$${biopagoUsd.toFixed(2)} USD aprox.`);
-
       setSafeText('dash-credit-total', `$${totalCreditPendingUsd.toFixed(2)}`);
       setSafeText('dash-credit-debtors', `${pendingDebtorsCount} deudores pendientes`);
 
@@ -1292,11 +1045,10 @@ const analytics = getAnalytics(app);
 
     function openTicketModal(saleRecord) {
       if (!saleRecord) return;
-
-      setSafeText('tkt-date', `Fecha: ${saleRecord.date}`);
+      setSafeText('tkt-date', `Fecha: ${saleRecord.dateDisplay || saleRecord.date}`);
       setSafeText('tkt-id', `Ticket #: ${saleRecord.id}`);
       setSafeText('tkt-method', saleRecord.method);
-      setSafeText('tkt-bcv', `${saleRecord.bcv.toFixed(2)} Bs/$`);
+      setSafeText('tkt-bcv', `${(saleRecord.bcv || bcvRate).toFixed(2)} Bs/$`);
       setSafeText('tkt-total-usd', `$${saleRecord.totalUsd.toFixed(2)}`);
       setSafeText('tkt-total-bs', `${saleRecord.totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
 
@@ -1327,13 +1079,8 @@ const analytics = getAnalytics(app);
       if (window.lucide) lucide.createIcons();
     }
 
-    function closeTicketModal() {
-      document.getElementById('modal-ticket').classList.add('hidden');
-    }
-
-    function printTicket() {
-      window.print();
-    }
+    function closeTicketModal() { document.getElementById('modal-ticket').classList.add('hidden'); }
+    function printTicket() { window.print(); }
 
     function generatePeriodicReport(period) {
       const now = new Date();
@@ -1350,9 +1097,8 @@ const analytics = getAnalytics(app);
       setSafeText('report-subtitle', `Desde: ${startDate.toLocaleDateString('es-VE')} hasta: ${now.toLocaleDateString('es-VE')}`);
 
       const filteredSales = salesHistory.filter(s => {
-        const ymd = parseDateToYMD(s.date);
-        if (!ymd) return false;
-        const sDate = new Date(ymd + 'T00:00:00');
+        if (!s.dateISO) return false;
+        const sDate = new Date(s.dateISO);
         return sDate >= startDate && sDate <= now;
       });
 
@@ -1367,7 +1113,7 @@ const analytics = getAnalytics(app);
       bdContainer.innerHTML = '';
 
       methods.forEach(m => {
-        const mSales = filteredSales.filter(s => s.method.includes(m));
+        const mSales = filteredSales.filter(s => s.method && s.method.includes(m));
         const mUsd = mSales.reduce((acc, s) => acc + (s.totalUsd || 0), 0);
         const mBs = mSales.reduce((acc, s) => acc + (s.totalBs || 0), 0);
 
@@ -1395,9 +1141,7 @@ const analytics = getAnalytics(app);
       document.getElementById('modal-periodic-report').classList.remove('hidden');
     }
 
-    function closePeriodicReportModal() {
-      document.getElementById('modal-periodic-report').classList.add('hidden');
-    }
+    function closePeriodicReportModal() { document.getElementById('modal-periodic-report').classList.add('hidden'); }
 
     function renderLowStockAlert() {
       const container = document.getElementById('low-stock-container');
@@ -1406,13 +1150,9 @@ const analytics = getAnalytics(app);
 
       const lowStockProducts = products.filter(p => {
         if (!p) return false;
-        if (p.type === 'alimento') {
-          return (p.closedSacks || 0) <= 5;
-        } else if (p.type === 'miscelaneos') {
-          return (p.stockMeters || 0) <= 5;
-        } else {
-          return (p.stockUnits || 0) <= 5;
-        }
+        if (p.type === 'alimento') return (p.closedSacks || 0) <= 5;
+        if (p.type === 'miscelaneos') return (p.stockMeters || 0) <= 5;
+        return (p.stockUnits || 0) <= 5;
       });
 
       if (lowStockProducts.length === 0) {
@@ -1439,19 +1179,16 @@ const analytics = getAnalytics(app);
         `;
         container.appendChild(itemCard);
       });
-
       if (window.lucide) lucide.createIcons();
     }
 
     function openReturnModal() {
       const searchInput = document.getElementById('return-search-input');
       if (searchInput) searchInput.value = '';
-      
       const select = document.getElementById('return-product-select');
       if (select) {
         select.innerHTML = '<option value="">-- Escriba en el buscador de arriba --</option>';
       }
-
       document.getElementById('return-amount-box').classList.add('hidden');
       document.getElementById('modal-return').classList.remove('hidden');
     }
@@ -1460,7 +1197,6 @@ const analytics = getAnalytics(app);
       const q = (document.getElementById('return-search-input').value || '').toLowerCase().trim();
       const select = document.getElementById('return-product-select');
       if (!select) return;
-
       select.innerHTML = '';
 
       if (!q) {
@@ -1470,7 +1206,6 @@ const analytics = getAnalytics(app);
       }
 
       const filtered = products.filter(p => p.name.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q)));
-
       if (filtered.length === 0) {
         select.innerHTML = '<option value="">No se encontraron productos</option>';
         document.getElementById('return-amount-box').classList.add('hidden');
@@ -1485,9 +1220,7 @@ const analytics = getAnalytics(app);
       }
     }
 
-    function closeReturnModal() {
-      document.getElementById('modal-return').classList.add('hidden');
-    }
+    function closeReturnModal() { document.getElementById('modal-return').classList.add('hidden'); }
 
     function handleReturnProductSelect() {
       const pid = document.getElementById('return-product-select').value;
@@ -1497,14 +1230,10 @@ const analytics = getAnalytics(app);
       const input = document.getElementById('return-amount-input');
       input.value = '';
 
-      if (!pid) {
-        box.classList.add('hidden');
-        return;
-      }
+      if (!pid) { box.classList.add('hidden'); return; }
 
       const p = products.find(prod => prod.id === pid);
       if (!p) return;
-
       box.classList.remove('hidden');
 
       if (p.type === 'alimento') {
@@ -1534,36 +1263,38 @@ const analytics = getAnalytics(app);
       const p = products.find(prod => prod.id === pid);
       if (!p) return;
 
+      const { doc, updateDoc, increment } = window.firebaseFns;
+      const productRef = doc(window.db, "productos", p.id);
+
       if (p.type === 'alimento') {
         const choice = prompt(`¿Devuelve SACOS CERRADOS enteros o KILOS a granel?\n\nEscriba '1' para Sacos\nEscriba '2' para Kilos`, '1');
         if (choice === '1') {
-          p.closedSacks = (p.closedSacks || 0) + Math.round(qty);
+          updateDoc(productRef, { closedSacks: increment(Math.round(qty)) });
         } else if (choice === '2') {
-          p.openSackKilos = (p.openSackKilos || 0) + qty;
+          updateDoc(productRef, { openSackKilos: increment(qty) });
         } else {
           return;
         }
       } else if (p.type === 'miscelaneos') {
-        p.stockMeters = (p.stockMeters || 0) + qty;
+        updateDoc(productRef, { stockMeters: increment(qty) });
       } else {
-        p.stockUnits = (p.stockUnits || 0) + Math.round(qty);
+        updateDoc(productRef, { stockUnits: increment(Math.round(qty)) });
       }
 
-      saveProductCloud(p);
       closeReturnModal();
-      alert(`¡Devolución exitosa para ${p.name}!`);
+      alert(`¡Devolución registrada exitosamente para ${p.name}!`);
     }
 
     function openMovementsModal(methodFilter) {
       const selectedYMD = document.getElementById('dash-date-picker').value;
-      const daySales = salesHistory.filter(s => parseDateToYMD(s.date) === selectedYMD);
+      const daySales = salesHistory.filter(s => getYMDfromISO(s.dateISO) === selectedYMD);
 
       let filteredMovements = [];
       if (methodFilter === 'TODOS') {
         filteredMovements = daySales;
         setSafeText('mov-modal-title', `Todas las Ventas (${selectedYMD})`);
       } else {
-        filteredMovements = daySales.filter(s => s.method.includes(methodFilter));
+        filteredMovements = daySales.filter(s => s.method && s.method.includes(methodFilter));
         setSafeText('mov-modal-title', `Movimientos: ${methodFilter}`);
       }
 
@@ -1594,7 +1325,6 @@ const analytics = getAnalytics(app);
           tbody.appendChild(tr);
         });
       }
-
       document.getElementById('modal-movements').classList.remove('hidden');
     }
 
@@ -1607,8 +1337,9 @@ const analytics = getAnalytics(app);
 
       const filterYMD = document.getElementById('history-date-picker').value;
       const grouped = {};
+      
       salesHistory.forEach(s => {
-        const ymd = parseDateToYMD(s.date) || 'Sin Fecha';
+        const ymd = getYMDfromISO(s.dateISO) || 'Sin Fecha';
         if (!grouped[ymd]) grouped[ymd] = [];
         grouped[ymd].push(s);
       });
@@ -1634,7 +1365,7 @@ const analytics = getAnalytics(app);
           const itemsDetail = (s.items || []).map(i => i.name).join(', ');
           tableRowsHtml += `
             <tr class="hover:bg-slate-50 transition">
-              <td class="p-3.5 text-slate-400 font-medium">${s.date || ''}</td>
+              <td class="p-3.5 text-slate-400 font-medium">${s.dateDisplay || s.date || ''}</td>
               <td class="p-3.5 font-bold text-slate-800">${itemsDetail}</td>
               <td class="p-3.5 text-center"><span class="px-2 py-1 rounded bg-slate-100 text-[10px] font-bold">${s.method}</span></td>
               <td class="p-3.5 text-right font-black text-slate-900">$${(s.totalUsd || 0).toFixed(2)}</td>
@@ -1795,13 +1526,13 @@ const analytics = getAnalytics(app);
       const itemsBody = document.getElementById('folder-items-body');
       itemsBody.innerHTML = '';
       (activeCustomer.items || []).forEach(i => {
-        itemsBody.innerHTML += `<tr><td class="p-3">${i.date}</td><td class="p-3 font-bold">${i.productName}</td><td class="p-3 text-right">$${i.totalUsd.toFixed(2)}</td><td class="p-3 text-right">${i.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
+        itemsBody.innerHTML += `<tr><td class="p-3">${i.dateDisplay || i.date}</td><td class="p-3 font-bold">${i.productName}</td><td class="p-3 text-right">$${i.totalUsd.toFixed(2)}</td><td class="p-3 text-right">${i.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
       });
 
       const paymentsBody = document.getElementById('folder-payments-body');
       paymentsBody.innerHTML = '';
       (activeCustomer.payments || []).forEach(p => {
-        paymentsBody.innerHTML += `<tr><td class="p-3">${p.date}</td><td class="p-3">${p.method}</td><td class="p-3 text-right text-emerald-600">$${p.amountUsd.toFixed(2)}</td><td class="p-3 text-right text-emerald-600">${p.amountBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
+        paymentsBody.innerHTML += `<tr><td class="p-3">${p.dateDisplay || p.date}</td><td class="p-3">${p.method}</td><td class="p-3 text-right text-emerald-600">$${p.amountUsd.toFixed(2)}</td><td class="p-3 text-right text-emerald-600">${p.amountBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
       });
 
       document.getElementById('modal-customer-folder').classList.remove('hidden');
@@ -1827,13 +1558,19 @@ const analytics = getAnalytics(app);
       const bs = curr === 'BS' ? amount : amount * bcvRate;
 
       if (!activeCustomer.payments) activeCustomer.payments = [];
-      activeCustomer.payments.push({ id: 'ABO-' + Date.now().toString().slice(-6), date: new Date().toLocaleString('es-VE'), currency: curr, method, amountUsd: usd, amountBs: bs });
+      const now = new Date();
+      activeCustomer.payments.push({ 
+        id: 'ABO-' + Date.now().toString().slice(-6), 
+        dateISO: now.toISOString(),
+        dateDisplay: now.toLocaleString('es-VE'),
+        currency: curr, method, amountUsd: usd, amountBs: bs 
+      });
 
       const debt = (activeCustomer.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
       const paid = (activeCustomer.payments || []).reduce((acc, p) => acc + (p.amountUsd || 0), 0);
       if (debt - paid <= 0.001) {
         activeCustomer.items = [];
-        activeCustomer.payments = [{ id: 'RES-' + Date.now().toString().slice(-6), date: new Date().toLocaleString('es-VE'), method: 'Saldado Total', amountUsd: 0, amountBs: 0 }];
+        activeCustomer.payments = [{ id: 'RES-' + Date.now().toString().slice(-6), dateISO: now.toISOString(), dateDisplay: now.toLocaleString('es-VE'), method: 'Saldado Total', amountUsd: 0, amountBs: 0 }];
       }
 
       saveDebtorCloud(activeCustomer);
@@ -1853,18 +1590,23 @@ const analytics = getAnalytics(app);
         if (!debtorName) return alert('Escriba el nombre del deudor.');
       }
 
+      // CORRECCIÓN CRÍTICA: Usar increment() para evitar condiciones de carrera en el inventario
+      const { doc, updateDoc, increment } = window.firebaseFns;
       cart.forEach(item => {
         const p = products.find(prod => prod && prod.id === item.productId);
         if (p) {
+          const productRef = doc(window.db, "productos", p.id);
           if (p.type === 'alimento') {
-            if (item.type === 'sack') p.closedSacks = Math.max(0, (p.closedSacks || 0) - 1);
-            else p.openSackKilos = Math.max(0, (p.openSackKilos || 0) - item.kilos);
+            if (item.type === 'sack') {
+              updateDoc(productRef, { closedSacks: increment(-1) });
+            } else {
+              updateDoc(productRef, { openSackKilos: increment(-item.kilos) });
+            }
           } else if (p.type === 'miscelaneos') {
-            p.stockMeters = Math.max(0, (p.stockMeters || 0) - item.meters);
+            updateDoc(productRef, { stockMeters: increment(-item.meters) });
           } else {
-            p.stockUnits = Math.max(0, (p.stockUnits || 0) - 1);
+            updateDoc(productRef, { stockUnits: increment(-1) });
           }
-          saveProductCloud(p);
         }
       });
 
@@ -1876,13 +1618,30 @@ const analytics = getAnalytics(app);
         if (!debtor) {
           debtor = { id: 'CLI-' + Date.now().toString().slice(-6), name: debtorName, phone: debtorPhone, items: [], payments: [] };
         }
+        const now = new Date();
         cart.forEach(i => {
-          debtor.items.push({ id: 'CRE-' + Date.now().toString().slice(-6), date: new Date().toLocaleString('es-VE'), productName: i.name, totalUsd: i.totalUsd, totalBs: i.totalBs });
+          debtor.items.push({ 
+            id: 'CRE-' + Date.now().toString().slice(-6), 
+            dateISO: now.toISOString(),
+            dateDisplay: now.toLocaleString('es-VE'),
+            productName: i.name, totalUsd: i.totalUsd, totalBs: i.totalBs 
+          });
         });
         saveDebtorCloud(debtor);
       }
 
-      const record = { id: 'VEN-' + Date.now().toString().slice(-6), date: new Date().toLocaleString('es-VE'), items: [...cart], method: method === 'Crédito' ? `Crédito (${debtorName})` : method, totalUsd, totalBs, bcv: bcvRate };
+      const now = new Date();
+      const record = { 
+        id: 'VEN-' + Date.now().toString().slice(-6), 
+        dateISO: now.toISOString(),
+        dateDisplay: now.toLocaleString('es-VE'),
+        items: [...cart], 
+        method: method === 'Crédito' ? `Crédito (${debtorName})` : method, 
+        totalUsd, 
+        totalBs, 
+        bcv: bcvRate 
+      };
+      
       saveSaleCloud(record);
       openTicketModal(record);
       clearCart();
@@ -1910,10 +1669,10 @@ const analytics = getAnalytics(app);
     function renderPosGrid() {
       const grid = document.getElementById('pos-grid');
       if (!grid) return;
-      const query = (document.getElementById('pos-search')?.value || '').toLowerCase();
+      const queryStr = (document.getElementById('pos-search')?.value || '').toLowerCase();
       grid.innerHTML = '';
 
-      const filtered = products.filter(p => p && ((p.name && p.name.toLowerCase().includes(query)) || (p.brand && p.brand.toLowerCase().includes(query))));
+      const filtered = products.filter(p => p && ((p.name && p.name.toLowerCase().includes(queryStr)) || (p.brand && p.brand.toLowerCase().includes(queryStr))));
 
       filtered.forEach(p => {
         const card = document.createElement('div');
