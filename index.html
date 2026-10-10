@@ -33,6 +33,7 @@
     window.auth = auth;
     window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit, signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
+    // ✅ SISTEMA DE ROLES - Edita aquí los emails y sus permisos
     window.userRoles = {
       "admin@elbotalon.com": "admin",
       "inventario@elbotalon.com": "inventory"
@@ -183,6 +184,7 @@
 </head>
 <body class="text-slate-800 min-h-screen antialiased">
 
+  <!-- LOGIN -->
   <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-botalon-purple via-purple-700 to-botalon-pink flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6">
       <div class="text-center space-y-3">
@@ -209,6 +211,7 @@
     </div>
   </div>
 
+  <!-- APP -->
   <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row">
     <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col justify-between shadow-sm">
       <div>
@@ -580,6 +583,7 @@
     </main>
   </div>
 
+  <!-- MODAL TICKET -->
   <div id="modal-ticket" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeTicketModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -608,6 +612,7 @@
     </div>
   </div>
 
+  <!-- MODAL REPORTE -->
   <div id="modal-periodic-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePeriodicReportModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -632,6 +637,7 @@
     </div>
   </div>
 
+  <!-- MODAL DEVOLUCIÓN -->
   <div id="modal-return" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeReturnModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -667,6 +673,7 @@
     </div>
   </div>
 
+  <!-- MODAL MOVIMIENTOS -->
   <div id="modal-movements" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[85vh] overflow-y-auto space-y-4">
       <button onclick="closeMovementsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -701,6 +708,7 @@
     </div>
   </div>
 
+  <!-- MODAL CARPETA CLIENTE -->
   <div id="modal-customer-folder" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto space-y-5">
       <button onclick="closeCustomerFolder()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -764,6 +772,7 @@
     </div>
   </div>
 
+  <!-- MODAL ABONO -->
   <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -796,6 +805,7 @@
     </div>
   </div>
 
+  <!-- MODAL CALCULADORA -->
   <div id="modal-calc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative">
       <button onclick="closeCalcModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -863,6 +873,7 @@
     </div>
   </div>
 
+  <!-- MODAL PRODUCTO -->
   <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeProductModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -955,6 +966,7 @@
     </div>
   </div>
 
+  <!-- MODAL NUEVO DEUDOR -->
   <div id="modal-new-debtor" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeNewDebtorModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1065,7 +1077,7 @@
         snapshot.forEach((docSnap) => {
           products.push({ id: docSnap.id, ...docSnap.data() });
         });
-        console.log("📦 Productos cargados:", products.length);
+        console.log(" Productos cargados:", products.length);
         renderInventoryTable();
         renderPosGrid();
         renderDashboard();
@@ -1851,7 +1863,7 @@
         alert('✅ ¡Carpeta de cliente creada exitosamente!');
       } catch (error) {
         console.error("❌ Error detallado al guardar:", error);
-        alert('❌ Error al guardar: ' + error.message);
+        alert(' Error al guardar: ' + error.message);
       }
     }
 
@@ -2220,13 +2232,16 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // ✅ FUNCIÓN CORREGIDA: Buscador funcional + orden alfabético
     function renderInventoryTable() {
       const tbody = document.getElementById('inventory-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
 
+      // ✅ Leer el valor del buscador
       const queryStr = (document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
 
+      // ✅ Filtrar productos por nombre, marca o categoría
       let filtered = products.filter(p => {
         if (!p) return false;
         if (!queryStr) return true;
@@ -2237,12 +2252,14 @@
         );
       });
 
+      // ✅ Ordenar alfabéticamente por nombre (ignorando mayúsculas y acentos)
       filtered.sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
         return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
       });
 
+      // Mostrar mensaje si no hay resultados
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 text-xs">
           <div class="flex flex-col items-center gap-2">
@@ -2312,130 +2329,115 @@
 
     function closeProductModal() { document.getElementById('modal-product').classList.add('hidden'); }
 
+    // ✅ FUNCIÓN CORREGIDA: Carga datos para TODOS los tipos de producto
     function editProduct(id) {
-  const p = products.find(prod => prod.id === id);
-  if (!p) return;
-
-  // 1. Cargar datos básicos
-  document.getElementById('prod-id').value = p.id;
-  document.getElementById('form-type').value = p.type;
-  document.getElementById('form-name').value = p.name;
-  document.getElementById('form-brand').value = p.brand || '';
-
-  // 2. Mostrar la sección correcta según el tipo
-  toggleProductCategoryFields();
-
-  // 3. Cargar los valores específicos según el tipo de producto
-  if (p.type === 'alimento') {
-    document.getElementById('form-sack-weight').value = p.sackWeightKg || 40;
-    document.getElementById('form-sack-stock').value = p.closedSacks || 0;
-    document.getElementById('form-open-sacks').value = p.openSackKilos || 0;
-    document.getElementById('form-price-sack').value = p.priceSackUsd || 0;
-    document.getElementById('form-price-kg').value = p.priceKgUsd || 0;
-  } 
-  else if (p.type === 'medicamento') {
-    document.getElementById('form-med-stock').value = p.stockUnits || 0;
-    document.getElementById('form-med-price').value = p.priceUnitUsd || 0;
-  } 
-  else if (p.type === 'miscelaneos') {
-    document.getElementById('form-misc-meters').value = p.stockMeters || 0;
-    document.getElementById('form-misc-price-meter').value = p.priceMeterUsd || 0;
-  } 
-  else if (p.type === 'mecate') {
-    document.getElementById('form-mecate-meters').value = p.stockMeters || 0;
-    document.getElementById('form-mecate-factor').value = p.factorConversion || 1;
-    document.getElementById('form-mecate-price-kg').value = p.pricePerKg || 0;
-    document.getElementById('form-mecate-price-meter').value = p.pricePerMeter || 0;
-  } 
-  else {
-    // Talabartería y Ferretería (tipo estándar)
-    document.getElementById('form-std-stock').value = p.stockUnits || 0;
-    document.getElementById('form-std-price').value = p.priceUnitUsd || 0;
-  }
-
-  // 4. Cambiar el título del modal
-  document.getElementById('modal-prod-title').innerText = 'Editar Producto: ' + p.name;
-
-  // 5. Mostrar el modal
-  document.getElementById('modal-product').classList.remove('hidden');
-  
-  if (window.lucide) lucide.createIcons();
-}
       const p = products.find(prod => prod.id === id);
       if (!p) return;
+
+      // 1. Cargar datos básicos
       document.getElementById('prod-id').value = p.id;
       document.getElementById('form-type').value = p.type;
       document.getElementById('form-name').value = p.name;
       document.getElementById('form-brand').value = p.brand || '';
+
+      // 2. Mostrar la sección correcta según el tipo
       toggleProductCategoryFields();
-      document.getElementById('modal-prod-title').innerText = 'Editar Producto';
-      
-      if (p.type === 'mecate') {
+
+      // 3. Cargar los valores específicos según el tipo de producto
+      if (p.type === 'alimento') {
+        document.getElementById('form-sack-weight').value = p.sackWeightKg || 40;
+        document.getElementById('form-sack-stock').value = p.closedSacks || 0;
+        document.getElementById('form-open-sacks').value = p.openSackKilos || 0;
+        document.getElementById('form-price-sack').value = p.priceSackUsd || 0;
+        document.getElementById('form-price-kg').value = p.priceKgUsd || 0;
+      } 
+      else if (p.type === 'medicamento') {
+        document.getElementById('form-med-stock').value = p.stockUnits || 0;
+        document.getElementById('form-med-price').value = p.priceUnitUsd || 0;
+      } 
+      else if (p.type === 'miscelaneos') {
+        document.getElementById('form-misc-meters').value = p.stockMeters || 0;
+        document.getElementById('form-misc-price-meter').value = p.priceMeterUsd || 0;
+      } 
+      else if (p.type === 'mecate') {
         document.getElementById('form-mecate-meters').value = p.stockMeters || 0;
         document.getElementById('form-mecate-factor').value = p.factorConversion || 1;
         document.getElementById('form-mecate-price-kg').value = p.pricePerKg || 0;
         document.getElementById('form-mecate-price-meter').value = p.pricePerMeter || 0;
+      } 
+      else {
+        // Talabartería y Ferretería (tipo estándar)
+        document.getElementById('form-std-stock').value = p.stockUnits || 0;
+        document.getElementById('form-std-price').value = p.priceUnitUsd || 0;
       }
-      
+
+      // 4. Cambiar el título del modal
+      document.getElementById('modal-prod-title').innerText = 'Editar Producto: ' + p.name;
+
+      // 5. Mostrar el modal
       document.getElementById('modal-product').classList.remove('hidden');
+      
+      if (window.lucide) lucide.createIcons();
     }
 
-  function saveProductDirect(e) {
-  if (e) e.preventDefault();
-  const id = document.getElementById('prod-id').value;
-  const type = document.getElementById('form-type').value;
-  const name = document.getElementById('form-name').value.trim();
-  const brand = document.getElementById('form-brand').value.trim();
+    // ✅ FUNCIÓN MEJORADA: Preserva datos al editar
+    function saveProductDirect(e) {
+      if (e) e.preventDefault();
+      const id = document.getElementById('prod-id').value;
+      const type = document.getElementById('form-type').value;
+      const name = document.getElementById('form-name').value.trim();
+      const brand = document.getElementById('form-brand').value.trim();
 
-  if (!name) return alert('Escriba el nombre del producto.');
+      if (!name) return alert('Escriba el nombre del producto.');
 
-  // Si estamos editando un producto existente, mantener los datos que no se muestran
-  let existingProduct = null;
-  if (id) {
-    existingProduct = products.find(p => p.id === id);
-  }
+      // Si estamos editando un producto existente, mantener los datos que no se muestran
+      let existingProduct = null;
+      if (id) {
+        existingProduct = products.find(p => p.id === id);
+      }
 
-  let newProduct = { 
-    id: id ? id : Date.now().toString(), 
-    type, 
-    name, 
-    brand 
-  };
+      let newProduct = { 
+        id: id ? id : Date.now().toString(), 
+        type, 
+        name, 
+        brand 
+      };
 
-  // Si existe, preservar campos de otros tipos que no se están editando
-  if (existingProduct) {
-    newProduct = { ...existingProduct, ...newProduct };
-  }
+      // Si existe, preservar campos de otros tipos que no se están editando
+      if (existingProduct) {
+        newProduct = { ...existingProduct, ...newProduct };
+      }
 
-  if (type === 'alimento') {
-    newProduct.sackWeightKg = parseFloat(document.getElementById('form-sack-weight').value) || 40;
-    newProduct.closedSacks = parseInt(document.getElementById('form-sack-stock').value) || 0;
-    newProduct.openSackKilos = parseFloat(document.getElementById('form-open-sacks').value) || 0;
-    newProduct.priceSackUsd = parseFloat(document.getElementById('form-price-sack').value) || 0;
-    newProduct.priceKgUsd = parseFloat(document.getElementById('form-price-kg').value) || 0;
-  } else if (type === 'medicamento') {
-    newProduct.stockUnits = parseInt(document.getElementById('form-med-stock').value) || 0;
-    newProduct.priceUnitUsd = parseFloat(document.getElementById('form-med-price').value) || 0;
-  } else if (type === 'miscelaneos') {
-    newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
-    newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
-  } else if (type === 'mecate') {
-    const factor = parseFloat(document.getElementById('form-mecate-factor').value) || 1;
-    const priceKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
-    newProduct.stockMeters = parseFloat(document.getElementById('form-mecate-meters').value) || 0;
-    newProduct.factorConversion = factor;
-    newProduct.pricePerKg = priceKg;
-    newProduct.pricePerMeter = priceKg / factor;
-  } else {
-    // Talabartería y Ferretería
-    newProduct.stockUnits = parseInt(document.getElementById('form-std-stock').value) || 0;
-    newProduct.priceUnitUsd = parseFloat(document.getElementById('form-std-price').value) || 0;
-  }
+      if (type === 'alimento') {
+        newProduct.sackWeightKg = parseFloat(document.getElementById('form-sack-weight').value) || 40;
+        newProduct.closedSacks = parseInt(document.getElementById('form-sack-stock').value) || 0;
+        newProduct.openSackKilos = parseFloat(document.getElementById('form-open-sacks').value) || 0;
+        newProduct.priceSackUsd = parseFloat(document.getElementById('form-price-sack').value) || 0;
+        newProduct.priceKgUsd = parseFloat(document.getElementById('form-price-kg').value) || 0;
+      } else if (type === 'medicamento') {
+        newProduct.stockUnits = parseInt(document.getElementById('form-med-stock').value) || 0;
+        newProduct.priceUnitUsd = parseFloat(document.getElementById('form-med-price').value) || 0;
+      } else if (type === 'miscelaneos') {
+        newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
+        newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
+      } else if (type === 'mecate') {
+        const factor = parseFloat(document.getElementById('form-mecate-factor').value) || 1;
+        const priceKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
+        newProduct.stockMeters = parseFloat(document.getElementById('form-mecate-meters').value) || 0;
+        newProduct.factorConversion = factor;
+        newProduct.pricePerKg = priceKg;
+        newProduct.pricePerMeter = priceKg / factor;
+      } else {
+        // Talabartería y Ferretería
+        newProduct.stockUnits = parseInt(document.getElementById('form-std-stock').value) || 0;
+        newProduct.priceUnitUsd = parseFloat(document.getElementById('form-std-price').value) || 0;
+      }
 
-  saveProductCloud(newProduct);
-  closeProductModal();
-  alert('✅ ¡Producto guardado exitosamente!');
-}
+      saveProductCloud(newProduct);
+      closeProductModal();
+      alert('✅ ¡Producto guardado exitosamente!');
+    }
+
     function deleteProduct(id) {
       if (confirm('¿Eliminar producto?')) deleteProductCloud(id);
     }
