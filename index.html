@@ -33,7 +33,6 @@
     window.auth = auth;
     window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit, signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
-    // ✅ SISTEMA DE ROLES: Edita aquí los emails y sus permisos
     window.userRoles = {
       "admin@elbotalon.com": "admin",
       "inventario@elbotalon.com": "inventory"
@@ -67,9 +66,6 @@
       const role = window.currentUserRole;
       const isAdmin = role === 'admin';
       
-      console.log("🔒 Rol aplicado:", role);
-      
-      // Elementos que se ocultan para rol "inventory"
       const hideForInventory = [
         'btn-edit-bcv', 'btn-weekly-report', 'btn-monthly-report',
         'btn-return', 'btn-sell', 'btn-process-sale', 'btn-clear-cart',
@@ -100,18 +96,11 @@
         }
       });
       
-      // Ocultar navegación a POS y Créditos para inventory
       if (!isAdmin) {
         const navPos = document.getElementById('nav-pos');
         const navCredits = document.getElementById('nav-credits');
         if (navPos) navPos.style.display = 'none';
         if (navCredits) navCredits.style.display = 'none';
-        
-        // Si está en POS o Créditos, redirigir a Inventario
-        const currentTab = document.querySelector('.tab-content:not(.hidden)');
-        if (currentTab && (currentTab.id === 'tab-pos' || currentTab.id === 'tab-credits')) {
-          switchTab('inventory');
-        }
       } else {
         const navPos = document.getElementById('nav-pos');
         const navCredits = document.getElementById('nav-credits');
@@ -194,7 +183,6 @@
 </head>
 <body class="text-slate-800 min-h-screen antialiased">
 
-  <!-- LOGIN -->
   <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-botalon-purple via-purple-700 to-botalon-pink flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6">
       <div class="text-center space-y-3">
@@ -221,7 +209,6 @@
     </div>
   </div>
 
-  <!-- APP -->
   <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row">
     <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col justify-between shadow-sm">
       <div>
@@ -550,7 +537,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
           <div class="relative w-full sm:w-80">
             <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
-            <input type="text" id="inventory-search" oninput="renderInventoryTable()" placeholder="Buscar en inventario..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-botalon-purple shadow-xs">
+            <input type="text" id="inventory-search" oninput="renderInventoryTable()" placeholder="Buscar por nombre, marca o categoría..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-botalon-purple shadow-xs">
           </div>
           <button onclick="openProductModal()" class="w-full sm:w-auto bg-botalon-purple text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-botalon-purpleHover transition flex items-center justify-center gap-2 shadow-xs">
             <i data-lucide="plus" class="w-4 h-4"></i><span>Nuevo Producto</span>
@@ -593,7 +580,6 @@
     </main>
   </div>
 
-  <!-- MODAL TICKET -->
   <div id="modal-ticket" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeTicketModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -622,7 +608,6 @@
     </div>
   </div>
 
-  <!-- MODAL REPORTE -->
   <div id="modal-periodic-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePeriodicReportModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -647,7 +632,6 @@
     </div>
   </div>
 
-  <!-- MODAL DEVOLUCIÓN -->
   <div id="modal-return" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeReturnModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -683,7 +667,6 @@
     </div>
   </div>
 
-  <!-- MODAL MOVIMIENTOS -->
   <div id="modal-movements" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[85vh] overflow-y-auto space-y-4">
       <button onclick="closeMovementsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -718,7 +701,6 @@
     </div>
   </div>
 
-  <!-- MODAL CARPETA CLIENTE -->
   <div id="modal-customer-folder" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto space-y-5">
       <button onclick="closeCustomerFolder()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -782,7 +764,6 @@
     </div>
   </div>
 
-  <!-- MODAL ABONO -->
   <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -815,7 +796,6 @@
     </div>
   </div>
 
-  <!-- MODAL CALCULADORA -->
   <div id="modal-calc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative">
       <button onclick="closeCalcModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -883,7 +863,6 @@
     </div>
   </div>
 
-  <!-- MODAL PRODUCTO -->
   <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeProductModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -976,7 +955,6 @@
     </div>
   </div>
 
-  <!-- MODAL NUEVO DEUDOR -->
   <div id="modal-new-debtor" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeNewDebtorModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1148,7 +1126,7 @@
         await setDoc(doc(window.db, "deudores", debtor.id.toString()), debtor);
         return true;
       } catch (error) {
-        console.error("❌ Error al guardar deudor:", error);
+        console.error(" Error al guardar deudor:", error);
         return false;
       }
     }
@@ -1182,9 +1160,8 @@
     }
 
     function switchTab(tabId) {
-      // Validar acceso según rol
       if (!isAdmin() && (tabId === 'pos' || tabId === 'credits')) {
-        alert('❌ No tienes permisos para acceder a esta sección.');
+        alert(' No tienes permisos para acceder a esta sección.');
         return;
       }
 
@@ -1847,7 +1824,7 @@
       const phone = document.getElementById('new-debtor-phone').value.trim();
 
       if (!name) {
-        alert('⚠️ Por favor escriba el nombre del cliente.');
+        alert('️ Por favor escriba el nombre del cliente.');
         return;
       }
 
@@ -1874,7 +1851,7 @@
         alert('✅ ¡Carpeta de cliente creada exitosamente!');
       } catch (error) {
         console.error("❌ Error detallado al guardar:", error);
-        alert(' Error al guardar: ' + error.message);
+        alert('❌ Error al guardar: ' + error.message);
       }
     }
 
@@ -2216,7 +2193,7 @@
           const stockKg = (p.stockMeters || 0) / (p.factorConversion || 1);
           card.innerHTML = `
             <div>
-              <span class="text-[10px] font-bold text-orange-600 uppercase bg-orange-50 px-2 py-0.5 rounded-full">🪢 Mecate</span>
+              <span class="text-[10px] font-bold text-orange-600 uppercase bg-orange-50 px-2 py-0.5 rounded-full"> Mecate</span>
               <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
               <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
             </div>
@@ -2248,7 +2225,36 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      products.forEach(p => {
+      const queryStr = (document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
+
+      let filtered = products.filter(p => {
+        if (!p) return false;
+        if (!queryStr) return true;
+        return (
+          (p.name && p.name.toLowerCase().includes(queryStr)) ||
+          (p.brand && p.brand.toLowerCase().includes(queryStr)) ||
+          (p.type && p.type.toLowerCase().includes(queryStr))
+        );
+      });
+
+      filtered.sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 text-xs">
+          <div class="flex flex-col items-center gap-2">
+            <i data-lucide="search-x" class="w-8 h-8 text-slate-300"></i>
+            <span>No se encontraron productos${queryStr ? ` para "<strong class="text-slate-600">${queryStr}</strong>"` : ''}.</span>
+          </div>
+        </td></tr>`;
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      filtered.forEach(p => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition";
         
@@ -2291,6 +2297,8 @@
         `;
         tbody.appendChild(tr);
       });
+      
+      if (window.lucide) lucide.createIcons();
     }
 
     function openProductModal() {
