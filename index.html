@@ -33,7 +33,6 @@
     window.auth = auth;
     window.firebaseFns = { collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit, signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
-    // ✅ SISTEMA DE ROLES - Edita aquí los emails y sus permisos
     window.userRoles = {
       "admin@elbotalon.com": "admin",
       "inventario@elbotalon.com": "inventory"
@@ -72,7 +71,7 @@
         'btn-return', 'btn-sell', 'btn-process-sale', 'btn-clear-cart',
         'btn-new-debtor', 'btn-register-payment', 'btn-edit-customer-name',
         'btn-edit-customer-phone', 'btn-delete-debtor', 'btn-filter-pending',
-        'btn-filter-all', 'btn-save-payment',
+        'btn-filter-all', 'btn-save-payment', 'btn-add-old-debt',
         'dash-sales-usd', 'dash-sales-bs', 'dash-cash-bs', 'dash-cash-usd',
         'dash-cash-usd-divisa', 'dash-cash-divisa-bs', 'dash-pagomovil-bs',
         'dash-pagomovil-usd', 'dash-punto-bs', 'dash-punto-usd',
@@ -738,16 +737,21 @@
       </div>
       <div class="flex justify-between items-center pt-2">
         <h4 class="font-bold text-slate-900 text-sm">Productos Consumidos a Crédito</h4>
-        <button id="btn-register-payment" onclick="openPaymentModal()" class="bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-xs">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i><span>+ Registrar Abono</span>
-        </button>
+        <div class="flex gap-2">
+          <button id="btn-add-old-debt" onclick="openOldDebtModal()" class="bg-rose-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-rose-700 transition flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="file-plus" class="w-4 h-4"></i><span>+ Deuda Antigua</span>
+          </button>
+          <button id="btn-register-payment" onclick="openPaymentModal()" class="bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i><span>+ Registrar Abono</span>
+          </button>
+        </div>
       </div>
       <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
             <tr>
               <th class="p-3 font-bold">Fecha</th>
-              <th class="p-3 font-bold">Producto(s)</th>
+              <th class="p-3 font-bold">Producto(s) / Concepto</th>
               <th class="p-3 font-bold text-right">Monto ($)</th>
               <th class="p-3 font-bold text-right">Monto (Bs)</th>
             </tr>
@@ -768,6 +772,43 @@
           </thead>
           <tbody id="folder-payments-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ NUEVO MODAL: AGREGAR DEUDA ANTIGUA -->
+  <div id="modal-old-debt" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
+      <button onclick="closeOldDebtModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+        <div class="p-3 bg-rose-100 text-rose-700 rounded-2xl"><i data-lucide="file-plus" class="w-6 h-6"></i></div>
+        <div>
+          <h3 class="font-extrabold text-lg text-slate-900">Agregar Deuda Antigua</h3>
+          <p class="text-xs text-slate-400 font-medium">Registrar saldo pendiente previo al sistema</p>
+        </div>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Concepto / Descripción:</label>
+          <input type="text" id="old-debt-concept" placeholder="Ej: Compra de alimento, Saldo anterior..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Monto (USD):</label>
+            <input type="number" step="0.01" id="old-debt-usd" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-rose-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Fecha de la Deuda:</label>
+            <input type="date" id="old-debt-date" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-rose-500">
+          </div>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-[11px] text-rose-700">
+          <p class="font-bold mb-1">💡 Nota:</p>
+          <p>Esta deuda se sumará al saldo pendiente del cliente. La tasa BCV aplicada será la actual (<strong id="old-debt-bcv-display">42.50</strong> Bs/$).</p>
+        </div>
+        <button onclick="saveOldDebt()" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
+          <i data-lucide="save" class="w-4 h-4"></i><span>Agregar Deuda Antigua</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1077,7 +1118,7 @@
         snapshot.forEach((docSnap) => {
           products.push({ id: docSnap.id, ...docSnap.data() });
         });
-        console.log(" Productos cargados:", products.length);
+        console.log("📦 Productos cargados:", products.length);
         renderInventoryTable();
         renderPosGrid();
         renderDashboard();
@@ -1156,6 +1197,8 @@
       if (tb) tb.innerText = `${bcvRate.toFixed(2)} Bs/$`;
       const cb = document.getElementById('cart-bcv-rate');
       if (cb) cb.innerText = `${bcvRate.toFixed(2)} Bs/$`;
+      const oldDebtBcv = document.getElementById('old-debt-bcv-display');
+      if (oldDebtBcv) oldDebtBcv.innerText = bcvRate.toFixed(2);
     }
 
     function editBcvRate() {
@@ -1173,7 +1216,7 @@
 
     function switchTab(tabId) {
       if (!isAdmin() && (tabId === 'pos' || tabId === 'credits')) {
-        alert(' No tienes permisos para acceder a esta sección.');
+        alert('❌ No tienes permisos para acceder a esta sección.');
         return;
       }
 
@@ -1836,7 +1879,7 @@
       const phone = document.getElementById('new-debtor-phone').value.trim();
 
       if (!name) {
-        alert('️ Por favor escriba el nombre del cliente.');
+        alert('⚠️ Por favor escriba el nombre del cliente.');
         return;
       }
 
@@ -1863,8 +1906,91 @@
         alert('✅ ¡Carpeta de cliente creada exitosamente!');
       } catch (error) {
         console.error("❌ Error detallado al guardar:", error);
-        alert(' Error al guardar: ' + error.message);
+        alert('❌ Error al guardar: ' + error.message);
       }
+    }
+
+    // ✅ NUEVAS FUNCIONES PARA DEUDA ANTIGUA
+    function openOldDebtModal() {
+      if (!checkAdminAccess('agregar deudas antiguas')) return;
+      if (!activeCustomer) return;
+      
+      document.getElementById('old-debt-concept').value = '';
+      document.getElementById('old-debt-usd').value = '';
+      document.getElementById('old-debt-date').value = getTodayYMD();
+      document.getElementById('modal-old-debt').classList.remove('hidden');
+      
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeOldDebtModal() {
+      document.getElementById('modal-old-debt').classList.add('hidden');
+    }
+
+    async function saveOldDebt() {
+      if (!checkAdminAccess('agregar deudas antiguas')) return;
+      if (!activeCustomer) return;
+
+      const concept = document.getElementById('old-debt-concept').value.trim();
+      const usdAmount = parseFloat(document.getElementById('old-debt-usd').value) || 0;
+      const debtDate = document.getElementById('old-debt-date').value;
+
+      if (!concept) {
+        alert('⚠️ Por favor escriba un concepto o descripción de la deuda.');
+        return;
+      }
+      if (usdAmount <= 0) {
+        alert('️ El monto debe ser mayor a cero.');
+        return;
+      }
+      if (!debtDate) {
+        alert('⚠️ Por favor seleccione la fecha de la deuda.');
+        return;
+      }
+
+      const bsAmount = usdAmount * bcvRate;
+
+      // Crear el item de deuda antigua
+      const oldDebtItem = {
+        id: 'OLD-' + Date.now().toString().slice(-6),
+        dateISO: new Date(debtDate + 'T12:00:00').toISOString(),
+        dateDisplay: formatDateDisplay(debtDate),
+        productName: concept + ' (Deuda Antigua)',
+        totalUsd: usdAmount,
+        totalBs: bsAmount,
+        isOldDebt: true
+      };
+
+      try {
+        // Agregar la deuda al array de items del cliente
+        if (!activeCustomer.items) activeCustomer.items = [];
+        activeCustomer.items.push(oldDebtItem);
+
+        // Guardar en Firebase
+        const success = await saveDebtorCloud(activeCustomer);
+        
+        if (success) {
+          closeOldDebtModal();
+          alert(`✅ Deuda antigua registrada exitosamente:\n\nConcepto: ${concept}\nMonto: $${usdAmount.toFixed(2)} (${bsAmount.toFixed(2)} Bs)\nFecha: ${formatDateDisplay(debtDate)}`);
+          
+          // Refrescar la vista de la carpeta
+          openCustomerFolder(activeCustomer.id);
+        } else {
+          alert('❌ Error al guardar la deuda antigua.');
+        }
+      } catch (error) {
+        console.error("❌ Error al agregar deuda antigua:", error);
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateStr;
     }
 
     function editCustomerName() {
@@ -1898,17 +2024,29 @@
 
       const itemsBody = document.getElementById('folder-items-body');
       itemsBody.innerHTML = '';
-      (activeCustomer.items || []).forEach(i => {
-        itemsBody.innerHTML += `<tr><td class="p-3">${i.dateDisplay || i.date}</td><td class="p-3 font-bold">${i.productName}</td><td class="p-3 text-right">$${i.totalUsd.toFixed(2)}</td><td class="p-3 text-right">${i.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
-      });
+      
+      if (!activeCustomer.items || activeCustomer.items.length === 0) {
+        itemsBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">No hay productos consumidos a crédito.</td></tr>`;
+      } else {
+        (activeCustomer.items || []).forEach(i => {
+          const isOldDebt = i.isOldDebt ? '<span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full ml-1">Antigua</span>' : '';
+          itemsBody.innerHTML += `<tr><td class="p-3">${i.dateDisplay || i.date}</td><td class="p-3 font-bold">${i.productName}${isOldDebt}</td><td class="p-3 text-right">$${i.totalUsd.toFixed(2)}</td><td class="p-3 text-right">${i.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
+        });
+      }
 
       const paymentsBody = document.getElementById('folder-payments-body');
       paymentsBody.innerHTML = '';
-      (activeCustomer.payments || []).forEach(p => {
-        paymentsBody.innerHTML += `<tr><td class="p-3">${p.dateDisplay || p.date}</td><td class="p-3">${p.method}</td><td class="p-3 text-right text-emerald-600">$${p.amountUsd.toFixed(2)}</td><td class="p-3 text-right text-emerald-600">${p.amountBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
-      });
+      
+      if (!activeCustomer.payments || activeCustomer.payments.length === 0) {
+        paymentsBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">No hay abonos registrados.</td></tr>`;
+      } else {
+        (activeCustomer.payments || []).forEach(p => {
+          paymentsBody.innerHTML += `<tr><td class="p-3">${p.dateDisplay || p.date}</td><td class="p-3">${p.method}</td><td class="p-3 text-right text-emerald-600">$${p.amountUsd.toFixed(2)}</td><td class="p-3 text-right text-emerald-600">${p.amountBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td></tr>`;
+        });
+      }
 
       document.getElementById('modal-customer-folder').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
     }
 
     function closeCustomerFolder() { document.getElementById('modal-customer-folder').classList.add('hidden'); }
@@ -2232,16 +2370,13 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // ✅ FUNCIÓN CORREGIDA: Buscador funcional + orden alfabético
     function renderInventoryTable() {
       const tbody = document.getElementById('inventory-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      // ✅ Leer el valor del buscador
       const queryStr = (document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
 
-      // ✅ Filtrar productos por nombre, marca o categoría
       let filtered = products.filter(p => {
         if (!p) return false;
         if (!queryStr) return true;
@@ -2252,14 +2387,12 @@
         );
       });
 
-      // ✅ Ordenar alfabéticamente por nombre (ignorando mayúsculas y acentos)
       filtered.sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
         return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
       });
 
-      // Mostrar mensaje si no hay resultados
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 text-xs">
           <div class="flex flex-col items-center gap-2">
@@ -2329,21 +2462,17 @@
 
     function closeProductModal() { document.getElementById('modal-product').classList.add('hidden'); }
 
-    // ✅ FUNCIÓN CORREGIDA: Carga datos para TODOS los tipos de producto
     function editProduct(id) {
       const p = products.find(prod => prod.id === id);
       if (!p) return;
 
-      // 1. Cargar datos básicos
       document.getElementById('prod-id').value = p.id;
       document.getElementById('form-type').value = p.type;
       document.getElementById('form-name').value = p.name;
       document.getElementById('form-brand').value = p.brand || '';
 
-      // 2. Mostrar la sección correcta según el tipo
       toggleProductCategoryFields();
 
-      // 3. Cargar los valores específicos según el tipo de producto
       if (p.type === 'alimento') {
         document.getElementById('form-sack-weight').value = p.sackWeightKg || 40;
         document.getElementById('form-sack-stock').value = p.closedSacks || 0;
@@ -2366,21 +2495,16 @@
         document.getElementById('form-mecate-price-meter').value = p.pricePerMeter || 0;
       } 
       else {
-        // Talabartería y Ferretería (tipo estándar)
         document.getElementById('form-std-stock').value = p.stockUnits || 0;
         document.getElementById('form-std-price').value = p.priceUnitUsd || 0;
       }
 
-      // 4. Cambiar el título del modal
       document.getElementById('modal-prod-title').innerText = 'Editar Producto: ' + p.name;
-
-      // 5. Mostrar el modal
       document.getElementById('modal-product').classList.remove('hidden');
       
       if (window.lucide) lucide.createIcons();
     }
 
-    // ✅ FUNCIÓN MEJORADA: Preserva datos al editar
     function saveProductDirect(e) {
       if (e) e.preventDefault();
       const id = document.getElementById('prod-id').value;
@@ -2390,7 +2514,6 @@
 
       if (!name) return alert('Escriba el nombre del producto.');
 
-      // Si estamos editando un producto existente, mantener los datos que no se muestran
       let existingProduct = null;
       if (id) {
         existingProduct = products.find(p => p.id === id);
@@ -2403,7 +2526,6 @@
         brand 
       };
 
-      // Si existe, preservar campos de otros tipos que no se están editando
       if (existingProduct) {
         newProduct = { ...existingProduct, ...newProduct };
       }
@@ -2428,7 +2550,6 @@
         newProduct.pricePerKg = priceKg;
         newProduct.pricePerMeter = priceKg / factor;
       } else {
-        // Talabartería y Ferretería
         newProduct.stockUnits = parseInt(document.getElementById('form-std-stock').value) || 0;
         newProduct.priceUnitUsd = parseFloat(document.getElementById('form-std-price').value) || 0;
       }
