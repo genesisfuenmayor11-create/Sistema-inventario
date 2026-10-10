@@ -356,38 +356,38 @@
               </div>
             </div>
 
-           <div id="abono-input" class="hidden space-y-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
-  <div>
-    <label class="block text-[11px] font-bold text-emerald-800 mb-1">Seleccionar o Escribir Deudor:</label>
-    <select id="abono-debtor-select" onchange="handleAbonoDebtorSelect()" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 mb-1">
-      <option value="">-- Deudor Existente --</option>
-      <option value="NUEVO">+ Nuevo Deudor</option>
-    </select>
-    <input type="text" id="abono-debtor-name" oninput="updateAbonoRemaining()" placeholder="Nombre del deudor (si es nuevo)" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 hidden">
-  </div>
-  <div>
-    <label class="block text-[11px] font-bold text-emerald-800 mb-1">Teléfono (opcional):</label>
-    <input type="text" id="abono-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 hidden">
-  </div>
-  <div>
-    <label class="block text-[11px] font-bold text-emerald-800 mb-1">Monto que Abona (USD):</label>
-    <input type="number" step="0.01" id="abono-amount" oninput="updateAbonoRemaining()" placeholder="0.00" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
-  </div>
-  <div class="bg-white p-2 rounded-lg border border-emerald-200">
-    <div class="flex justify-between text-xs">
-      <span class="text-slate-600">Total Venta:</span>
-      <span id="abono-total-sale" class="font-bold">$0.00</span>
-    </div>
-    <div class="flex justify-between text-xs mt-1">
-      <span class="text-slate-600">Monto Abonado:</span>
-      <span id="abono-paid" class="font-bold text-emerald-600">$0.00</span>
-    </div>
-    <div class="flex justify-between text-xs mt-1 pt-1 border-t border-emerald-200">
-      <span class="text-slate-600 font-bold">Restante a Crédito:</span>
-      <span id="abono-remaining" class="font-bold text-amber-600">$0.00</span>
-    </div>
-  </div>
-</div>
+            <div id="abono-input" class="hidden space-y-2 bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
+              <div>
+                <label class="block text-[11px] font-bold text-emerald-800 mb-1">Seleccionar o Escribir Deudor:</label>
+                <select id="abono-debtor-select" onchange="handleAbonoDebtorSelect()" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 mb-1">
+                  <option value="">-- Deudor Existente --</option>
+                  <option value="NUEVO">+ Nuevo Deudor</option>
+                </select>
+                <input type="text" id="abono-debtor-name" oninput="updateAbonoRemaining()" placeholder="Nombre del deudor (si es nuevo)" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 hidden">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-emerald-800 mb-1">Teléfono (opcional):</label>
+                <input type="text" id="abono-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500 hidden">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-emerald-800 mb-1">Monto que Abona (USD):</label>
+                <input type="number" step="0.01" id="abono-amount" oninput="updateAbonoRemaining()" placeholder="0.00" class="w-full bg-white border border-emerald-300 rounded-xl p-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+              </div>
+              <div class="bg-white p-2 rounded-lg border border-emerald-200">
+                <div class="flex justify-between text-xs">
+                  <span class="text-slate-600">Total Venta:</span>
+                  <span id="abono-total-sale" class="font-bold">$0.00</span>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-slate-600">Monto Abonado:</span>
+                  <span id="abono-paid" class="font-bold text-emerald-600">$0.00</span>
+                </div>
+                <div class="flex justify-between text-xs mt-1 pt-1 border-t border-emerald-200">
+                  <span class="text-slate-600 font-bold">Restante a Crédito:</span>
+                  <span id="abono-remaining" class="font-bold text-amber-600">$0.00</span>
+                </div>
+              </div>
+            </div>
 
             <button onclick="processSale()" class="w-full py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/20 hover:opacity-95 transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
               <i data-lucide="check-circle" class="w-4 h-4"></i>
@@ -1456,44 +1456,36 @@
       });
     }
 
-    function handleAbonoDebtorSelect() {
-  const select = document.getElementById('abono-debtor-select');
-  const nameInput = document.getElementById('abono-debtor-name');
-  const phoneInput = document.getElementById('abono-debtor-phone');
-
-  if (select.value === 'NUEVO') {
-    nameInput.classList.remove('hidden');
-    phoneInput.classList.remove('hidden');
-    nameInput.value = '';
-    phoneInput.value = '';
-    nameInput.focus();
-  } else {
-    nameInput.classList.add('hidden');
-    phoneInput.classList.add('hidden');
-    nameInput.value = '';
-    phoneInput.value = '';
-  }
-  updateAbonoRemaining();
-}
-  const select = document.getElementById('abono-debtor-select');
-  if (!select) return;
-  select.innerHTML = '<option value="">-- Deudor Existente --</option><option value="NUEVO">+ Nuevo Deudor</option>';
-  debtors.forEach(d => {
-    const opt = document.createElement('option');
-    opt.value = d.id;
-    opt.innerText = `${d.name} (${d.phone || 'Sin tlf'})`;
-    select.appendChild(opt);
-  });
-}
+    function populateAbonoDebtorSelect() {
       const select = document.getElementById('abono-debtor-select');
       if (!select) return;
-      select.innerHTML = '<option value="">-- Seleccione un deudor --</option>';
+      select.innerHTML = '<option value="">-- Deudor Existente --</option><option value="NUEVO">+ Nuevo Deudor</option>';
       debtors.forEach(d => {
         const opt = document.createElement('option');
         opt.value = d.id;
         opt.innerText = `${d.name} (${d.phone || 'Sin tlf'})`;
         select.appendChild(opt);
       });
+    }
+
+    function handleAbonoDebtorSelect() {
+      const select = document.getElementById('abono-debtor-select');
+      const nameInput = document.getElementById('abono-debtor-name');
+      const phoneInput = document.getElementById('abono-debtor-phone');
+
+      if (select.value === 'NUEVO') {
+        nameInput.classList.remove('hidden');
+        phoneInput.classList.remove('hidden');
+        nameInput.value = '';
+        phoneInput.value = '';
+        nameInput.focus();
+      } else {
+        nameInput.classList.add('hidden');
+        phoneInput.classList.add('hidden');
+        nameInput.value = '';
+        phoneInput.value = '';
+      }
+      updateAbonoRemaining();
     }
 
     function updateAbonoRemaining() {
@@ -1680,28 +1672,28 @@
         debtorPhone = (document.getElementById('cart-debtor-phone').value || '').trim();
         if (!debtorName) return alert('Escriba el nombre del deudor.');
       } else if (method === 'Abono') {
-  const debtorId = document.getElementById('abono-debtor-select').value;
-  const abonoAmount = parseFloat(document.getElementById('abono-amount').value) || 0;
-  const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
+        const debtorId = document.getElementById('abono-debtor-select').value;
+        const abonoAmount = parseFloat(document.getElementById('abono-amount').value) || 0;
+        const totalUsd = cart.reduce((acc, i) => acc + (i.totalUsd || 0), 0);
 
-  if (!debtorId) return alert('Seleccione un deudor.');
-  if (abonoAmount <= 0) return alert('Ingrese el monto que abona.');
-  if (abonoAmount > totalUsd) return alert('El abono no puede ser mayor al total de la venta.');
+        if (!debtorId) return alert('Seleccione un deudor.');
+        if (abonoAmount <= 0) return alert('Ingrese el monto que abona.');
+        if (abonoAmount > totalUsd) return alert('El abono no puede ser mayor al total de la venta.');
 
-  let debtor = null;
-  let isNewDebtor = false;
+        let debtor = null;
+        let isNewDebtor = false;
 
-  if (debtorId === 'NUEVO') {
-    const debtorName = (document.getElementById('abono-debtor-name').value || '').trim();
-    const debtorPhone = (document.getElementById('abono-debtor-phone').value || '').trim();
-    if (!debtorName) return alert('Escriba el nombre del nuevo deudor.');
-    
-    debtor = { id: 'CLI-' + Date.now().toString().slice(-6), name: debtorName, phone: debtorPhone, items: [], payments: [] };
-    isNewDebtor = true;
-  } else {
-    debtor = debtors.find(d => d.id === debtorId);
-    if (!debtor) return alert('Deudor no encontrado.');
-  }
+        if (debtorId === 'NUEVO') {
+          const newDebtorName = (document.getElementById('abono-debtor-name').value || '').trim();
+          const newDebtorPhone = (document.getElementById('abono-debtor-phone').value || '').trim();
+          if (!newDebtorName) return alert('Escriba el nombre del nuevo deudor.');
+          
+          debtor = { id: 'CLI-' + Date.now().toString().slice(-6), name: newDebtorName, phone: newDebtorPhone, items: [], payments: [] };
+          isNewDebtor = true;
+        } else {
+          debtor = debtors.find(d => d.id === debtorId);
+          if (!debtor) return alert('Deudor no encontrado.');
+        }
 
         const remaining = totalUsd - abonoAmount;
 
@@ -1729,56 +1721,56 @@
         const abonoBs = abonoAmount * bcvRate;
         const remainingBs = remaining * bcvRate;
 
-          // Registrar el abono en el deudor
-  const now = new Date();
-  if (!debtor.payments) debtor.payments = [];
-  debtor.payments.push({
-    id: 'ABO-' + Date.now().toString().slice(-6),
-    dateISO: now.toISOString(),
-    dateDisplay: now.toLocaleString('es-VE'),
-    currency: 'USD',
-    method: `Abono desde venta`,
-    amountUsd: abonoAmount,
-    amountBs: abonoBs
-  });
+        // Registrar el abono en el deudor
+        const now = new Date();
+        if (!debtor.payments) debtor.payments = [];
+        debtor.payments.push({
+          id: 'ABO-' + Date.now().toString().slice(-6),
+          dateISO: now.toISOString(),
+          dateDisplay: now.toLocaleString('es-VE'),
+          currency: 'USD',
+          method: `Abono desde venta`,
+          amountUsd: abonoAmount,
+          amountBs: abonoBs
+        });
 
-  // Si hay monto restante, agregarlo como crédito
-  if (remaining > 0.001) {
-    cart.forEach(i => {
-      debtor.items.push({
-        id: 'CRE-' + Date.now().toString().slice(-6),
-        dateISO: now.toISOString(),
-        dateDisplay: now.toLocaleString('es-VE'),
-        productName: i.name,
-        totalUsd: i.totalUsd,
-        totalBs: i.totalBs
-      });
-    });
-  }
+        // Si hay monto restante, agregarlo como crédito
+        if (remaining > 0.001) {
+          cart.forEach(i => {
+            debtor.items.push({
+              id: 'CRE-' + Date.now().toString().slice(-6),
+              dateISO: now.toISOString(),
+              dateDisplay: now.toLocaleString('es-VE'),
+              productName: i.name,
+              totalUsd: i.totalUsd,
+              totalBs: i.totalBs
+            });
+          });
+        }
 
-  // Guardar deudor (nuevo o existente)
-  saveDebtorCloud(debtor);
-  if (isNewDebtor) {
-    debtors.push(debtor); // Agregarlo al array local para que aparezca inmediatamente
-  }
+        // Guardar deudor (nuevo o existente)
+        saveDebtorCloud(debtor);
+        if (isNewDebtor) {
+          debtors.push(debtor);
+        }
 
-          const record = {
-    id: 'VEN-' + Date.now().toString().slice(-6),
-    dateISO: now.toISOString(),
-    dateDisplay: now.toLocaleString('es-VE'),
-    items: [...cart],
-    method: `Abono ${debtor.name} ($${abonoAmount.toFixed(2)} / Rest: $${remaining.toFixed(2)})`,
-    totalUsd,
-    totalBs,
-    bcv: bcvRate,
-    abonoAmount,
-    abonoBs,
-    remaining,
-    remainingBs,
-    debtorName: debtor.name,
-    debtorId: debtor.id,
-    isNewDebtor: isNewDebtor
-  };
+        const record = {
+          id: 'VEN-' + Date.now().toString().slice(-6),
+          dateISO: now.toISOString(),
+          dateDisplay: now.toLocaleString('es-VE'),
+          items: [...cart],
+          method: `Abono ${debtor.name} ($${abonoAmount.toFixed(2)} / Rest: $${remaining.toFixed(2)})`,
+          totalUsd,
+          totalBs,
+          bcv: bcvRate,
+          abonoAmount,
+          abonoBs,
+          remaining,
+          remainingBs,
+          debtorName: debtor.name,
+          debtorId: debtor.id,
+          isNewDebtor: isNewDebtor
+        };
 
         saveSaleCloud(record);
         openTicketModal(record);
@@ -2118,7 +2110,6 @@
       setSafeText('cart-total-bs', `${(totalUsd * bcvRate).toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`);
       setSafeText('cart-total-usd', `$${totalUsd.toFixed(2)} USD`);
       
-      // Actualizar también el resumen de abono si está visible
       if (document.getElementById('cart-payment-method').value === 'Abono') {
         updateAbonoRemaining();
       }
