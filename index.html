@@ -12,7 +12,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
     import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    // ✅ NUEVO: Importar funciones de autenticación
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -28,7 +27,6 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getFirestore(app);
-    // ✅ NUEVO: Inicializar Authentication
     const auth = getAuth(app);
 
     window.db = db;
@@ -37,23 +35,20 @@
 
     console.log("✅ Firebase inicializado correctamente");
 
-    // ✅ NUEVO: Observar el estado de autenticación
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(" Usuario autenticado:", user.email);
+        console.log("✅ Usuario autenticado:", user.email);
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('main-app').classList.remove('hidden');
         document.getElementById('user-email-display').innerText = user.email;
         if (window.initCloudApp) window.initCloudApp();
       } else {
-        console.log(" No hay usuario autenticado");
         document.getElementById('login-screen').classList.remove('hidden');
         document.getElementById('main-app').classList.add('hidden');
       }
       if (window.lucide) lucide.createIcons();
     });
 
-    // ✅ NUEVO: Función global para login
     window.handleLogin = async function() {
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
@@ -66,14 +61,12 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        // El onAuthStateChanged se encargará de mostrar la app
       } catch (error) {
-        console.error("❌ Error de login:", error);
         let msg = 'Error al iniciar sesión';
         if (error.code === 'auth/user-not-found') msg = 'Usuario no encontrado';
         else if (error.code === 'auth/wrong-password') msg = 'Contraseña incorrecta';
         else if (error.code === 'auth/invalid-email') msg = 'Email inválido';
-        else if (error.code === 'auth/too-many-requests') msg = 'Demasiados intentos. Intenta más tarde';
+        else if (error.code === 'auth/too-many-requests') msg = 'Demasiados intentos';
         errorDiv.innerText = msg;
         errorDiv.classList.remove('hidden');
       } finally {
@@ -82,14 +75,12 @@
       }
     };
 
-    // ✅ NUEVO: Función global para cerrar sesión
     window.handleLogout = async function() {
       if (confirm('¿Seguro que deseas cerrar sesión?')) {
         await signOut(auth);
       }
     };
 
-    // Permitir login con tecla Enter
     window.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && !document.getElementById('login-screen').classList.contains('hidden')) {
         handleLogin();
@@ -112,9 +103,7 @@
               sidebar: '#ffffff'
             }
           },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          }
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
         }
       }
     }
@@ -124,28 +113,17 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-
     @media print {
       body * { visibility: hidden; }
       #printable-ticket, #printable-ticket * { visibility: visible; }
-      #printable-ticket {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        max-width: 80mm;
-        padding: 10px;
-        font-size: 11px;
-        color: #000;
-        background: #fff;
-      }
+      #printable-ticket { position: absolute; left: 0; top: 0; width: 100%; max-width: 80mm; padding: 10px; font-size: 11px; color: #000; background: #fff; }
       .no-print { display: none !important; }
     }
   </style>
 </head>
 <body class="text-slate-800 min-h-screen antialiased">
 
-  <!-- ✅ NUEVO: PANTALLA DE LOGIN -->
+  <!-- PANTALLA DE LOGIN -->
   <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-botalon-purple via-purple-700 to-botalon-pink flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6">
       <div class="text-center space-y-3">
@@ -156,65 +134,53 @@
           <p class="text-xs text-slate-500 mt-1">Control & Punto de Venta</p>
         </div>
       </div>
-
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico</label>
-          <input type="email" id="login-email" placeholder="admin@elbotalon.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:border-botalon-purple focus:ring-2 focus:ring-botalon-purple/20">
+          <input type="email" id="login-email" placeholder="admin@elbotalon.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:border-botalon-purple">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Contraseña</label>
-          <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:border-botalon-purple focus:ring-2 focus:ring-botalon-purple/20">
+          <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:border-botalon-purple">
         </div>
         <div id="login-error" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs font-bold p-3 rounded-xl"></div>
-        <button id="login-btn" onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/30 hover:opacity-95 transition text-sm">
-          Iniciar Sesión
-        </button>
+        <button id="login-btn" onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg hover:opacity-95 transition text-sm">Iniciar Sesión</button>
       </div>
-
       <p class="text-center text-[10px] text-slate-400">Sistema privado - Acceso restringido</p>
     </div>
   </div>
 
-  <!-- ✅ NUEVO: Toda la app original envuelta en un div con id="main-app" y clase "hidden" -->
+  <!-- APP PRINCIPAL -->
   <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row">
-
     <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col justify-between shadow-sm">
       <div>
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-tr from-botalon-purple to-botalon-pink rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-botalon-purple/20">R</div>
+            <div class="w-10 h-10 bg-gradient-to-tr from-botalon-purple to-botalon-pink rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md">R</div>
             <div>
               <h1 class="font-extrabold text-sm tracking-tight text-slate-900 leading-tight">Ramos Agroinsumos <span class="text-botalon-purple">El Botalon</span></h1>
               <span class="text-[11px] text-slate-400 font-medium">Control & Punto de Venta</span>
             </div>
           </div>
         </div>
-
         <nav class="p-4 space-y-1.5">
           <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-botalon-purple bg-botalon-purple/10">
-            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-            <span>Resumen General</span>
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Resumen General</span>
           </button>
           <button onclick="switchTab('pos')" id="nav-pos" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
-            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-            <span>Vender</span>
+            <i data-lucide="shopping-cart" class="w-5 h-5"></i><span>Vender</span>
           </button>
           <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
-            <i data-lucide="package" class="w-5 h-5"></i>
-            <span>Inventario & Precios</span>
+            <i data-lucide="package" class="w-5 h-5"></i><span>Inventario & Precios</span>
           </button>
           <button onclick="switchTab('credits')" id="nav-credits" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
-            <i data-lucide="users" class="w-5 h-5"></i>
-            <span>Créditos / Deudores</span>
+            <i data-lucide="users" class="w-5 h-5"></i><span>Créditos / Deudores</span>
           </button>
           <button onclick="switchTab('history')" id="nav-history" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900">
-            <i data-lucide="receipt" class="w-5 h-5"></i>
-            <span>Historial de Ventas</span>
+            <i data-lucide="receipt" class="w-5 h-5"></i><span>Historial de Ventas</span>
           </button>
         </nav>
       </div>
-
       <div class="p-4 space-y-3">
         <div class="bg-slate-50 rounded-2xl border border-slate-200/80 p-4">
           <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
@@ -228,10 +194,8 @@
             <span id="sidebar-bcv-rate" class="text-lg font-bold text-slate-900">42.50 Bs</span>
           </div>
         </div>
-        <!-- ✅ NUEVO: Botón de cerrar sesión -->
         <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition border border-red-200">
-          <i data-lucide="log-out" class="w-4 h-4"></i>
-          <span>Cerrar Sesión</span>
+          <i data-lucide="log-out" class="w-4 h-4"></i><span>Cerrar Sesión</span>
         </button>
       </div>
     </aside>
@@ -240,7 +204,6 @@
       <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20 shadow-xs">
         <h2 id="page-title" class="text-lg font-bold text-slate-900 tracking-tight">Resumen General</h2>
         <div class="flex items-center space-x-2 sm:space-x-3">
-          <!-- ✅ NUEVO: Mostrar email del usuario -->
           <div class="hidden sm:flex bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60 text-xs text-slate-600 font-medium items-center gap-2">
             <i data-lucide="user" class="w-3.5 h-3.5"></i>
             <span id="user-email-display" class="font-bold text-slate-700">usuario</span>
@@ -251,20 +214,16 @@
             <strong id="topbar-bcv-rate" class="text-slate-900 font-bold">42.50 Bs/$</strong>
           </div>
           <button onclick="generatePeriodicReport('weekly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
-            <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-            <span class="hidden md:inline">Reporte</span> Semanal
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i><span class="hidden md:inline">Reporte</span> Semanal
           </button>
           <button onclick="generatePeriodicReport('monthly')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
-            <i data-lucide="calendar" class="w-4 h-4"></i>
-            <span class="hidden md:inline">Reporte</span> Mensual
+            <i data-lucide="calendar" class="w-4 h-4"></i><span class="hidden md:inline">Reporte</span> Mensual
           </button>
           <button onclick="openReturnModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 transition flex items-center gap-1">
-            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-            <span>Devolución</span>
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i><span>Devolución</span>
           </button>
           <button onclick="switchTab('pos')" class="bg-gradient-to-r from-botalon-purple to-botalon-pink text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-botalon-purple/20 hover:opacity-95 transition flex items-center gap-1.5">
-            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-            <span>+ Vender</span>
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i><span>+ Vender</span>
           </button>
         </div>
       </header>
@@ -276,9 +235,7 @@
             <p class="text-xs text-slate-400">Seleccione el día en el calendario para calcular ventas y movimientos</p>
           </div>
           <div class="flex items-center gap-2 w-full sm:w-auto">
-            <div class="relative w-full sm:w-auto">
-              <input type="date" id="dash-date-picker" onchange="renderDashboard()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-botalon-purple w-full sm:w-auto">
-            </div>
+            <input type="date" id="dash-date-picker" onchange="renderDashboard()" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-botalon-purple w-full sm:w-auto">
             <button onclick="setDashToday()" class="bg-botalon-purple/10 text-botalon-purple hover:bg-botalon-purple/20 px-3 py-2 rounded-xl text-xs font-bold transition">Hoy</button>
           </div>
         </div>
@@ -498,8 +455,7 @@
               </div>
 
               <button onclick="processSale()" class="w-full py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-lg shadow-botalon-purple/20 hover:opacity-95 transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
-                <i data-lucide="check-circle" class="w-4 h-4"></i>
-                <span>Procesar Venta & Emitir Ticket</span>
+                <i data-lucide="check-circle" class="w-4 h-4"></i><span>Procesar Venta & Emitir Ticket</span>
               </button>
             </div>
           </div>
@@ -518,8 +474,7 @@
               <button id="btn-filter-all" onclick="setDebtorFilter(false)" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Ver Todos (Incl. Saldados)</button>
             </div>
             <button onclick="openNewDebtorModal()" class="bg-amber-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-700 transition flex items-center gap-2 shadow-xs">
-              <i data-lucide="user-plus" class="w-4 h-4"></i>
-              <span>+ Nueva Carpeta</span>
+              <i data-lucide="user-plus" class="w-4 h-4"></i><span>+ Nueva Carpeta</span>
             </button>
           </div>
         </div>
@@ -533,8 +488,7 @@
             <input type="text" id="inventory-search" oninput="renderInventoryTable()" placeholder="Buscar en inventario..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-botalon-purple shadow-xs">
           </div>
           <button onclick="openProductModal()" class="w-full sm:w-auto bg-botalon-purple text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-botalon-purpleHover transition flex items-center justify-center gap-2 shadow-xs">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Nuevo Producto</span>
+            <i data-lucide="plus" class="w-4 h-4"></i><span>Nuevo Producto</span>
           </button>
         </div>
         <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
@@ -545,8 +499,8 @@
                   <th class="p-4 font-bold">Categoría</th>
                   <th class="p-4 font-bold">Producto</th>
                   <th class="p-4 font-bold">Marca</th>
-                  <th class="p-4 font-bold text-center">Stock / Existencia</th>
-                  <th class="p-4 font-bold text-center">Sacos Abiertos</th>
+                  <th class="p-4 font-bold text-center">Stock</th>
+                  <th class="p-4 font-bold text-center">Equivalencia</th>
                   <th class="p-4 font-bold text-right">Precio ($)</th>
                   <th class="p-4 font-bold text-right">Precio Bs.</th>
                   <th class="p-4 font-bold text-center">Acciones</th>
@@ -574,7 +528,7 @@
     </main>
   </div>
 
-  <!-- MODALES (igual que antes) -->
+  <!-- MODAL TICKET -->
   <div id="modal-ticket" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeTicketModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -604,6 +558,7 @@
     </div>
   </div>
 
+  <!-- MODAL REPORTE -->
   <div id="modal-periodic-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePeriodicReportModal()" class="no-print absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -628,6 +583,7 @@
     </div>
   </div>
 
+  <!-- MODAL DEVOLUCIÓN -->
   <div id="modal-return" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeReturnModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -656,14 +612,14 @@
             <p id="return-type-info" class="text-[10px] text-amber-600 font-medium mt-1"></p>
           </div>
           <button onclick="processReturn()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-1.5">
-            <i data-lucide="plus-circle" class="w-4 h-4"></i>
-            <span>Sumar Devolución al Inventario</span>
+            <i data-lucide="plus-circle" class="w-4 h-4"></i><span>Sumar Devolución al Inventario</span>
           </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- MODAL MOVIMIENTOS -->
   <div id="modal-movements" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[85vh] overflow-y-auto space-y-4">
       <button onclick="closeMovementsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -698,6 +654,7 @@
     </div>
   </div>
 
+  <!-- MODAL CARPETA CLIENTE -->
   <div id="modal-customer-folder" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto space-y-5">
       <button onclick="closeCustomerFolder()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -717,8 +674,7 @@
           </div>
         </div>
         <button onclick="deleteDebtor(activeCustomer ? activeCustomer.id : '')" class="mr-8 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition flex items-center gap-1">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          <span>Eliminar Carpeta</span>
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>Eliminar Carpeta</span>
         </button>
       </div>
       <div class="grid grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
@@ -729,8 +685,7 @@
       <div class="flex justify-between items-center pt-2">
         <h4 class="font-bold text-slate-900 text-sm">Productos Consumidos a Crédito</h4>
         <button onclick="openPaymentModal()" class="bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-xs">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i>
-          <span>+ Registrar Abono</span>
+          <i data-lucide="plus-circle" class="w-4 h-4"></i><span>+ Registrar Abono</span>
         </button>
       </div>
       <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
@@ -763,6 +718,7 @@
     </div>
   </div>
 
+  <!-- MODAL ABONO -->
   <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -795,6 +751,7 @@
     </div>
   </div>
 
+  <!-- MODAL CALCULADORA -->
   <div id="modal-calc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative">
       <button onclick="closeCalcModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -835,10 +792,35 @@
           <div class="text-right"><div id="calc-meter-bs" class="text-xl font-black text-indigo-600">0,00 Bs</div><div id="calc-meter-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div></div>
         </div>
       </div>
+      <!-- ✅ NUEVO: Calculadora para Mecate (cliente pide kilos) -->
+      <div id="calc-mecate-body" class="space-y-4 hidden">
+        <div class="bg-indigo-50 p-3 rounded-2xl border border-indigo-100 text-center">
+          <div class="grid grid-cols-3 gap-2">
+            <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Stock (m)</span><span id="calc-mecate-stock" class="text-xs font-black text-slate-800">0 m</span></div>
+            <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Factor</span><span id="calc-mecate-factor" class="text-xs font-black text-indigo-600">0 m/kg</span></div>
+            <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Precio/kg</span><span id="calc-mecate-price-kg" class="text-xs font-black text-indigo-600">$0.00</span></div>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 mb-1">Kilos que pide el cliente:</label>
+          <input type="number" step="0.01" id="input-mecate-kg" oninput="handleMecateCalc()" placeholder="Ej: 2.5" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple">
+        </div>
+        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-indigo-600 block">Metros a descontar:</span>
+            <div id="calc-mecate-metros" class="text-sm font-black text-slate-800">0.00 m</div>
+          </div>
+          <div class="text-right">
+            <div id="calc-mecate-bs" class="text-xl font-black text-indigo-600">0,00 Bs</div>
+            <div id="calc-mecate-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div>
+          </div>
+        </div>
+      </div>
       <button onclick="confirmAddToCart()" class="w-full mt-4 py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-md hover:opacity-95 transition text-xs uppercase tracking-wider">Agregar al Carrito</button>
     </div>
   </div>
 
+  <!-- MODAL PRODUCTO -->
   <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeProductModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -851,6 +833,7 @@
             <option value="alimento">Alimento (Sacos / Granel)</option>
             <option value="medicamento">Medicamento (Unidades / Frasco)</option>
             <option value="miscelaneos">Misceláneos (Venta por Metros)</option>
+            <option value="mecate"> Mecate (Stock en m, Venta en Kg)</option>
             <option value="talabarteria">Talabartería</option>
             <option value="ferreteria">Ferretería</option>
           </select>
@@ -889,6 +872,37 @@
             <div><label class="block font-semibold text-slate-600 mb-1">Precio por Metro ($):</label><input type="number" step="0.01" id="form-misc-price-meter" value="1.50" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           </div>
         </div>
+        <!-- ✅ NUEVO: Sección Mecate -->
+        <div id="section-mecate" class="space-y-4 hidden">
+          <div class="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3 text-[11px] text-indigo-700 font-medium">
+            💡 El stock se maneja en <strong>metros</strong>. Al vender, el cliente pide <strong>kilos</strong> y el sistema descuenta automáticamente los metros equivalentes.
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Stock en Metros (m):</label>
+              <input type="number" step="0.01" id="form-mecate-meters" value="100" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
+            </div>
+            <div>
+              <label class="block font-semibold text-indigo-600 mb-1">Factor (m por Kg):</label>
+              <input type="number" step="0.01" id="form-mecate-factor" value="50" oninput="autoCalcMecatePrices()" class="w-full bg-indigo-50 border border-indigo-200 rounded-xl p-2.5 text-xs font-bold text-indigo-700 focus:outline-none focus:border-indigo-500">
+              <p class="text-[10px] text-indigo-600 mt-1">¿Cuántos metros pesa 1 kilo?</p>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+            <span class="text-[11px] font-bold text-botalon-purple block uppercase">Precios ($ USD):</span>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Precio por Kilo ($):</label>
+                <input type="number" step="0.01" id="form-mecate-price-kg" value="5.00" oninput="autoCalcMecatePrices()" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-botalon-purple">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Precio por Metro ($):</label>
+                <input type="number" step="0.0001" id="form-mecate-price-meter" value="0.10" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-botalon-purple focus:outline-none focus:border-botalon-purple" readonly>
+                <p class="text-[10px] text-slate-400 mt-1">Calculado automáticamente</p>
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="section-standard" class="space-y-4 hidden">
           <div class="grid grid-cols-2 gap-3">
             <div><label class="block font-semibold text-slate-600 mb-1">Cantidad Stock:</label><input type="number" id="form-std-stock" value="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
@@ -900,6 +914,7 @@
     </div>
   </div>
 
+  <!-- MODAL NUEVO DEUDOR -->
   <div id="modal-new-debtor" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeNewDebtorModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -920,8 +935,7 @@
           <input type="text" id="new-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
         </div>
         <button onclick="saveNewDebtor()" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
-          <i data-lucide="save" class="w-4 h-4"></i>
-          <span>Crear Carpeta</span>
+          <i data-lucide="save" class="w-4 h-4"></i><span>Crear Carpeta</span>
         </button>
       </div>
     </div>
@@ -941,6 +955,8 @@
     let calculatedKilos = 0;
     let calculatedUsd = 0;
     let calculatedMeters = 0;
+    let calculatedMecateKg = 0;
+    let calculatedMecateMetros = 0;
 
     function getYMDfromISO(isoString) {
       if (!isoString) return '';
@@ -977,7 +993,7 @@
     };
 
     window.initCloudApp = function() {
-      console.log("🚀 Inicializando app en la nube...");
+      console.log(" Inicializando app en la nube...");
       const db = window.db;
       const { collection, onSnapshot, doc, setDoc, query, orderBy, limit } = window.firebaseFns;
 
@@ -1229,12 +1245,17 @@
         groupedItems[name].totalBs += (i.totalBs || 0);
         if (i.type === 'bulk') groupedItems[name].kilos += (i.kilos || 0);
         if (i.type === 'meters') groupedItems[name].meters += (i.meters || 0);
+        if (i.type === 'mecate') {
+          groupedItems[name].kilos += (i.kilos || 0);
+          groupedItems[name].meters += (i.meters || 0);
+        }
       });
 
       Object.entries(groupedItems).forEach(([name, data]) => {
         let qtyLabel = `${data.count}x`;
         if (data.type === 'bulk') qtyLabel = `${data.kilos.toFixed(2)}kg`;
         if (data.type === 'meters') qtyLabel = `${data.meters.toFixed(2)}m`;
+        if (data.type === 'mecate') qtyLabel = `${data.kilos.toFixed(2)}kg (${data.meters.toFixed(2)}m)`;
 
         const row = document.createElement('div');
         row.className = "flex justify-between items-start";
@@ -1328,6 +1349,7 @@
         if (!p) return false;
         if (p.type === 'alimento') return (p.closedSacks || 0) <= 5;
         if (p.type === 'miscelaneos') return (p.stockMeters || 0) <= 5;
+        if (p.type === 'mecate') return (p.stockMeters || 0) <= 5;
         return (p.stockUnits || 0) <= 5;
       });
 
@@ -1340,6 +1362,7 @@
         let qtyText = '';
         if (p.type === 'alimento') qtyText = `${p.closedSacks || 0} sacos cerrados`;
         else if (p.type === 'miscelaneos') qtyText = `${(p.stockMeters || 0).toFixed(2)} metros`;
+        else if (p.type === 'mecate') qtyText = `${(p.stockMeters || 0).toFixed(2)} m (≈${((p.stockMeters || 0) / (p.factorConversion || 1)).toFixed(2)} kg)`;
         else qtyText = `${p.stockUnits || 0} unidades`;
 
         const itemCard = document.createElement('div');
@@ -1420,6 +1443,10 @@
         label.innerText = 'Metros a Devolver:';
         info.innerText = `Se reincorporarán al stock actual (${(p.stockMeters||0).toFixed(2)}m).`;
         input.placeholder = "Ej: 5.5";
+      } else if (p.type === 'mecate') {
+        label.innerText = 'Kilos Devueltos:';
+        info.innerText = `Se convertirán a metros (×${p.factorConversion || 1}) y se sumarán al stock (${(p.stockMeters||0).toFixed(2)}m).`;
+        input.placeholder = "Ej: 2.5";
       } else {
         label.innerText = 'Unidades a Devolver:';
         info.innerText = `Se sumarán al stock actual (${p.stockUnits||0} unids).`;
@@ -1453,6 +1480,10 @@
         }
       } else if (p.type === 'miscelaneos') {
         updateDoc(productRef, { stockMeters: increment(qty) });
+      } else if (p.type === 'mecate') {
+        // ✅ Cliente devuelve kilos → se suman metros al stock
+        const metrosDevueltos = qty * (p.factorConversion || 1);
+        updateDoc(productRef, { stockMeters: increment(metrosDevueltos) });
       } else {
         updateDoc(productRef, { stockUnits: increment(Math.round(qty)) });
       }
@@ -1729,7 +1760,7 @@
       const phone = document.getElementById('new-debtor-phone').value.trim();
 
       if (!name) {
-        alert('⚠️ Por favor escriba el nombre del cliente.');
+        alert('️ Por favor escriba el nombre del cliente.');
         return;
       }
 
@@ -1891,6 +1922,10 @@
               }
             } else if (p.type === 'miscelaneos') {
               updateDoc(productRef, { stockMeters: increment(-item.meters) });
+            } else if (p.type === 'mecate') {
+              // ✅ Cliente pidió kilos → descontar metros equivalentes
+              const metrosADescontar = (item.kilos || 0) * (p.factorConversion || 1);
+              updateDoc(productRef, { stockMeters: increment(-metrosADescontar) });
             } else {
               updateDoc(productRef, { stockUnits: increment(-1) });
             }
@@ -1968,6 +2003,10 @@
             }
           } else if (p.type === 'miscelaneos') {
             updateDoc(productRef, { stockMeters: increment(-item.meters) });
+          } else if (p.type === 'mecate') {
+            // ✅ Cliente pidió kilos → descontar metros equivalentes
+            const metrosADescontar = (item.kilos || 0) * (p.factorConversion || 1);
+            updateDoc(productRef, { stockMeters: increment(-metrosADescontar) });
           } else {
             updateDoc(productRef, { stockUnits: increment(-1) });
           }
@@ -2016,11 +2055,16 @@
       document.getElementById('section-alimento').classList.add('hidden');
       document.getElementById('section-medicamento').classList.add('hidden');
       document.getElementById('section-miscelaneos').classList.add('hidden');
+      document.getElementById('section-mecate').classList.add('hidden');
       document.getElementById('section-standard').classList.add('hidden');
 
       if (type === 'alimento') document.getElementById('section-alimento').classList.remove('hidden');
       else if (type === 'medicamento') document.getElementById('section-medicamento').classList.remove('hidden');
       else if (type === 'miscelaneos') document.getElementById('section-miscelaneos').classList.remove('hidden');
+      else if (type === 'mecate') {
+        document.getElementById('section-mecate').classList.remove('hidden');
+        autoCalcMecatePrices();
+      }
       else document.getElementById('section-standard').classList.remove('hidden');
     }
 
@@ -2028,6 +2072,14 @@
       const weight = parseFloat(document.getElementById('form-sack-weight').value) || 1;
       const priceSack = parseFloat(document.getElementById('form-price-sack').value) || 0;
       if (source === 'sack') document.getElementById('form-price-kg').value = (priceSack / weight).toFixed(3);
+    }
+
+    // ✅ NUEVO: Calcular precio por metro automáticamente para Mecate
+    function autoCalcMecatePrices() {
+      const factor = parseFloat(document.getElementById('form-mecate-factor').value) || 1;
+      const priceKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
+      const priceMeter = priceKg / factor;
+      document.getElementById('form-mecate-price-meter').value = priceMeter.toFixed(4);
     }
 
     function renderPosGrid() {
@@ -2068,6 +2120,22 @@
             <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-indigo-600 font-bold">Precio/m: $${(p.priceMeterUsd || 0).toFixed(2)}</div>
             <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Vender Metros</button>
           `;
+        } else if (p.type === 'mecate') {
+          // ✅ NUEVO: Tarjeta para Mecate
+          const stockKg = (p.stockMeters || 0) / (p.factorConversion || 1);
+          card.innerHTML = `
+            <div>
+              <span class="text-[10px] font-bold text-orange-600 uppercase bg-orange-50 px-2 py-0.5 rounded-full">🪢 Mecate</span>
+              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
+              <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs space-y-1">
+              <div class="flex justify-between"><span>Stock:</span><strong class="text-slate-800">${(p.stockMeters||0).toFixed(2)} m</strong></div>
+              <div class="flex justify-between text-slate-500"><span>≈</span><span>${stockKg.toFixed(2)} kg</span></div>
+              <div class="flex justify-between text-orange-600 font-bold"><span>Precio/kg:</span><span>$${(p.pricePerKg || 0).toFixed(2)}</span></div>
+            </div>
+            <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-orange-600 text-white rounded-xl text-xs font-bold">Vender por Kilos</button>
+          `;
         } else {
           card.innerHTML = `
             <div>
@@ -2092,17 +2160,40 @@
       products.forEach(p => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition";
-        const stockText = p.type === 'alimento' ? `${p.closedSacks || 0} sacos` : p.type === 'miscelaneos' ? `${(p.stockMeters || 0).toFixed(2)}m` : `${p.stockUnits || 0} unids`;
-        const priceText = p.type === 'alimento' ? `$${(p.priceSackUsd || 0).toFixed(2)}` : p.type === 'miscelaneos' ? `$${(p.priceMeterUsd || 0).toFixed(2)}/m` : `$${(p.priceUnitUsd || 0).toFixed(2)}`;
+        
+        let stockText = '';
+        let equivText = 'N/A';
+        let priceText = '';
+
+        if (p.type === 'alimento') {
+          stockText = `${p.closedSacks || 0} sacos`;
+          priceText = `$${(p.priceSackUsd || 0).toFixed(2)}`;
+        } else if (p.type === 'miscelaneos') {
+          stockText = `${(p.stockMeters || 0).toFixed(2)}m`;
+          priceText = `$${(p.priceMeterUsd || 0).toFixed(2)}/m`;
+        } else if (p.type === 'mecate') {
+          // ✅ Mostrar stock en metros + equivalencia en kilos
+          const stockKg = (p.stockMeters || 0) / (p.factorConversion || 1);
+          stockText = `${(p.stockMeters || 0).toFixed(2)} m`;
+          equivText = `${(p.factorConversion || 0)} m/kg ≈ ${stockKg.toFixed(2)} kg`;
+          priceText = `$${(p.pricePerKg || 0).toFixed(2)}/kg`;
+        } else {
+          stockText = `${p.stockUnits || 0} unids`;
+          priceText = `$${(p.priceUnitUsd || 0).toFixed(2)}`;
+        }
+
+        const priceBs = p.type === 'mecate' 
+          ? (p.pricePerKg || 0) * bcvRate 
+          : (parseFloat(p.priceSackUsd || p.priceUnitUsd || p.priceMeterUsd || 0) * bcvRate);
 
         tr.innerHTML = `
           <td class="p-4 uppercase font-bold text-[10px]">${p.type}</td>
           <td class="p-4 font-bold">${p.name}</td>
           <td class="p-4 text-slate-600">${p.brand || 'N/A'}</td>
           <td class="p-4 text-center font-bold">${stockText}</td>
-          <td class="p-4 text-center">${p.type === 'alimento' ? `${(p.openSackKilos || 0).toFixed(1)} Kg` : 'N/A'}</td>
+          <td class="p-4 text-center text-xs">${equivText}</td>
           <td class="p-4 text-right font-bold">${priceText}</td>
-          <td class="p-4 text-right font-bold text-botalon-purple">${(parseFloat(p.priceSackUsd || p.priceUnitUsd || p.priceMeterUsd || 0) * bcvRate).toFixed(2)} Bs</td>
+          <td class="p-4 text-right font-bold text-botalon-purple">${priceBs.toFixed(2)} Bs</td>
           <td class="p-4 text-center space-x-1">
             <button onclick="editProduct('${p.id}')" class="text-slate-400 hover:text-slate-800">Editar</button>
             <button onclick="deleteProduct('${p.id}')" class="text-red-500">Eliminar</button>
@@ -2132,6 +2223,15 @@
       document.getElementById('form-brand').value = p.brand || '';
       toggleProductCategoryFields();
       document.getElementById('modal-prod-title').innerText = 'Editar Producto';
+      
+      // Cargar valores según tipo
+      if (p.type === 'mecate') {
+        document.getElementById('form-mecate-meters').value = p.stockMeters || 0;
+        document.getElementById('form-mecate-factor').value = p.factorConversion || 1;
+        document.getElementById('form-mecate-price-kg').value = p.pricePerKg || 0;
+        document.getElementById('form-mecate-price-meter').value = p.pricePerMeter || 0;
+      }
+      
       document.getElementById('modal-product').classList.remove('hidden');
     }
 
@@ -2155,6 +2255,14 @@
       } else if (type === 'miscelaneos') {
         newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
         newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
+      } else if (type === 'mecate') {
+        // ✅ NUEVO: Guardar producto tipo Mecate
+        const factor = parseFloat(document.getElementById('form-mecate-factor').value) || 1;
+        const priceKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
+        newProduct.stockMeters = parseFloat(document.getElementById('form-mecate-meters').value) || 0;
+        newProduct.factorConversion = factor;
+        newProduct.pricePerKg = priceKg;
+        newProduct.pricePerMeter = priceKg / factor;
       } else {
         newProduct.stockUnits = parseInt(document.getElementById('form-med-stock').value || document.getElementById('form-std-stock').value) || 0;
         newProduct.priceUnitUsd = parseFloat(document.getElementById('form-med-price').value || document.getElementById('form-std-price').value) || 0;
@@ -2181,17 +2289,28 @@
       if (!currentCalcProduct) return;
       document.getElementById('calc-prod-name').innerText = currentCalcProduct.name;
       
+      // Ocultar todos los cuerpos de calculadora
+      document.getElementById('calc-food-body').classList.add('hidden');
+      document.getElementById('calc-meter-body').classList.add('hidden');
+      document.getElementById('calc-mecate-body').classList.add('hidden');
+      
       if (currentCalcProduct.type === 'alimento') {
         document.getElementById('calc-food-body').classList.remove('hidden');
-        document.getElementById('calc-meter-body').classList.add('hidden');
         document.getElementById('input-grams').value = 1000;
         switchCalcMode('weight');
         handleGramCalc('grams');
-      } else {
-        document.getElementById('calc-food-body').classList.add('hidden');
+      } else if (currentCalcProduct.type === 'miscelaneos') {
         document.getElementById('calc-meter-body').classList.remove('hidden');
         document.getElementById('input-meters').value = 1;
         handleMeterCalc();
+      } else if (currentCalcProduct.type === 'mecate') {
+        // ✅ NUEVO: Mostrar calculadora de Mecate
+        document.getElementById('calc-mecate-body').classList.remove('hidden');
+        document.getElementById('calc-mecate-stock').innerText = `${(currentCalcProduct.stockMeters || 0).toFixed(2)} m`;
+        document.getElementById('calc-mecate-factor').innerText = `${currentCalcProduct.factorConversion || 1} m/kg`;
+        document.getElementById('calc-mecate-price-kg').innerText = `$${(currentCalcProduct.pricePerKg || 0).toFixed(2)}`;
+        document.getElementById('input-mecate-kg').value = 1;
+        handleMecateCalc();
       }
       document.getElementById('modal-calc').classList.remove('hidden');
     }
@@ -2235,14 +2354,48 @@
       document.getElementById('calc-meter-usd').innerText = `$${calculatedUsd.toFixed(2)} USD`;
     }
 
+    // ✅ NUEVO: Calculadora para Mecate (cliente pide kilos)
+    function handleMecateCalc() {
+      if (!currentCalcProduct || currentCalcProduct.type !== 'mecate') return;
+      const kilos = parseFloat(document.getElementById('input-mecate-kg').value) || 0;
+      const factor = currentCalcProduct.factorConversion || 1;
+      const pricePerKg = currentCalcProduct.pricePerKg || 0;
+      
+      const metrosEquivalentes = kilos * factor;
+      const totalUsd = kilos * pricePerKg;
+      
+      calculatedMecateKg = kilos;
+      calculatedMecateMetros = metrosEquivalentes;
+      calculatedUsd = totalUsd;
+      
+      document.getElementById('calc-mecate-metros').innerText = `${metrosEquivalentes.toFixed(2)} m`;
+      document.getElementById('calc-mecate-usd').innerText = `$${totalUsd.toFixed(2)} USD`;
+      document.getElementById('calc-mecate-bs').innerText = `${(totalUsd * bcvRate).toFixed(2)} Bs`;
+    }
+
     function confirmAddToCart() {
       if (!currentCalcProduct) return;
+      
       if (currentCalcProduct.type === 'alimento') {
         if (calculatedKilos <= 0) return alert('Cantidad inválida');
         cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedKilos.toFixed(2)}kg]`, type: 'bulk', kilos: calculatedKilos, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
-      } else {
+      } else if (currentCalcProduct.type === 'miscelaneos') {
         if (calculatedMeters <= 0) return alert('Metros inválidos');
         cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedMeters.toFixed(2)}m]`, type: 'meters', meters: calculatedMeters, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate });
+      } else if (currentCalcProduct.type === 'mecate') {
+        // ✅ NUEVO: Agregar Mecate al carrito
+        if (calculatedMecateKg <= 0) return alert('Cantidad inválida');
+        const stockKg = (currentCalcProduct.stockMeters || 0) / (currentCalcProduct.factorConversion || 1);
+        if (calculatedMecateKg > stockKg) return alert(`Stock insuficiente. Disponible: ${stockKg.toFixed(2)} kg (≈${(currentCalcProduct.stockMeters || 0).toFixed(2)} m)`);
+        cart.push({ 
+          productId: currentCalcProduct.id, 
+          name: `${currentCalcProduct.name} [${calculatedMecateKg.toFixed(2)}kg / ${calculatedMecateMetros.toFixed(2)}m]`, 
+          type: 'mecate', 
+          kilos: calculatedMecateKg,
+          meters: calculatedMecateMetros,
+          totalUsd: calculatedUsd, 
+          totalBs: calculatedUsd * bcvRate 
+        });
       }
       closeCalcModal();
       renderCartUI();
