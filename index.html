@@ -790,6 +790,34 @@
     </div>
   </div>
 
+  <!-- NUEVO MODAL: CREAR DEUDOR -->
+  <div id="modal-new-debtor" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
+      <button onclick="closeNewDebtorModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+        <div class="p-3 bg-amber-100 text-amber-700 rounded-2xl"><i data-lucide="user-plus" class="w-6 h-6"></i></div>
+        <div>
+          <h3 class="font-extrabold text-lg text-slate-900">Nueva Carpeta de Deudor</h3>
+          <p class="text-xs text-slate-400 font-medium">Crear registro de cliente</p>
+        </div>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nombre Completo:</label>
+          <input type="text" id="new-debtor-name" placeholder="Ej: Juan Pérez" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Teléfono (opcional):</label>
+          <input type="text" id="new-debtor-phone" placeholder="Ej: 0414-1234567" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
+        </div>
+        <button onclick="saveNewDebtor()" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          <span>Crear Carpeta</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let bcvRate = 42.50;
     let products = [];
@@ -1572,11 +1600,35 @@
     }
 
     function openNewDebtorModal() {
-      const name = prompt('Nombre completo del cliente:');
-      if (name && name.trim()) {
-        const phone = prompt('Teléfono del cliente:', '') || '';
-        saveDebtorCloud({ id: 'CLI-' + Date.now().toString().slice(-6), name: name.trim(), phone: phone.trim(), items: [], payments: [] });
+      document.getElementById('new-debtor-name').value = '';
+      document.getElementById('new-debtor-phone').value = '';
+      document.getElementById('modal-new-debtor').classList.remove('hidden');
+    }
+
+    function closeNewDebtorModal() {
+      document.getElementById('modal-new-debtor').classList.add('hidden');
+    }
+
+    function saveNewDebtor() {
+      const name = document.getElementById('new-debtor-name').value.trim();
+      const phone = document.getElementById('new-debtor-phone').value.trim();
+
+      if (!name) {
+        alert('Por favor escriba el nombre del cliente.');
+        return;
       }
+
+      const newDebtor = {
+        id: 'CLI-' + Date.now().toString().slice(-6),
+        name: name,
+        phone: phone,
+        items: [],
+        payments: []
+      };
+
+      saveDebtorCloud(newDebtor);
+      closeNewDebtorModal();
+      alert('¡Carpeta de cliente creada exitosamente!');
     }
 
     function editCustomerName() {
@@ -1697,7 +1749,6 @@
 
         const remaining = totalUsd - abonoAmount;
 
-        // Actualizar inventario
         const { doc, updateDoc, increment } = window.firebaseFns;
         cart.forEach(item => {
           const p = products.find(prod => prod && prod.id === item.productId);
@@ -1721,7 +1772,6 @@
         const abonoBs = abonoAmount * bcvRate;
         const remainingBs = remaining * bcvRate;
 
-        // Registrar el abono en el deudor
         const now = new Date();
         if (!debtor.payments) debtor.payments = [];
         debtor.payments.push({
@@ -1734,7 +1784,6 @@
           amountBs: abonoBs
         });
 
-        // Si hay monto restante, agregarlo como crédito
         if (remaining > 0.001) {
           cart.forEach(i => {
             debtor.items.push({
@@ -1748,7 +1797,6 @@
           });
         }
 
-        // Guardar deudor (nuevo o existente)
         saveDebtorCloud(debtor);
         if (isNewDebtor) {
           debtors.push(debtor);
@@ -1778,7 +1826,6 @@
         return;
       }
 
-      // Procesar venta normal (no abono)
       const { doc, updateDoc, increment } = window.firebaseFns;
       cart.forEach(item => {
         const p = products.find(prod => prod && prod.id === item.productId);
