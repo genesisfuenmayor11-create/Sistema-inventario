@@ -828,7 +828,7 @@
           </div>
         </div>
         <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-[11px] text-rose-700">
-          <p class="font-bold mb-1"> Nota:</p>
+          <p class="font-bold mb-1">💡 Nota:</p>
           <p>Esta deuda se sumará al saldo pendiente del cliente. La tasa BCV aplicada será la actual (<strong id="old-debt-bcv-display">42.50</strong> Bs/$).</p>
         </div>
         <button onclick="saveOldDebt()" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
@@ -921,7 +921,7 @@
         <div>
           <label class="block text-[11px] font-bold text-slate-500 mb-1">Gramos que pide el cliente:</label>
           <input type="number" step="1" id="input-grampa-grams" oninput="handleGrampaCalc()" placeholder="Ej: 500" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-cyan-500">
-          <p class="text-[10px] text-cyan-600 mt-1"> Escribe los gramos y el precio se calcula automáticamente</p>
+          <p class="text-[10px] text-cyan-600 mt-1">💡 Escribe los gramos y el precio se calcula automáticamente</p>
         </div>
         <div class="bg-cyan-50 border border-cyan-100 rounded-2xl p-4 flex justify-between items-center">
           <div>
@@ -1132,6 +1132,16 @@
     let calculatedGrampaGrams = 0;
     let calculatedGrampaKg = 0;
 
+    // ✅ FUNCIÓN PARA NORMALIZAR TEXTO (quita acentos, pasa a minúsculas)
+    function normalizeText(text) {
+      if (!text) return '';
+      return text.toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+    }
+
     function formatDateDDMMYYYY(dateStr) {
       if (!dateStr) return '';
       if (dateStr.includes('T')) {
@@ -1254,7 +1264,7 @@
         snapshot.forEach((docSnap) => {
           debtors.push({ id: docSnap.id, ...docSnap.data() });
         });
-        console.log(" Deudores cargados:", debtors.length);
+        console.log("👥 Deudores cargados:", debtors.length);
         renderDebtorsGrid();
         renderDashboard();
         populateDebtorSelect();
@@ -1330,7 +1340,7 @@
 
     function switchTab(tabId) {
       if (!isAdmin() && (tabId === 'pos' || tabId === 'credits')) {
-        alert('❌ No tienes permisos para acceder a esta sección.');
+        alert(' No tienes permisos para acceder a esta sección.');
         return;
       }
 
@@ -1629,7 +1639,7 @@
     }
 
     function filterReturnProductsSelect() {
-      const q = (document.getElementById('return-search-input').value || '').toLowerCase().trim();
+      const q = normalizeText(document.getElementById('return-search-input').value || '');
       const select = document.getElementById('return-product-select');
       if (!select) return;
       select.innerHTML = '';
@@ -1640,7 +1650,12 @@
         return;
       }
 
-      const filtered = products.filter(p => p.name.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q)));
+      const filtered = products.filter(p => {
+        const normalizedName = normalizeText(p.name);
+        const normalizedBrand = normalizeText(p.brand || '');
+        return normalizedName.includes(q) || normalizedBrand.includes(q);
+      });
+
       if (filtered.length === 0) {
         select.innerHTML = '<option value="">No se encontraron productos</option>';
         document.getElementById('return-amount-box').classList.add('hidden');
@@ -1929,8 +1944,8 @@
     }
 
     function checkDebtorNameMatch() {
-      const nameVal = (document.getElementById('cart-debtor-name').value || '').trim().toLowerCase();
-      const match = debtors.find(d => d.name.toLowerCase() === nameVal);
+      const nameVal = normalizeText(document.getElementById('cart-debtor-name').value || '');
+      const match = debtors.find(d => normalizeText(d.name) === nameVal);
       if (match) {
         document.getElementById('cart-debtor-select').value = match.id;
         document.getElementById('cart-debtor-phone').value = match.phone || '';
@@ -1957,7 +1972,7 @@
       if (!grid) return;
       grid.innerHTML = '';
 
-      const searchQuery = (document.getElementById('debtor-search')?.value || '').toLowerCase().trim();
+      const searchQuery = normalizeText(document.getElementById('debtor-search')?.value || '');
 
       const filtered = debtors.filter(d => {
         const totalItems = (d.items || []).reduce((acc, i) => acc + (i.totalUsd || 0), 0);
@@ -1967,8 +1982,8 @@
         if (showOnlyPendingDebtors && bal <= 0.001) return false;
         
         if (searchQuery) {
-          const nameMatch = (d.name || '').toLowerCase().includes(searchQuery);
-          const phoneMatch = (d.phone || '').toLowerCase().includes(searchQuery);
+          const nameMatch = normalizeText(d.name || '').includes(searchQuery);
+          const phoneMatch = normalizeText(d.phone || '').includes(searchQuery);
           return nameMatch || phoneMatch;
         }
         
@@ -1976,8 +1991,8 @@
       });
 
       filtered.sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
+        const nameA = normalizeText(a.name);
+        const nameB = normalizeText(b.name);
         return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
       });
 
@@ -2097,7 +2112,7 @@
       const debtDate = document.getElementById('old-debt-date').value;
 
       if (!concept) { alert('⚠️ Por favor escriba un concepto o descripción de la deuda.'); return; }
-      if (usdAmount <= 0) { alert('️ El monto debe ser mayor a cero.'); return; }
+      if (usdAmount <= 0) { alert('⚠️ El monto debe ser mayor a cero.'); return; }
       if (!debtDate) { alert('⚠️ Por favor seleccione la fecha de la deuda.'); return; }
 
       const bsAmount = usdAmount * bcvRate;
@@ -2395,7 +2410,7 @@
       const totalBs = totalUsd * bcvRate;
 
       if (method === 'Crédito') {
-        let debtor = debtors.find(d => d.name.toLowerCase() === debtorName.toLowerCase());
+        let debtor = debtors.find(d => normalizeText(d.name) === normalizeText(debtorName));
         if (!debtor) {
           debtor = { id: 'CLI-' + Date.now().toString().slice(-6), name: debtorName, phone: debtorPhone, items: [], payments: [] };
         }
@@ -2477,14 +2492,20 @@
     function renderPosGrid() {
       const grid = document.getElementById('pos-grid');
       if (!grid) return;
-      const queryStr = (document.getElementById('pos-search')?.value || '').toLowerCase();
+      const queryStr = normalizeText(document.getElementById('pos-search')?.value || '');
       grid.innerHTML = '';
 
-      let filtered = products.filter(p => p && ((p.name && p.name.toLowerCase().includes(queryStr)) || (p.brand && p.brand.toLowerCase().includes(queryStr))));
+      let filtered = products.filter(p => {
+        if (!p) return false;
+        if (!queryStr) return true;
+        const normalizedName = normalizeText(p.name);
+        const normalizedBrand = normalizeText(p.brand || '');
+        return normalizedName.includes(queryStr) || normalizedBrand.includes(queryStr);
+      });
 
       filtered.sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
+        const nameA = normalizeText(a.name);
+        const nameB = normalizeText(b.name);
         return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
       });
 
@@ -2589,21 +2610,22 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      const queryStr = (document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
+      const queryStr = normalizeText(document.getElementById('inventory-search')?.value || '');
 
       let filtered = products.filter(p => {
         if (!p) return false;
         if (!queryStr) return true;
-        return (
-          (p.name && p.name.toLowerCase().includes(queryStr)) ||
-          (p.brand && p.brand.toLowerCase().includes(queryStr)) ||
-          (p.type && p.type.toLowerCase().includes(queryStr))
-        );
+        const normalizedName = normalizeText(p.name);
+        const normalizedBrand = normalizeText(p.brand || '');
+        const normalizedType = normalizeText(p.type || '');
+        return normalizedName.includes(queryStr) || 
+               normalizedBrand.includes(queryStr) || 
+               normalizedType.includes(queryStr);
       });
 
       filtered.sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
+        const nameA = normalizeText(a.name);
+        const nameB = normalizeText(b.name);
         return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
       });
 
@@ -2729,6 +2751,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // ✅ FUNCIÓN CON VALIDACIÓN DE DUPLICADOS
     function saveProductDirect(e) {
       if (e) e.preventDefault();
       const id = document.getElementById('prod-id').value;
@@ -2737,6 +2760,18 @@
       const brand = document.getElementById('form-brand').value.trim();
 
       if (!name) return alert('Escriba el nombre del producto.');
+
+      // ✅ VALIDACIÓN DE DUPLICADOS (ignorando acentos y mayúsculas)
+      const normalizedName = normalizeText(name);
+      const duplicate = products.find(p => {
+        if (id && p.id === id) return false; // No comparar consigo mismo al editar
+        return normalizeText(p.name) === normalizedName;
+      });
+
+      if (duplicate) {
+        alert(`⚠️ Ya existe un producto con ese nombre: "${duplicate.name}"\n\nSi es el mismo producto, edítalo en lugar de crear uno nuevo.`);
+        return;
+      }
 
       let existingProduct = null;
       if (id) {
