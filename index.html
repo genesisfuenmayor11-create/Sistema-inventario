@@ -1206,6 +1206,20 @@
       });
     };
 
+    window.initCloudApp = function() {
+  console.log("🚀 Inicializando app en la nube...");
+  const db = window.db;
+  const { collection, onSnapshot, doc, setDoc, query, orderBy, limit } = window.firebaseFns;
+
+  // ... (todo tu código existente de onSnapshot) ...
+
+  // ✅ NUEVO: Ocultar paneles de crédito/abono al cargar la app
+  const creditPanel = document.getElementById('credit-customer-input');
+  const abonoPanel = document.getElementById('abono-input');
+  if (creditPanel) creditPanel.classList.add('hidden');
+  if (abonoPanel) abonoPanel.classList.add('hidden');
+};
+
     async function saveBcvCloud(nuevoValor) {
       if (!window.db) return;
       const { doc, setDoc } = window.firebaseFns;
