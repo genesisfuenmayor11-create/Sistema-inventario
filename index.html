@@ -776,7 +776,7 @@
     </div>
   </div>
 
-  <!-- ✅ NUEVO MODAL: AGREGAR DEUDA ANTIGUA -->
+  <!-- MODAL DEUDA ANTIGUA -->
   <div id="modal-old-debt" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeOldDebtModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -857,6 +857,8 @@
           <p id="calc-prod-details" class="text-xs text-slate-400 font-medium">Detalle del producto</p>
         </div>
       </div>
+      
+      <!-- Calculadora para Alimento -->
       <div id="calc-food-body" class="space-y-4">
         <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center mb-2">
           <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Precio Saco</span><span id="calc-ref-sack" class="text-xs font-black text-slate-800">$0.00</span></div>
@@ -880,6 +882,33 @@
           <div class="text-right"><div id="calc-res-bs" class="text-xl font-black text-botalon-purple">0,00 Bs</div><div id="calc-res-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div></div>
         </div>
       </div>
+
+      <!-- ✅ NUEVO: Calculadora para Grampa y Clavos (por gramos) -->
+      <div id="calc-grampa-body" class="space-y-4 hidden">
+        <div class="bg-cyan-50 p-3 rounded-2xl border border-cyan-100 text-center">
+          <div class="grid grid-cols-2 gap-2">
+            <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Stock (kg)</span><span id="calc-grampa-stock" class="text-xs font-black text-slate-800">0 kg</span></div>
+            <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Precio/kg</span><span id="calc-grampa-price" class="text-xs font-black text-cyan-600">$0.00</span></div>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 mb-1">Gramos que pide el cliente:</label>
+          <input type="number" step="1" id="input-grampa-grams" oninput="handleGrampaCalc()" placeholder="Ej: 500" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-cyan-500">
+          <p class="text-[10px] text-cyan-600 mt-1">💡 Escribe los gramos y el precio se calcula automáticamente</p>
+        </div>
+        <div class="bg-cyan-50 border border-cyan-100 rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-cyan-600 block">Equivale a:</span>
+            <div id="calc-grampa-kg" class="text-sm font-black text-slate-800">0.000 kg</div>
+          </div>
+          <div class="text-right">
+            <div id="calc-grampa-bs" class="text-xl font-black text-cyan-600">0,00 Bs</div>
+            <div id="calc-grampa-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculadora para Misceláneos (metros) -->
       <div id="calc-meter-body" class="space-y-4 hidden">
         <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Cantidad de Metros a Vender:</label><input type="number" step="0.01" id="input-meters" oninput="handleMeterCalc()" placeholder="Ej: 5.5" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-botalon-purple"></div>
         <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex justify-between items-center">
@@ -887,6 +916,8 @@
           <div class="text-right"><div id="calc-meter-bs" class="text-xl font-black text-indigo-600">0,00 Bs</div><div id="calc-meter-usd" class="text-xs font-semibold text-slate-400">$0.00 USD</div></div>
         </div>
       </div>
+
+      <!-- Calculadora para Mecate (kilos) -->
       <div id="calc-mecate-body" class="space-y-4 hidden">
         <div class="bg-indigo-50 p-3 rounded-2xl border border-indigo-100 text-center">
           <div class="grid grid-cols-3 gap-2">
@@ -910,6 +941,7 @@
           </div>
         </div>
       </div>
+
       <button onclick="confirmAddToCart()" class="w-full mt-4 py-3.5 bg-gradient-to-r from-botalon-purple to-botalon-pink text-white font-bold rounded-xl shadow-md hover:opacity-95 transition text-xs uppercase tracking-wider">Agregar al Carrito</button>
     </div>
   </div>
@@ -928,6 +960,7 @@
             <option value="medicamento">Medicamento (Unidades / Frasco)</option>
             <option value="miscelaneos">Misceláneos (Venta por Metros)</option>
             <option value="mecate">Mecate (Stock en m, Venta en Kg)</option>
+            <option value="grampa">Grampa y Clavos (Stock en Kg, Venta en g)</option>
             <option value="talabarteria">Talabartería</option>
             <option value="ferreteria">Ferretería</option>
           </select>
@@ -996,6 +1029,29 @@
             </div>
           </div>
         </div>
+        <!-- ✅ NUEVO: Sección Grampa y Clavos -->
+        <div id="section-grampa" class="space-y-4 hidden">
+          <div class="bg-cyan-50/60 border border-cyan-200 rounded-xl p-3 text-[11px] text-cyan-700 font-medium">
+            💡 El stock se maneja en <strong>kilos</strong>. Al vender, el cliente pide <strong>gramos</strong> y el sistema calcula automáticamente el precio y descuenta los kilos equivalentes.
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Stock en Kilos (kg):</label>
+              <input type="number" step="0.01" id="form-grampa-stock" value="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple">
+            </div>
+            <div>
+              <label class="block font-semibold text-cyan-600 mb-1">Precio por Kilo ($):</label>
+              <input type="number" step="0.01" id="form-grampa-price-kg" value="3.00" class="w-full bg-cyan-50 border border-cyan-200 rounded-xl p-2.5 text-xs font-bold text-cyan-700 focus:outline-none focus:border-cyan-500">
+            </div>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-600">Precio por gramo (auto):</span>
+              <span id="grampa-price-per-gram-display" class="font-bold text-cyan-600">$0.0030</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Se calcula automáticamente al ingresar el precio por kilo</p>
+          </div>
+        </div>
         <div id="section-standard" class="space-y-4 hidden">
           <div class="grid grid-cols-2 gap-3">
             <div><label class="block font-semibold text-slate-600 mb-1">Cantidad Stock:</label><input type="number" id="form-std-stock" value="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
@@ -1049,6 +1105,8 @@
     let calculatedMeters = 0;
     let calculatedMecateKg = 0;
     let calculatedMecateMetros = 0;
+    let calculatedGrampaGrams = 0;
+    let calculatedGrampaKg = 0;
 
     function isAdmin() {
       return window.currentUserRole === 'admin';
@@ -1140,7 +1198,7 @@
         snapshot.forEach((docSnap) => {
           debtors.push({ id: docSnap.id, ...docSnap.data() });
         });
-        console.log("👥 Deudores cargados:", debtors.length);
+        console.log(" Deudores cargados:", debtors.length);
         renderDebtorsGrid();
         renderDashboard();
         populateDebtorSelect();
@@ -1350,7 +1408,7 @@
       (saleRecord.items || []).forEach(i => {
         const name = i.name || 'Producto';
         if (!groupedItems[name]) {
-          groupedItems[name] = { count: 0, totalUsd: 0, totalBs: 0, type: i.type, kilos: 0, meters: 0 };
+          groupedItems[name] = { count: 0, totalUsd: 0, totalBs: 0, type: i.type, kilos: 0, meters: 0, grams: 0 };
         }
         groupedItems[name].count++;
         groupedItems[name].totalUsd += (i.totalUsd || 0);
@@ -1361,6 +1419,10 @@
           groupedItems[name].kilos += (i.kilos || 0);
           groupedItems[name].meters += (i.meters || 0);
         }
+        if (i.type === 'grampa') {
+          groupedItems[name].grams += (i.grams || 0);
+          groupedItems[name].kilos += (i.kilos || 0);
+        }
       });
 
       Object.entries(groupedItems).forEach(([name, data]) => {
@@ -1368,6 +1430,7 @@
         if (data.type === 'bulk') qtyLabel = `${data.kilos.toFixed(2)}kg`;
         if (data.type === 'meters') qtyLabel = `${data.meters.toFixed(2)}m`;
         if (data.type === 'mecate') qtyLabel = `${data.kilos.toFixed(2)}kg (${data.meters.toFixed(2)}m)`;
+        if (data.type === 'grampa') qtyLabel = `${data.grams}g (${data.kilos.toFixed(3)}kg)`;
 
         const row = document.createElement('div');
         row.className = "flex justify-between items-start";
@@ -1463,6 +1526,7 @@
         if (p.type === 'alimento') return (p.closedSacks || 0) <= 5;
         if (p.type === 'miscelaneos') return (p.stockMeters || 0) <= 5;
         if (p.type === 'mecate') return (p.stockMeters || 0) <= 5;
+        if (p.type === 'grampa') return (p.stockKg || 0) <= 5;
         return (p.stockUnits || 0) <= 5;
       });
 
@@ -1476,6 +1540,7 @@
         if (p.type === 'alimento') qtyText = `${p.closedSacks || 0} sacos cerrados`;
         else if (p.type === 'miscelaneos') qtyText = `${(p.stockMeters || 0).toFixed(2)} metros`;
         else if (p.type === 'mecate') qtyText = `${(p.stockMeters || 0).toFixed(2)} m (≈${((p.stockMeters || 0) / (p.factorConversion || 1)).toFixed(2)} kg)`;
+        else if (p.type === 'grampa') qtyText = `${(p.stockKg || 0).toFixed(2)} kg`;
         else qtyText = `${p.stockUnits || 0} unidades`;
 
         const itemCard = document.createElement('div');
@@ -1561,6 +1626,10 @@
         label.innerText = 'Kilos Devueltos:';
         info.innerText = `Se convertirán a metros (×${p.factorConversion || 1}) y se sumarán al stock (${(p.stockMeters||0).toFixed(2)}m).`;
         input.placeholder = "Ej: 2.5";
+      } else if (p.type === 'grampa') {
+        label.innerText = 'Gramos Devueltos:';
+        info.innerText = `Se convertirán a kilos y se sumarán al stock (${(p.stockKg||0).toFixed(2)} kg).`;
+        input.placeholder = "Ej: 500";
       } else {
         label.innerText = 'Unidades a Devolver:';
         info.innerText = `Se sumarán al stock actual (${p.stockUnits||0} unids).`;
@@ -1598,6 +1667,10 @@
       } else if (p.type === 'mecate') {
         const metrosDevueltos = qty * (p.factorConversion || 1);
         updateDoc(productRef, { stockMeters: increment(metrosDevueltos) });
+      } else if (p.type === 'grampa') {
+        // ✅ Devolución en gramos → convertir a kilos
+        const kilosDevueltos = qty / 1000;
+        updateDoc(productRef, { stockKg: increment(kilosDevueltos) });
       } else {
         updateDoc(productRef, { stockUnits: increment(Math.round(qty)) });
       }
@@ -1884,7 +1957,7 @@
       }
 
       if (!window.db) {
-        alert('❌ Error: La base de datos no está conectada. Recarga la página.');
+        alert(' Error: La base de datos no está conectada. Recarga la página.');
         return;
       }
 
@@ -1896,16 +1969,13 @@
         payments: []
       };
 
-      console.log("📝 Intentando crear deudor:", newDebtor);
-
       try {
         const { doc, setDoc } = window.firebaseFns;
         await setDoc(doc(window.db, "deudores", newDebtor.id), newDebtor);
-        console.log("✅ Deudor guardado en Firebase");
         closeNewDebtorModal();
         alert('✅ ¡Carpeta de cliente creada exitosamente!');
       } catch (error) {
-        console.error("❌ Error detallado al guardar:", error);
+        console.error("❌ Error al guardar:", error);
         alert('❌ Error al guardar: ' + error.message);
       }
     }
@@ -1940,7 +2010,7 @@
         return;
       }
       if (usdAmount <= 0) {
-        alert('️ El monto debe ser mayor a cero.');
+        alert('⚠️ El monto debe ser mayor a cero.');
         return;
       }
       if (!debtDate) {
@@ -1950,7 +2020,6 @@
 
       const bsAmount = usdAmount * bcvRate;
 
-      // Crear el item de deuda antigua
       const oldDebtItem = {
         id: 'OLD-' + Date.now().toString().slice(-6),
         dateISO: new Date(debtDate + 'T12:00:00').toISOString(),
@@ -1962,24 +2031,20 @@
       };
 
       try {
-        // Agregar la deuda al array de items del cliente
         if (!activeCustomer.items) activeCustomer.items = [];
         activeCustomer.items.push(oldDebtItem);
 
-        // Guardar en Firebase
         const success = await saveDebtorCloud(activeCustomer);
         
         if (success) {
           closeOldDebtModal();
-          alert(`✅ Deuda antigua registrada exitosamente:\n\nConcepto: ${concept}\nMonto: $${usdAmount.toFixed(2)} (${bsAmount.toFixed(2)} Bs)\nFecha: ${formatDateDisplay(debtDate)}`);
-          
-          // Refrescar la vista de la carpeta
+          alert(`✅ Deuda antigua registrada:\n\nConcepto: ${concept}\nMonto: $${usdAmount.toFixed(2)} (${bsAmount.toFixed(2)} Bs)\nFecha: ${formatDateDisplay(debtDate)}`);
           openCustomerFolder(activeCustomer.id);
         } else {
           alert('❌ Error al guardar la deuda antigua.');
         }
       } catch (error) {
-        console.error("❌ Error al agregar deuda antigua:", error);
+        console.error("❌ Error:", error);
         alert('❌ Error: ' + error.message);
       }
     }
@@ -2147,6 +2212,10 @@
             } else if (p.type === 'mecate') {
               const metrosADescontar = (item.kilos || 0) * (p.factorConversion || 1);
               updateDoc(productRef, { stockMeters: increment(-metrosADescontar) });
+            } else if (p.type === 'grampa') {
+              // ✅ Descontar kilos equivalentes a los gramos vendidos
+              const kilosADescontar = (item.grams || 0) / 1000;
+              updateDoc(productRef, { stockKg: increment(-kilosADescontar) });
             } else {
               updateDoc(productRef, { stockUnits: increment(-1) });
             }
@@ -2227,6 +2296,9 @@
           } else if (p.type === 'mecate') {
             const metrosADescontar = (item.kilos || 0) * (p.factorConversion || 1);
             updateDoc(productRef, { stockMeters: increment(-metrosADescontar) });
+          } else if (p.type === 'grampa') {
+            const kilosADescontar = (item.grams || 0) / 1000;
+            updateDoc(productRef, { stockKg: increment(-kilosADescontar) });
           } else {
             updateDoc(productRef, { stockUnits: increment(-1) });
           }
@@ -2276,6 +2348,7 @@
       document.getElementById('section-medicamento').classList.add('hidden');
       document.getElementById('section-miscelaneos').classList.add('hidden');
       document.getElementById('section-mecate').classList.add('hidden');
+      document.getElementById('section-grampa').classList.add('hidden');
       document.getElementById('section-standard').classList.add('hidden');
 
       if (type === 'alimento') document.getElementById('section-alimento').classList.remove('hidden');
@@ -2284,6 +2357,10 @@
       else if (type === 'mecate') {
         document.getElementById('section-mecate').classList.remove('hidden');
         autoCalcMecatePrices();
+      }
+      else if (type === 'grampa') {
+        document.getElementById('section-grampa').classList.remove('hidden');
+        updateGrampaPricePerGram();
       }
       else document.getElementById('section-standard').classList.remove('hidden');
     }
@@ -2301,13 +2378,39 @@
       document.getElementById('form-mecate-price-meter').value = priceMeter.toFixed(4);
     }
 
+    // ✅ NUEVO: Calcular precio por gramo automáticamente
+    function updateGrampaPricePerGram() {
+      const priceKg = parseFloat(document.getElementById('form-grampa-price-kg').value) || 0;
+      const pricePerGram = priceKg / 1000;
+      document.getElementById('grampa-price-per-gram-display').innerText = `$${pricePerGram.toFixed(4)}`;
+    }
+
+    // ✅ CORREGIDA: Orden alfabético en POS
     function renderPosGrid() {
       const grid = document.getElementById('pos-grid');
       if (!grid) return;
       const queryStr = (document.getElementById('pos-search')?.value || '').toLowerCase();
       grid.innerHTML = '';
 
-      const filtered = products.filter(p => p && ((p.name && p.name.toLowerCase().includes(queryStr)) || (p.brand && p.brand.toLowerCase().includes(queryStr))));
+      let filtered = products.filter(p => p && ((p.name && p.name.toLowerCase().includes(queryStr)) || (p.brand && p.brand.toLowerCase().includes(queryStr))));
+
+      // ✅ Ordenar alfabéticamente por nombre
+      filtered.sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full p-8 text-center text-slate-400 text-xs">
+          <div class="flex flex-col items-center gap-2">
+            <i data-lucide="search-x" class="w-8 h-8 text-slate-300"></i>
+            <span>No se encontraron productos${queryStr ? ` para "<strong class="text-slate-600">${queryStr}</strong>"` : ''}.</span>
+          </div>
+        </div>`;
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
 
       filtered.forEach(p => {
         const card = document.createElement('div');
@@ -2343,7 +2446,7 @@
           const stockKg = (p.stockMeters || 0) / (p.factorConversion || 1);
           card.innerHTML = `
             <div>
-              <span class="text-[10px] font-bold text-orange-600 uppercase bg-orange-50 px-2 py-0.5 rounded-full"> Mecate</span>
+              <span class="text-[10px] font-bold text-orange-600 uppercase bg-orange-50 px-2 py-0.5 rounded-full">Mecate</span>
               <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
               <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
             </div>
@@ -2353,6 +2456,22 @@
               <div class="flex justify-between text-orange-600 font-bold"><span>Precio/kg:</span><span>$${(p.pricePerKg || 0).toFixed(2)}</span></div>
             </div>
             <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-orange-600 text-white rounded-xl text-xs font-bold">Vender por Kilos</button>
+          `;
+        } else if (p.type === 'grampa') {
+          // ✅ NUEVO: Tarjeta para Grampa y Clavos
+          const pricePerGram = (p.pricePerKg || 0) / 1000;
+          card.innerHTML = `
+            <div>
+              <span class="text-[10px] font-bold text-cyan-600 uppercase bg-cyan-50 px-2 py-0.5 rounded-full">Grampa/Clavos</span>
+              <h4 class="font-extrabold text-slate-900 text-sm mt-1">${p.name}</h4>
+              <span class="text-[11px] text-slate-500">${p.brand || ''}</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs space-y-1">
+              <div class="flex justify-between"><span>Stock:</span><strong class="text-slate-800">${(p.stockKg||0).toFixed(2)} kg</strong></div>
+              <div class="flex justify-between text-cyan-600 font-bold"><span>Precio/kg:</span><span>$${(p.pricePerKg || 0).toFixed(2)}</span></div>
+              <div class="flex justify-between text-slate-500 text-[10px]"><span>Precio/g:</span><span>$${pricePerGram.toFixed(4)}</span></div>
+            </div>
+            <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-cyan-600 text-white rounded-xl text-xs font-bold">Vender por Gramos</button>
           `;
         } else {
           card.innerHTML = `
@@ -2423,6 +2542,12 @@
           stockText = `${(p.stockMeters || 0).toFixed(2)} m`;
           equivText = `${(p.factorConversion || 0)} m/kg ≈ ${stockKg.toFixed(2)} kg`;
           priceText = `$${(p.pricePerKg || 0).toFixed(2)}/kg`;
+        } else if (p.type === 'grampa') {
+          // ✅ Mostrar stock en kilos y precio por kilo
+          stockText = `${(p.stockKg || 0).toFixed(2)} kg`;
+          const pricePerGram = (p.pricePerKg || 0) / 1000;
+          equivText = `$${pricePerGram.toFixed(4)}/g`;
+          priceText = `$${(p.pricePerKg || 0).toFixed(2)}/kg`;
         } else {
           stockText = `${p.stockUnits || 0} unids`;
           priceText = `$${(p.priceUnitUsd || 0).toFixed(2)}`;
@@ -2430,7 +2555,9 @@
 
         const priceBs = p.type === 'mecate' 
           ? (p.pricePerKg || 0) * bcvRate 
-          : (parseFloat(p.priceSackUsd || p.priceUnitUsd || p.priceMeterUsd || 0) * bcvRate);
+          : p.type === 'grampa'
+            ? (p.pricePerKg || 0) * bcvRate
+            : (parseFloat(p.priceSackUsd || p.priceUnitUsd || p.priceMeterUsd || 0) * bcvRate);
 
         tr.innerHTML = `
           <td class="p-4 uppercase font-bold text-[10px]">${p.type}</td>
@@ -2493,7 +2620,13 @@
         document.getElementById('form-mecate-factor').value = p.factorConversion || 1;
         document.getElementById('form-mecate-price-kg').value = p.pricePerKg || 0;
         document.getElementById('form-mecate-price-meter').value = p.pricePerMeter || 0;
-      } 
+      }
+      else if (p.type === 'grampa') {
+        // ✅ Cargar datos de grampa
+        document.getElementById('form-grampa-stock').value = p.stockKg || 0;
+        document.getElementById('form-grampa-price-kg').value = p.pricePerKg || 0;
+        updateGrampaPricePerGram();
+      }
       else {
         document.getElementById('form-std-stock').value = p.stockUnits || 0;
         document.getElementById('form-std-price').value = p.priceUnitUsd || 0;
@@ -2549,6 +2682,10 @@
         newProduct.factorConversion = factor;
         newProduct.pricePerKg = priceKg;
         newProduct.pricePerMeter = priceKg / factor;
+      } else if (type === 'grampa') {
+        // ✅ Guardar datos de grampa
+        newProduct.stockKg = parseFloat(document.getElementById('form-grampa-stock').value) || 0;
+        newProduct.pricePerKg = parseFloat(document.getElementById('form-grampa-price-kg').value) || 0;
       } else {
         newProduct.stockUnits = parseInt(document.getElementById('form-std-stock').value) || 0;
         newProduct.priceUnitUsd = parseFloat(document.getElementById('form-std-price').value) || 0;
@@ -2578,6 +2715,7 @@
       document.getElementById('calc-food-body').classList.add('hidden');
       document.getElementById('calc-meter-body').classList.add('hidden');
       document.getElementById('calc-mecate-body').classList.add('hidden');
+      document.getElementById('calc-grampa-body').classList.add('hidden');
       
       if (currentCalcProduct.type === 'alimento') {
         document.getElementById('calc-food-body').classList.remove('hidden');
@@ -2595,6 +2733,13 @@
         document.getElementById('calc-mecate-price-kg').innerText = `$${(currentCalcProduct.pricePerKg || 0).toFixed(2)}`;
         document.getElementById('input-mecate-kg').value = 1;
         handleMecateCalc();
+      } else if (currentCalcProduct.type === 'grampa') {
+        // ✅ NUEVO: Mostrar calculadora de grampa
+        document.getElementById('calc-grampa-body').classList.remove('hidden');
+        document.getElementById('calc-grampa-stock').innerText = `${(currentCalcProduct.stockKg || 0).toFixed(2)} kg`;
+        document.getElementById('calc-grampa-price').innerText = `$${(currentCalcProduct.pricePerKg || 0).toFixed(2)}`;
+        document.getElementById('input-grampa-grams').value = 100;
+        handleGrampaCalc();
       }
       document.getElementById('modal-calc').classList.remove('hidden');
     }
@@ -2656,6 +2801,25 @@
       document.getElementById('calc-mecate-bs').innerText = `${(totalUsd * bcvRate).toFixed(2)} Bs`;
     }
 
+    // ✅ NUEVO: Calculadora para Grampa (por gramos)
+    function handleGrampaCalc() {
+      if (!currentCalcProduct || currentCalcProduct.type !== 'grampa') return;
+      const grams = parseFloat(document.getElementById('input-grampa-grams').value) || 0;
+      const pricePerKg = currentCalcProduct.pricePerKg || 0;
+      const pricePerGram = pricePerKg / 1000;
+      
+      const kilosEquivalentes = grams / 1000;
+      const totalUsd = grams * pricePerGram;
+      
+      calculatedGrampaGrams = grams;
+      calculatedGrampaKg = kilosEquivalentes;
+      calculatedUsd = totalUsd;
+      
+      document.getElementById('calc-grampa-kg').innerText = `${kilosEquivalentes.toFixed(3)} kg`;
+      document.getElementById('calc-grampa-usd').innerText = `$${totalUsd.toFixed(2)} USD`;
+      document.getElementById('calc-grampa-bs').innerText = `${(totalUsd * bcvRate).toFixed(2)} Bs`;
+    }
+
     function confirmAddToCart() {
       if (!currentCalcProduct) return;
       
@@ -2675,6 +2839,19 @@
           type: 'mecate', 
           kilos: calculatedMecateKg,
           meters: calculatedMecateMetros,
+          totalUsd: calculatedUsd, 
+          totalBs: calculatedUsd * bcvRate 
+        });
+      } else if (currentCalcProduct.type === 'grampa') {
+        // ✅ NUEVO: Agregar grampa al carrito
+        if (calculatedGrampaGrams <= 0) return alert('Cantidad inválida');
+        if (calculatedGrampaKg > (currentCalcProduct.stockKg || 0)) return alert(`Stock insuficiente. Disponible: ${(currentCalcProduct.stockKg || 0).toFixed(2)} kg`);
+        cart.push({ 
+          productId: currentCalcProduct.id, 
+          name: `${currentCalcProduct.name} [${calculatedGrampaGrams}g / ${calculatedGrampaKg.toFixed(3)}kg]`, 
+          type: 'grampa', 
+          grams: calculatedGrampaGrams,
+          kilos: calculatedGrampaKg,
           totalUsd: calculatedUsd, 
           totalBs: calculatedUsd * bcvRate 
         });
