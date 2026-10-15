@@ -62,7 +62,66 @@
       if (window.lucide) lucide.createIcons();
     });
 
-    window.applyRoleRestrictions = function() {
+   window.applyRoleRestrictions = function() {
+  const role = window.currentUserRole;
+  const isAdmin = role === 'admin';
+  
+  // ✅ REMOVIDOS: 'credit-customer-input' y 'abono-input' de esta lista
+  // Estos paneles se controlan por el método de pago, no por roles
+  const hideForInventory = [
+    'btn-edit-bcv', 'btn-weekly-report', 'btn-monthly-report',
+    'btn-return', 'btn-sell', 'btn-process-sale', 'btn-clear-cart',
+    'btn-new-debtor', 'btn-register-payment', 'btn-edit-customer-name',
+    'btn-edit-customer-phone', 'btn-delete-debtor', 'btn-filter-pending',
+    'btn-filter-all', 'btn-save-payment', 'btn-add-old-debt',
+    'dash-sales-usd', 'dash-sales-bs', 'dash-cash-bs', 'dash-cash-usd',
+    'dash-cash-usd-divisa', 'dash-cash-divisa-bs', 'dash-pagomovil-bs',
+    'dash-pagomovil-usd', 'dash-punto-bs', 'dash-punto-usd',
+    'dash-biopago-bs', 'dash-biopago-usd', 'dash-credit-total',
+    'dash-credit-debtors', 'dash-recent-sales',
+    'mov-modal-total-bs', 'mov-modal-total-usd',
+    'report-total-usd', 'report-total-bs', 'report-methods-breakdown',
+    'cart-payment-method',
+    'cart-subtotal-usd', 'cart-total-bs', 'cart-total-usd', 'cart-bcv-rate'
+  ];
+  
+  hideForInventory.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (!isAdmin) {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      } else {
+        el.classList.remove('hidden');
+        el.style.display = '';
+      }
+    }
+  });
+  
+  // ✅ NUEVO: Asegurar que los paneles de Crédito/Abono estén ocultos al inicio
+  const creditInput = document.getElementById('credit-customer-input');
+  const abonoInput = document.getElementById('abono-input');
+  if (creditInput) {
+    creditInput.classList.add('hidden');
+    creditInput.style.display = 'none';
+  }
+  if (abonoInput) {
+    abonoInput.classList.add('hidden');
+    abonoInput.style.display = 'none';
+  }
+  
+  if (!isAdmin) {
+    const navPos = document.getElementById('nav-pos');
+    const navCredits = document.getElementById('nav-credits');
+    if (navPos) navPos.style.display = 'none';
+    if (navCredits) navCredits.style.display = 'none';
+  } else {
+    const navPos = document.getElementById('nav-pos');
+    const navCredits = document.getElementById('nav-credits');
+    if (navPos) navPos.style.display = '';
+    if (navCredits) navCredits.style.display = '';
+  }
+};
       const role = window.currentUserRole;
       const isAdmin = role === 'admin';
       
