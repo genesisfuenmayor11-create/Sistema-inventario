@@ -943,7 +943,6 @@
         </div>
       </div>
 
-      <!-- ✅ NUEVO: Calculadora para Mecate (igual que Alimento) -->
       <div id="calc-mecate-body" class="space-y-4 hidden">
         <div class="bg-orange-50 p-3 rounded-2xl border border-orange-100 text-center">
           <div class="grid grid-cols-2 gap-2">
@@ -1012,10 +1011,19 @@
           </div>
           <div><label class="block font-semibold text-botalon-purple mb-1">Sacos Abiertos Actualmente (Granel):</label><input type="number" step="0.01" id="form-open-sacks" value="0" placeholder="Ej: 1 o 0.5 sacos" class="w-full bg-botalon-purple/5 border border-botalon-purple/30 rounded-xl p-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
-            <span class="text-[11px] font-bold text-botalon-purple block uppercase">Costos y Precios ($ USD):</span>
-            <div class="grid grid-cols-2 gap-3">
-              <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Costo por Saco ($):</label><input type="number" step="0.01" id="form-price-sack" value="25.00" oninput="autoCalcPrices('sack')" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-botalon-purple"></div>
-              <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Precio / Kilo ($):</label><input type="number" step="0.001" id="form-price-kg" value="0.625" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-botalon-purple focus:outline-none focus:border-botalon-purple"></div>
+            <span class="text-[11px] font-bold text-botalon-purple block uppercase">Precios ($ USD):</span>
+            <div class="grid grid-cols-1 gap-3">
+              <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Precio por Saco ($):</label><input type="number" step="0.01" id="form-price-sack" value="25.00" oninput="autoCalcPrices('sack')" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-botalon-purple"></div>
+            </div>
+          </div>
+          <div class="bg-emerald-50 p-3.5 rounded-2xl border border-emerald-200 space-y-3">
+            <span class="text-[11px] font-bold text-emerald-700 block uppercase">💰 Precio por Kilo en Bolívares (fijo):</span>
+            <div class="grid grid-cols-1 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Precio / Kilo (Bs):</label>
+                <input type="number" step="0.01" id="form-price-kg-bs" value="26.56" class="w-full bg-white border border-emerald-200 rounded-xl p-2.5 text-xs font-bold text-emerald-700 focus:outline-none focus:border-emerald-500">
+                <p class="text-[10px] text-emerald-600 mt-1">Este precio NO cambia con la tasa BCV</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1031,7 +1039,6 @@
             <div><label class="block font-semibold text-slate-600 mb-1">Precio por Metro ($):</label><input type="number" step="0.01" id="form-misc-price-meter" value="1.50" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-botalon-purple"></div>
           </div>
         </div>
-        <!-- ✅ NUEVO: Sección Mecate simplificada (solo kilos) -->
         <div id="section-mecate" class="space-y-4 hidden">
           <div class="bg-orange-50/60 border border-orange-200 rounded-xl p-3 text-[11px] text-orange-700 font-medium">
             💡 El stock y la venta se manejan en <strong>kilos</strong>. El cliente puede pedir una cantidad en kilos o un monto en Bs/USD.
@@ -1329,7 +1336,7 @@
 
     function switchTab(tabId) {
       if (!isAdmin() && (tabId === 'pos' || tabId === 'credits')) {
-        alert(' No tienes permisos para acceder a esta sección.');
+        alert('❌ No tienes permisos para acceder a esta sección.');
         return;
       }
 
@@ -2044,7 +2051,7 @@
       const phone = document.getElementById('new-debtor-phone').value.trim();
 
       if (!name) {
-        alert('️ Por favor escriba el nombre del cliente.');
+        alert('⚠️ Por favor escriba el nombre del cliente.');
         return;
       }
 
@@ -2098,7 +2105,7 @@
 
       if (!concept) { alert('⚠️ Por favor escriba un concepto o descripción de la deuda.'); return; }
       if (usdAmount <= 0) { alert('⚠️ El monto debe ser mayor a cero.'); return; }
-      if (!debtDate) { alert('⚠️ Por favor seleccione la fecha de la deuda.'); return; }
+      if (!debtDate) { alert('️ Por favor seleccione la fecha de la deuda.'); return; }
 
       const bsAmount = usdAmount * bcvRate;
 
@@ -2455,7 +2462,8 @@
     function autoCalcPrices(source = 'sack') {
       const weight = parseFloat(document.getElementById('form-sack-weight').value) || 1;
       const priceSack = parseFloat(document.getElementById('form-price-sack').value) || 0;
-      if (source === 'sack') document.getElementById('form-price-kg').value = (priceSack / weight).toFixed(3);
+      // ✅ El precio por kilo en Bs NO se calcula automáticamente del saco
+      // Se ingresa manualmente y se mantiene fijo
     }
 
     function updateGrampaPricePerGram() {
@@ -2500,6 +2508,9 @@
         card.className = "bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex flex-col justify-between space-y-3";
 
         if (p.type === 'alimento') {
+          // ✅ NUEVO: Mostrar precio por kilo en Bs (fijo)
+          const priceKgBs = p.pricePerKgBs || 0;
+          const priceKgUsd = bcvRate > 0 ? priceKgBs / bcvRate : 0;
           card.innerHTML = `
             <div>
               <span class="text-[10px] font-bold text-botalon-purple uppercase bg-botalon-purple/10 px-2 py-0.5 rounded-full">Alimento</span>
@@ -2508,7 +2519,7 @@
             </div>
             <div class="bg-slate-50 p-2.5 rounded-xl text-xs space-y-1">
               <div>Saco: <strong>$${(p.priceSackUsd || 0).toFixed(2)}</strong></div>
-              <div class="text-botalon-purple font-bold">Kilo: ${((p.priceKgUsd || 0) * bcvRate).toFixed(2)} Bs</div>
+              <div class="text-emerald-700 font-bold">Kilo: ${priceKgBs.toFixed(2)} Bs (fijo)</div>
             </div>
             <div class="grid grid-cols-2 gap-2">
               <button onclick="addFullSackToCart('${p.id}')" class="py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold">+1 Saco</button>
@@ -2526,7 +2537,6 @@
             <button onclick="openCalcModal('${p.id}')" class="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Vender Metros</button>
           `;
         } else if (p.type === 'mecate') {
-          // ✅ NUEVO: Mecate ahora funciona como Alimento (por kilos)
           card.innerHTML = `
             <div>
               <span class="text-[10px] font-bold text-orange-600 uppercase bg-orange-50 px-2 py-0.5 rounded-full">Mecate</span>
@@ -2624,12 +2634,14 @@
 
         if (p.type === 'alimento') {
           stockText = `${p.closedSacks || 0} sacos`;
-          priceText = `$${(p.priceSackUsd || 0).toFixed(2)}`;
+          // ✅ Mostrar precio por kilo en Bs (fijo)
+          const priceKgBs = p.pricePerKgBs || 0;
+          priceText = `Saco: $${(p.priceSackUsd || 0).toFixed(2)}`;
+          equivText = `Kilo: ${priceKgBs.toFixed(2)} Bs (fijo)`;
         } else if (p.type === 'miscelaneos') {
           stockText = `${(p.stockMeters || 0).toFixed(2)}m`;
           priceText = `$${(p.priceMeterUsd || 0).toFixed(2)}/m`;
         } else if (p.type === 'mecate') {
-          // ✅ NUEVO: Mecate ahora muestra stock en kilos
           stockText = `${(p.stockKg || 0).toFixed(2)} kg`;
           priceText = `$${(p.pricePerKg || 0).toFixed(2)}/kg`;
         } else if (p.type === 'grampa') {
@@ -2642,9 +2654,11 @@
           priceText = `$${(p.priceUnitUsd || 0).toFixed(2)}`;
         }
 
-        const priceBs = (p.type === 'mecate' || p.type === 'grampa')
-          ? (p.pricePerKg || 0) * bcvRate 
-          : (parseFloat(p.priceSackUsd || p.priceUnitUsd || p.priceMeterUsd || 0) * bcvRate);
+        const priceBs = p.type === 'alimento' 
+          ? (p.pricePerKgBs || 0)  // ✅ Para alimentos, usar el precio fijo en Bs
+          : (p.type === 'mecate' || p.type === 'grampa')
+            ? (p.pricePerKg || 0) * bcvRate 
+            : (parseFloat(p.priceSackUsd || p.priceUnitUsd || p.priceMeterUsd || 0) * bcvRate);
 
         tr.innerHTML = `
           <td class="p-4 uppercase font-bold text-[10px]">${p.type}</td>
@@ -2692,7 +2706,8 @@
         document.getElementById('form-sack-stock').value = p.closedSacks || 0;
         document.getElementById('form-open-sacks').value = p.openSackKilos || 0;
         document.getElementById('form-price-sack').value = p.priceSackUsd || 0;
-        document.getElementById('form-price-kg').value = p.priceKgUsd || 0;
+        // ✅ Cargar precio por kilo en Bs (fijo)
+        document.getElementById('form-price-kg-bs').value = p.pricePerKgBs || 0;
       } 
       else if (p.type === 'medicamento') {
         document.getElementById('form-med-stock').value = p.stockUnits || 0;
@@ -2703,7 +2718,6 @@
         document.getElementById('form-misc-price-meter').value = p.priceMeterUsd || 0;
       } 
       else if (p.type === 'mecate') {
-        // ✅ NUEVO: Cargar datos de Mecate en kilos
         document.getElementById('form-mecate-stock').value = p.stockKg || 0;
         document.getElementById('form-mecate-price-kg').value = p.pricePerKg || 0;
       }
@@ -2739,7 +2753,7 @@
       });
 
       if (duplicate) {
-        alert(`⚠️ Ya existe un producto con ese nombre: "${duplicate.name}"\n\nSi es el mismo producto, edítalo en lugar de crear uno nuevo.`);
+        alert(`️ Ya existe un producto con ese nombre: "${duplicate.name}"\n\nSi es el mismo producto, edítalo en lugar de crear uno nuevo.`);
         return;
       }
 
@@ -2764,7 +2778,8 @@
         newProduct.closedSacks = parseInt(document.getElementById('form-sack-stock').value) || 0;
         newProduct.openSackKilos = parseFloat(document.getElementById('form-open-sacks').value) || 0;
         newProduct.priceSackUsd = parseFloat(document.getElementById('form-price-sack').value) || 0;
-        newProduct.priceKgUsd = parseFloat(document.getElementById('form-price-kg').value) || 0;
+        // ✅ Guardar precio por kilo en Bs (fijo, no se recalcula con la tasa BCV)
+        newProduct.pricePerKgBs = parseFloat(document.getElementById('form-price-kg-bs').value) || 0;
       } else if (type === 'medicamento') {
         newProduct.stockUnits = parseInt(document.getElementById('form-med-stock').value) || 0;
         newProduct.priceUnitUsd = parseFloat(document.getElementById('form-med-price').value) || 0;
@@ -2772,7 +2787,6 @@
         newProduct.stockMeters = parseFloat(document.getElementById('form-misc-meters').value) || 0;
         newProduct.priceMeterUsd = parseFloat(document.getElementById('form-misc-price-meter').value) || 0;
       } else if (type === 'mecate') {
-        // ✅ NUEVO: Guardar Mecate en kilos
         newProduct.stockKg = parseFloat(document.getElementById('form-mecate-stock').value) || 0;
         newProduct.pricePerKg = parseFloat(document.getElementById('form-mecate-price-kg').value) || 0;
       } else if (type === 'grampa') {
@@ -2833,11 +2847,15 @@
       
       document.getElementById('calc-food-body').classList.add('hidden');
       document.getElementById('calc-meter-body').classList.add('hidden');
-      document.getElementById('calc-grampa-body').classList.add('hidden');
       document.getElementById('calc-mecate-body').classList.add('hidden');
+      document.getElementById('calc-grampa-body').classList.add('hidden');
       
       if (currentCalcProduct.type === 'alimento') {
         document.getElementById('calc-food-body').classList.remove('hidden');
+        // ✅ Mostrar precio por kilo en Bs (fijo)
+        const priceKgBs = currentCalcProduct.pricePerKgBs || 0;
+        document.getElementById('calc-ref-sack').innerText = `$${(currentCalcProduct.priceSackUsd || 0).toFixed(2)}`;
+        document.getElementById('calc-ref-kg').innerText = `${priceKgBs.toFixed(2)} Bs/kg`;
         document.getElementById('input-grams').value = 1000;
         switchCalcMode('weight');
         handleGramCalc('grams');
@@ -2846,7 +2864,6 @@
         document.getElementById('input-meters').value = 1;
         handleMeterCalc();
       } else if (currentCalcProduct.type === 'mecate') {
-        // ✅ NUEVO: Mecate usa calculadora dual (peso o monto)
         document.getElementById('calc-mecate-body').classList.remove('hidden');
         document.getElementById('calc-mecate-stock').innerText = `${(currentCalcProduct.stockKg || 0).toFixed(2)} kg`;
         document.getElementById('calc-mecate-price').innerText = `$${(currentCalcProduct.pricePerKg || 0).toFixed(2)}`;
@@ -2869,13 +2886,20 @@
       if (mode === 'weight') {
         document.getElementById('calc-mode-weight').classList.remove('hidden');
         document.getElementById('calc-mode-money').classList.add('hidden');
+        document.getElementById('tab-calc-weight').classList.add('bg-botalon-purple', 'text-white');
+        document.getElementById('tab-calc-weight').classList.remove('bg-slate-100', 'text-slate-500');
+        document.getElementById('tab-calc-money').classList.remove('bg-botalon-purple', 'text-white');
+        document.getElementById('tab-calc-money').classList.add('bg-slate-100', 'text-slate-500');
       } else {
         document.getElementById('calc-mode-weight').classList.add('hidden');
         document.getElementById('calc-mode-money').classList.remove('hidden');
+        document.getElementById('tab-calc-money').classList.add('bg-botalon-purple', 'text-white');
+        document.getElementById('tab-calc-money').classList.remove('bg-slate-100', 'text-slate-500');
+        document.getElementById('tab-calc-weight').classList.remove('bg-botalon-purple', 'text-white');
+        document.getElementById('tab-calc-weight').classList.add('bg-slate-100', 'text-slate-500');
       }
     }
 
-    // ✅ NUEVO: Cambiar modo de calculadora de Mecate
     function switchMecateCalcMode(mode) {
       mecateCalcMode = mode;
       if (mode === 'weight') {
@@ -2897,22 +2921,33 @@
 
     function handleGramCalc(source) {
       if (!currentCalcProduct) return;
-      let kilos = 0, totalUsd = 0;
+      // ✅ Usar precio por kilo en Bs (fijo) para alimentos
+      const priceKgBs = currentCalcProduct.pricePerKgBs || 0;
+      let kilos = 0, totalBs = 0;
+      
       if (source === 'grams') kilos = (parseFloat(document.getElementById('input-grams').value) || 0) / 1000;
       else if (source === 'kilos') kilos = parseFloat(document.getElementById('input-kilos').value) || 0;
-      else if (source === 'usd') totalUsd = parseFloat(document.getElementById('input-usd').value) || 0;
+      else if (source === 'bs') totalBs = parseFloat(document.getElementById('input-bs').value) || 0;
+      else if (source === 'usd') {
+        const usd = parseFloat(document.getElementById('input-usd').value) || 0;
+        totalBs = usd * bcvRate;
+      }
 
-      if (source === 'grams' || source === 'kilos') totalUsd = kilos * (currentCalcProduct.priceKgUsd || 0);
-      else kilos = (currentCalcProduct.priceKgUsd || 0) > 0 ? totalUsd / currentCalcProduct.priceKgUsd : 0;
+      if (source === 'grams' || source === 'kilos') {
+        totalBs = kilos * priceKgBs;
+      } else if (source === 'bs' || source === 'usd') {
+        kilos = priceKgBs > 0 ? totalBs / priceKgBs : 0;
+      }
+
+      const totalUsd = bcvRate > 0 ? totalBs / bcvRate : 0;
 
       calculatedKilos = kilos;
       calculatedUsd = totalUsd;
       document.getElementById('calc-res-weight').innerText = `${kilos.toFixed(3)} Kg`;
-      document.getElementById('calc-res-bs').innerText = `${(totalUsd * bcvRate).toFixed(2)} Bs`;
+      document.getElementById('calc-res-bs').innerText = `${totalBs.toFixed(2)} Bs`;
       document.getElementById('calc-res-usd').innerText = `$${totalUsd.toFixed(2)} USD`;
     }
 
-    // ✅ NUEVO: Calculadora de Mecate (igual que Alimento)
     function handleMecateCalc(source) {
       if (!currentCalcProduct || currentCalcProduct.type !== 'mecate') return;
       const pricePerKg = currentCalcProduct.pricePerKg || 0;
@@ -2971,12 +3006,15 @@
       
       if (currentCalcProduct.type === 'alimento') {
         if (calculatedKilos <= 0) return alert('Cantidad inválida');
-        cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedKilos.toFixed(2)}kg]`, type: 'bulk', kilos: calculatedKilos, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate, quantity: 1 });
+        // ✅ Usar precio por kilo en Bs (fijo) para calcular total
+        const priceKgBs = currentCalcProduct.pricePerKgBs || 0;
+        const totalBs = calculatedKilos * priceKgBs;
+        const totalUsd = bcvRate > 0 ? totalBs / bcvRate : 0;
+        cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedKilos.toFixed(2)}kg]`, type: 'bulk', kilos: calculatedKilos, totalUsd: totalUsd, totalBs: totalBs, quantity: 1 });
       } else if (currentCalcProduct.type === 'miscelaneos') {
         if (calculatedMeters <= 0) return alert('Metros inválidos');
         cart.push({ productId: currentCalcProduct.id, name: `${currentCalcProduct.name} [${calculatedMeters.toFixed(2)}m]`, type: 'meters', meters: calculatedMeters, totalUsd: calculatedUsd, totalBs: calculatedUsd * bcvRate, quantity: 1 });
       } else if (currentCalcProduct.type === 'mecate') {
-        // ✅ NUEVO: Agregar Mecate al carrito
         if (calculatedMecateKg <= 0) return alert('Cantidad inválida');
         if (calculatedMecateKg > (currentCalcProduct.stockKg || 0)) return alert(`Stock insuficiente. Disponible: ${(currentCalcProduct.stockKg || 0).toFixed(2)} kg`);
         cart.push({ 
