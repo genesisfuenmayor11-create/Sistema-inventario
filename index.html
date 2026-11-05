@@ -1650,7 +1650,35 @@
       }
     }
 
-    async function deleteChickenOrderCloud(orderId) {
+   async function deleteChickenOrder(orderId) {
+  if (!checkAdminAccess('eliminar pedidos de pollos')) return;
+  
+  const order = chickenOrders.find(o => o.id === orderId);
+  if (!order) return;
+  
+  // ✅ Solo permitir eliminar si está ENTREGADO
+  if (order.status !== 'entregado') {
+    alert('⚠️ Solo se pueden eliminar pedidos que estén marcados como ENTREGADOS.\n\nPrimero marca el pedido como entregado y luego podrás eliminarlo.');
+    return;
+  }
+  
+  if (!confirm(`¿Eliminar la carpeta de ${order.clientName}?\n\nEste pedido fue entregado y se eliminará permanentemente.`)) {
+    return;
+  }
+  
+  try {
+    await deleteChickenOrderCloud(orderId);
+    alert('✅ Carpeta eliminada.');
+    if (activeChickenOrder && activeChickenOrder.id === orderId) {
+      closeChickenFileModal();
+    }
+    renderChickenOrders(); // ✅ Refresca la lista
+  } catch (error) {
+    console.error("❌ Error:", error);
+    alert('❌ Error al eliminar: ' + error.message);
+  }
+}
+
       if (!window.db) return;
       const { doc, deleteDoc } = window.firebaseFns;
       await deleteDoc(doc(window.db, "pedidosPollos", orderId.toString()));
@@ -3598,6 +3626,85 @@ function renderChickenOrders() {
     return true;
   });
   
+  // ✅ Contadores actualizados (incluye 'entregado')
+  const pending = filtered.filter(o => o.status === 'apartado' && !o.delivered).length;
+  const partial = filtered.filter(o => o.status === 'abono' && !o.delivered).length;
+  const completed = filtered.filter(o => o.status === 'cancelado' || o.status === 'entregado').length;
+  
+  setSafeText('chicken-pending-count', pending);
+  setSafeText('chicken-partial-count', partial);
+  setSafeText('chicken-completed-count', completed);
+  
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">
+      <div class="flex flex-col items-center gap-2">
+        <i data-lucide="search-x" class="w-8 h-8 text-slate-300"></i>
+        <span>${searchQuery ? `No se encontraron pedidos para "${searchQuery}"` : 'No hay pedidos de pollos registrados.'}</span>
+      </div>
+    </div>`;
+    if (window.lucide) lucide.createIcons();
+    return;
+  }
+  
+  filtered.forEach(o => {
+    // ✅ CORREGIDO: Manejo de estado 'entregado'
+    const statusColors = {
+      'apartado': 'bg-amber-100 text-amber-700',
+      'abono': 'bg-blue-100 text-blue-700',
+      'cancelado': 'bg-emerald-100 text-emerald-700',
+      'entregado': 'bg-emerald-100 text-emerald-700'
+    };
+    const statusLabels = {
+      'apartado': 'Apartado',
+      'abono': 'Con Abono',
+      'cancelado': 'Cancelado',
+      'entregado': 'ENTREGADO'
+    };
+    
+    // ✅ Mostrar ícono de check si está entregado
+    const statusIcon = o.status === 'entregado' ? '✅ ' : '';
+    
+    const card = document.createElement('div');
+    card.className = "bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3";
+    card.innerHTML = `
+      <div class="flex justify-between items-start">
+        <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${statusColors[o.status] || 'bg-slate-100 text-slate-700'}">${statusIcon}${statusLabels[o.status] || o.status}</span>
+        <button onclick="deleteChickenOrder('${o.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>
+      <div>
+        <h4 class="font-extrabold text-slate-900 text-base">${o.clientName}</h4>
+        <span class="text-xs text-slate-500">${o.clientPhone || 'Sin teléfono'}</span>
+        <div class="text-[10px] text-slate-400 mt-1">📅 ${o.createdAtDisplay || '--'}</div>
+      </div>
+      <div class="bg-slate-50 p-3 rounded-xl space-y-1 text-xs">
+        <div class="flex justify-between"><span>Pollos:</span><strong class="text-slate-800">${o.quantity}</strong></div>
+        <div class="flex justify-between"><span>Total:</span><strong class="text-orange-600">$${o.totalUsd.toFixed(2)} / ${o.totalBs.toFixed(2)} Bs</strong></div>
+        <div class="flex justify-between"><span>Pagado:</span><strong class="text-emerald-600">$${(o.paidUsd || 0).toFixed(2)}</strong></div>
+        <div class="flex justify-between"><span>Restante:</span><strong class="text-amber-600">$${(o.remainingUsd || 0).toFixed(2)}</strong></div>
+      </div>
+      <button onclick="openChickenFile('${o.id}')" class="w-full py-2.5 bg-orange-600 text-white font-bold text-xs rounded-xl hover:bg-orange-700 transition">Ver Archivo del Cliente</button>
+    `;
+    grid.appendChild(card);
+  });
+  
+  if (window.lucide) lucide.createIcons();
+}
+
+  const grid = document.getElementById('chicken-orders-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  
+  const searchQuery = normalizeText(document.getElementById('chicken-search')?.value || '');
+  
+  const filtered = chickenOrders.filter(o => {
+    if (searchQuery) {
+      const nameMatch = normalizeText(o.clientName || '').includes(searchQuery);
+      const phoneMatch = normalizeText(o.clientPhone || '').includes(searchQuery);
+      return nameMatch || phoneMatch;
+    }
+    return true;
+  });
+  
   const pending = filtered.filter(o => o.status === 'apartado' && !o.delivered).length;
   const partial = filtered.filter(o => o.status === 'abono' && !o.delivered).length;
   const completed = filtered.filter(o => o.status === 'cancelado' || o.delivered).length;
@@ -3656,6 +3763,89 @@ function renderChickenOrders() {
 }
 
 function openChickenFile(orderId) {
+  activeChickenOrder = chickenOrders.find(o => o.id === orderId);
+  if (!activeChickenOrder) return;
+  
+  setSafeText('chicken-file-client-name', activeChickenOrder.clientName);
+  setSafeText('chicken-file-client-phone', activeChickenOrder.clientPhone || 'Sin teléfono');
+  setSafeText('chicken-file-order-date', activeChickenOrder.createdAtDisplay || '--/--/----');
+  setSafeText('chicken-file-quantity', activeChickenOrder.quantity);
+  setSafeText('chicken-file-total', `$${activeChickenOrder.totalUsd.toFixed(2)}`);
+  
+  const statusEl = document.getElementById('chicken-file-status');
+  const statusLabels = { 
+    'apartado': 'Apartado', 
+    'abono': 'Con Abono', 
+    'cancelado': 'Cancelado',
+    'entregado': 'ENTREGADO'
+  };
+  const statusColors = { 
+    'apartado': 'bg-amber-100 text-amber-700', 
+    'abono': 'bg-blue-100 text-blue-700', 
+    'cancelado': 'bg-emerald-100 text-emerald-700',
+    'entregado': 'bg-emerald-100 text-emerald-700'
+  };
+  
+  // ✅ Mostrar "ENTREGADO" con ícono si está entregado
+  const statusIcon = activeChickenOrder.status === 'entregado' ? '✅ ' : '';
+  statusEl.innerText = statusIcon + (statusLabels[activeChickenOrder.status] || activeChickenOrder.status);
+  statusEl.className = `text-xs font-bold px-2 py-1 rounded-full ${statusColors[activeChickenOrder.status] || 'bg-slate-100 text-slate-700'}`;
+  
+  setSafeText('chicken-file-paid', `$${(activeChickenOrder.paidUsd || 0).toFixed(2)}`);
+  setSafeText('chicken-file-paid-bs', `(${(activeChickenOrder.paidBs || 0).toFixed(2)} Bs)`);
+  setSafeText('chicken-file-remaining', `$${(activeChickenOrder.remainingUsd || 0).toFixed(2)}`);
+  setSafeText('chicken-file-remaining-bs', `(${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs)`);
+  
+  // ✅ Mostrar botón "Marcar Entregado" solo si saldo es 0 y NO está entregado
+  const btnDelivered = document.getElementById('btn-mark-delivered');
+  if ((activeChickenOrder.remainingUsd || 0) <= 0.001 && activeChickenOrder.status !== 'entregado') {
+    btnDelivered.classList.remove('hidden');
+  } else {
+    btnDelivered.classList.add('hidden');
+  }
+  
+  // ✅ Mostrar botón "Eliminar" solo si está ENTREGADO
+  const btnDelete = document.getElementById('btn-delete-chicken-file');
+  if (activeChickenOrder.status === 'entregado') {
+    btnDelete.classList.remove('hidden');
+  } else {
+    btnDelete.classList.add('hidden');
+  }
+  
+  const movementsBody = document.getElementById('chicken-file-movements');
+  movementsBody.innerHTML = '';
+  
+  if (!activeChickenOrder.movements || activeChickenOrder.movements.length === 0) {
+    movementsBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">No hay movimientos registrados.</td></tr>`;
+  } else {
+    activeChickenOrder.movements.forEach(m => {
+      const typeLabels = { 
+        'abono': 'Abono', 
+        'pago_completo': 'Pago Completo',
+        'modificacion': 'Modificación',
+        'entregado': '✅ Entregado'
+      };
+      const typeColors = { 
+        'abono': 'bg-blue-100 text-blue-700', 
+        'pago_completo': 'bg-emerald-100 text-emerald-700',
+        'modificacion': 'bg-purple-100 text-purple-700',
+        'entregado': 'bg-emerald-100 text-emerald-700'
+      };
+      movementsBody.innerHTML += `
+        <tr>
+          <td class="p-3">${m.dateDisplay}</td>
+          <td class="p-3"><span class="px-2 py-1 rounded ${typeColors[m.type] || 'bg-slate-100 text-slate-700'} text-[10px] font-bold">${typeLabels[m.type] || m.type}</span></td>
+          <td class="p-3 text-right font-bold">$${m.amountUsd.toFixed(2)}</td>
+          <td class="p-3 text-right font-bold text-botalon-purple">${m.amountBs.toFixed(2)} Bs</td>
+        </tr>
+      `;
+    });
+  }
+  
+  document.getElementById('modal-chicken-file').classList.remove('hidden');
+  if (window.lucide) lucide.createIcons();
+}
+
   activeChickenOrder = chickenOrders.find(o => o.id === orderId);
   if (!activeChickenOrder) return;
   
@@ -3835,7 +4025,60 @@ async function saveModifiedQuantity() {
 }
 
 // ✅ NUEVA FUNCIÓN: Marcar como entregado
+// ✅ CORREGIDA: Marcar como entregado (no como cancelado)
 async function markChickenAsDelivered() {
+  if (!checkAdminAccess('marcar pedido como entregado')) return;
+  if (!activeChickenOrder) return;
+  
+  if ((activeChickenOrder.remainingUsd || 0) > 0.001) {
+    alert('⚠️ El pedido tiene saldo pendiente. No se puede marcar como entregado.');
+    return;
+  }
+  
+  if (!confirm(`¿Confirmar que el pedido de ${activeChickenOrder.quantity} pollos de ${activeChickenOrder.clientName} fue ENTREGADO?`)) {
+    return;
+  }
+  
+  const now = new Date();
+  const movement = {
+    id: 'ENT-' + Date.now().toString().slice(-6),
+    type: 'entregado',
+    dateISO: now.toISOString(),
+    dateDisplay: formatDateDDMMYYYY(now.toISOString()),
+    description: 'Pedido entregado al cliente',
+    amountUsd: 0,
+    amountBs: 0,
+    bcvRate: bcvRate,
+    remainingUsd: 0,
+    remainingBs: 0
+  };
+  
+  if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
+  activeChickenOrder.movements.push(movement);
+  
+  // ✅ CORRECCIÓN: status = 'entregado' (no 'cancelado')
+  activeChickenOrder.delivered = true;
+  activeChickenOrder.deliveredAt = now.toISOString();
+  activeChickenOrder.deliveredAtDisplay = formatDateDDMMYYYY(now.toISOString());
+  activeChickenOrder.status = 'entregado';
+  activeChickenOrder.remainingUsd = 0;
+  activeChickenOrder.remainingBs = 0;
+  
+  try {
+    const success = await saveChickenOrderCloud(activeChickenOrder);
+    if (success) {
+      alert('✅ Pedido marcado como ENTREGADO.\n\nAhora puedes eliminar la carpeta del cliente si lo deseas.');
+      openChickenFile(activeChickenOrder.id);
+      renderChickenOrders(); // ✅ Refresca la lista para mostrar "ENTREGADO"
+    } else {
+      alert('❌ Error al actualizar.');
+    }
+  } catch (error) {
+    console.error("❌ Error:", error);
+    alert('❌ Error: ' + error.message);
+  }
+}
+
   if (!checkAdminAccess('marcar pedido como entregado')) return;
   if (!activeChickenOrder) return;
   
