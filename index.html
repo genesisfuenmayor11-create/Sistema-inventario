@@ -3735,13 +3735,21 @@
       setSafeText('chicken-file-remaining', `$${(activeChickenOrder.remainingUsd || 0).toFixed(2)}`);
       setSafeText('chicken-file-remaining-bs', `(${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs)`);
       
-      // ✅ Mostrar botón "Marcar Entregado" solo si saldo es 0 y NO está entregado
-      const btnDelivered = document.getElementById('btn-mark-delivered');
-      if ((activeChickenOrder.remainingUsd || 0) <= 0.001 && !activeChickenOrder.delivered && activeChickenOrder.status !== 'entregado') {
-        btnDelivered.classList.remove('hidden');
-      } else {
-        btnDelivered.classList.add('hidden');
-      }
+     // ✅ Mostrar botón "Marcar Entregado" cuando:
+// 1. El saldo es $0 (estado "cancelado" o "entregado")
+// 2. O el estado es "apartado" o "abono" pero con saldo $0
+// 3. Y NO está marcado como entregado aún
+const btnDelivered = document.getElementById('btn-mark-delivered');
+const saldoCero = (activeChickenOrder.remainingUsd || 0) <= 0.001;
+const noEntregado = !activeChickenOrder.delivered && activeChickenOrder.status !== 'entregado';
+
+if (saldoCero && noEntregado) {
+  btnDelivered.classList.remove('hidden');
+  btnDelivered.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>Marcar Entregado</span>';
+  btnDelivered.className = 'flex-1 min-w-[120px] bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition flex items-center justify-center gap-1.5 shadow-xs';
+} else {
+  btnDelivered.classList.add('hidden');
+}
       
       // ✅ Mostrar botón "Eliminar" solo si está ENTREGADO
       const btnDelete = document.getElementById('btn-delete-chicken-file');
@@ -3790,7 +3798,7 @@
       btnPaid.classList.remove('hidden');
     }
   }
-  
+
       document.getElementById('modal-chicken-file').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
     }
