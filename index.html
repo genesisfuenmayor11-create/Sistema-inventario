@@ -81,7 +81,7 @@
         'report-total-usd', 'report-total-bs', 'report-methods-breakdown',
         'cart-payment-method',
         'cart-subtotal-usd', 'cart-total-bs', 'cart-total-usd', 'cart-bcv-rate',
-        'btn-new-chicken-order', 'nav-chickens'
+        'btn-new-chicken-order'
       ];
       
       hideForInventory.forEach(id => {
@@ -105,13 +105,17 @@
       if (!isAdmin) {
         const navPos = document.getElementById('nav-pos');
         const navCredits = document.getElementById('nav-credits');
+        const navChickens = document.getElementById('nav-chickens');
         if (navPos) navPos.style.display = 'none';
         if (navCredits) navCredits.style.display = 'none';
+        if (navChickens) navChickens.style.display = 'none';
       } else {
         const navPos = document.getElementById('nav-pos');
         const navCredits = document.getElementById('nav-credits');
+        const navChickens = document.getElementById('nav-chickens');
         if (navPos) navPos.style.display = '';
         if (navCredits) navCredits.style.display = '';
+        if (navChickens) navChickens.style.display = '';
       }
     };
 
@@ -298,7 +302,7 @@
         </div>
       </header>
 
-      <!-- SECCIÓN DASHBOARD -->
+      <!-- DASHBOARD -->
       <section id="tab-dashboard" class="tab-content p-6 space-y-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div>
@@ -417,7 +421,7 @@
         </div>
       </section>
 
-      <!-- SECCIÓN POS -->
+      <!-- POS -->
       <section id="tab-pos" class="tab-content p-6 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div class="lg:col-span-7 space-y-4">
@@ -538,7 +542,7 @@
         </div>
       </section>
 
-      <!-- SECCIÓN INVENTARIO -->
+      <!-- INVENTARIO -->
       <section id="tab-inventory" class="tab-content p-6 space-y-4 hidden">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
           <div class="relative w-full sm:w-80">
@@ -570,7 +574,7 @@
         </div>
       </section>
 
-      <!-- SECCIÓN CRÉDITOS -->
+      <!-- CRÉDITOS -->
       <section id="tab-credits" class="tab-content p-6 space-y-6 hidden">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -594,7 +598,7 @@
         <div id="debtors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
-      <!-- ✅ NUEVA SECCIÓN: VENTA DE POLLOS -->
+      <!-- ✅ VENTA DE POLLOS -->
       <section id="tab-chickens" class="tab-content p-6 space-y-6 hidden">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -606,7 +610,6 @@
           </button>
         </div>
 
-        <!-- Resumen de pedidos -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
             <div class="flex items-center gap-2 mb-2">
@@ -627,24 +630,22 @@
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
             <div class="flex items-center gap-2 mb-2">
               <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
-              <span class="text-xs font-bold text-emerald-700 uppercase">Cancelados</span>
+              <span class="text-xs font-bold text-emerald-700 uppercase">Entregados/Cancelados</span>
             </div>
             <div id="chicken-completed-count" class="text-2xl font-black text-emerald-900">0</div>
             <div class="text-xs text-emerald-600 mt-1">pedidos completados</div>
           </div>
         </div>
 
-        <!-- Buscador -->
         <div class="relative w-full sm:w-80">
           <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
           <input type="text" id="chicken-search" oninput="renderChickenOrders()" placeholder="Buscar por nombre o teléfono..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-orange-500 shadow-xs">
         </div>
 
-        <!-- Lista de pedidos -->
         <div id="chicken-orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
-      <!-- SECCIÓN HISTORIAL -->
+      <!-- HISTORIAL -->
       <section id="tab-history" class="tab-content p-6 space-y-4 hidden">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div>
@@ -897,7 +898,7 @@
     </div>
   </div>
 
-  <!-- MODAL ABONO -->
+  <!-- MODAL ABONO (Créditos) -->
   <div id="modal-payment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -980,7 +981,6 @@
         <div>
           <label class="block text-[11px] font-bold text-slate-500 mb-1">Gramos que pide el cliente:</label>
           <input type="number" step="1" id="input-grampa-grams" oninput="handleGrampaCalc()" placeholder="Ej: 500" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-cyan-500">
-          <p class="text-[10px] text-cyan-600 mt-1"> Escribe los gramos y el precio se calcula automáticamente</p>
         </div>
         <div class="bg-cyan-50 border border-cyan-100 rounded-2xl p-4 flex justify-between items-center">
           <div>
@@ -1173,7 +1173,7 @@
     </div>
   </div>
 
-  <!-- ✅ NUEVO: MODAL REGISTRAR PEDIDO DE POLLOS -->
+  <!-- MODAL REGISTRAR PEDIDO DE POLLOS -->
   <div id="modal-chicken-order" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeChickenOrderModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1195,7 +1195,7 @@
         </div>
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Cantidad de Pollos:</label>
-          <input type="number" id="chicken-quantity" min="1" value="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-orange-500">
+          <input type="number" id="chicken-quantity" min="1" value="1" oninput="updateChickenTotals()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-orange-500">
         </div>
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Precio por Pollo ($):</label>
@@ -1248,143 +1248,137 @@
     </div>
   </div>
 
-  <!-- ✅ MODULO ARCHIVO DEL CLIENTE (POLLOS) - ACTUALIZADO -->
-<div id="modal-chicken-file" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
-  <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto space-y-5">
-    <button onclick="closeChickenFileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
-    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-      <div class="flex items-center gap-3">
-        <div class="p-3.5 bg-orange-100 text-orange-700 rounded-2xl"><i data-lucide="egg" class="w-6 h-6"></i></div>
-        <div>
-          <h3 id="chicken-file-client-name" class="font-black text-xl text-slate-900">Nombre Cliente</h3>
-          <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-            <i data-lucide="phone" class="w-3.5 h-3.5 text-orange-600"></i>
-            <span id="chicken-file-client-phone" class="font-bold text-slate-700">Sin teléfono</span>
-          </div>
-          <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
-            <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span class="text-slate-600">Pedido: </span>
-            <span id="chicken-file-order-date" class="font-bold text-slate-700">--/--/----</span>
+  <!-- MODAL ARCHIVO DEL CLIENTE (POLLOS) -->
+  <div id="modal-chicken-file" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto space-y-5">
+      <button onclick="closeChickenFileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="p-3.5 bg-orange-100 text-orange-700 rounded-2xl"><i data-lucide="egg" class="w-6 h-6"></i></div>
+          <div>
+            <h3 id="chicken-file-client-name" class="font-black text-xl text-slate-900">Nombre Cliente</h3>
+            <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+              <i data-lucide="phone" class="w-3.5 h-3.5 text-orange-600"></i>
+              <span id="chicken-file-client-phone" class="font-bold text-slate-700">Sin teléfono</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="text-slate-600">Pedido: </span>
+              <span id="chicken-file-order-date" class="font-bold text-slate-700">--/--/----</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="flex gap-2">
-        <button id="btn-delete-chicken-file" onclick="deleteChickenOrder(activeChickenOrder ? activeChickenOrder.id : '')" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition flex items-center gap-1">
+        <button id="btn-delete-chicken-file" onclick="deleteChickenOrder(activeChickenOrder ? activeChickenOrder.id : '')" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition flex items-center gap-1 hidden">
           <i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>Eliminar</span>
         </button>
       </div>
-    </div>
 
-    <!-- Resumen del pedido -->
-    <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4">
-      <div class="grid grid-cols-3 gap-3 text-center">
-        <div>
-          <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Pollos</span>
-          <span id="chicken-file-quantity" class="text-lg font-black text-slate-900">0</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total</span>
-          <span id="chicken-file-total" class="text-lg font-black text-orange-700">$0.00</span>
-        </div>
-        <div>
-          <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Estado</span>
-          <span id="chicken-file-status" class="text-xs font-bold px-2 py-1 rounded-full">Apartado</span>
+      <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Pollos</span>
+            <span id="chicken-file-quantity" class="text-lg font-black text-slate-900">0</span>
+          </div>
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total</span>
+            <span id="chicken-file-total" class="text-lg font-black text-orange-700">$0.00</span>
+          </div>
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Estado</span>
+            <span id="chicken-file-status" class="text-xs font-bold px-2 py-1 rounded-full">Apartado</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Saldo pendiente -->
-    <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+      <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total Pagado</span>
+          <span id="chicken-file-paid" class="text-base font-black text-emerald-600">$0.00</span>
+          <span id="chicken-file-paid-bs" class="text-xs text-emerald-600 block">(0.00 Bs)</span>
+        </div>
+        <div>
+          <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Saldo Restante</span>
+          <span id="chicken-file-remaining" class="text-base font-black text-amber-600">$0.00</span>
+          <span id="chicken-file-remaining-bs" class="text-xs text-amber-600 block">(0.00 Bs)</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button onclick="openChickenPaymentModal()" class="flex-1 min-w-[120px] bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 shadow-xs">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i><span>Registrar Abono</span>
+        </button>
+        <button onclick="openModifyQuantityModal()" class="flex-1 min-w-[120px] bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-xs">
+          <i data-lucide="edit-3" class="w-4 h-4"></i><span>Modificar Cantidad</span>
+        </button>
+        <button onclick="markChickenAsDelivered()" id="btn-mark-delivered" class="flex-1 min-w-[120px] bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition flex items-center justify-center gap-1.5 shadow-xs hidden">
+          <i data-lucide="check-circle" class="w-4 h-4"></i><span>Marcar Entregado</span>
+        </button>
+      </div>
+
       <div>
-        <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Total Pagado</span>
-        <span id="chicken-file-paid" class="text-base font-black text-emerald-600">$0.00</span>
-        <span id="chicken-file-paid-bs" class="text-xs text-emerald-600 block">(0.00 Bs)</span>
-      </div>
-      <div>
-        <span class="text-[10px] font-extrabold uppercase text-slate-400 block">Saldo Restante</span>
-        <span id="chicken-file-remaining" class="text-base font-black text-amber-600">$0.00</span>
-        <span id="chicken-file-remaining-bs" class="text-xs text-amber-600 block">(0.00 Bs)</span>
-      </div>
-    </div>
-
-    <!-- ✅ NUEVOS BOTONES DE ACCIÓN -->
-    <div class="flex flex-wrap gap-2">
-      <button onclick="openChickenPaymentModal()" class="flex-1 min-w-[120px] bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 shadow-xs">
-        <i data-lucide="plus-circle" class="w-4 h-4"></i><span>Registrar Abono</span>
-      </button>
-      <button onclick="openModifyQuantityModal()" class="flex-1 min-w-[120px] bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-xs">
-        <i data-lucide="edit-3" class="w-4 h-4"></i><span>Modificar Cantidad</span>
-      </button>
-      <button onclick="markChickenAsDelivered()" id="btn-mark-delivered" class="flex-1 min-w-[120px] bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition flex items-center justify-center gap-1.5 shadow-xs hidden">
-        <i data-lucide="check-circle" class="w-4 h-4"></i><span>Marcar Entregado</span>
-      </button>
-    </div>
-
-    <!-- Historial de movimientos -->
-    <div>
-      <h4 class="font-bold text-slate-900 text-sm mb-2">📋 Historial de Movimientos</h4>
-      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
-            <tr>
-              <th class="p-3 font-bold">Fecha</th>
-              <th class="p-3 font-bold">Tipo</th>
-              <th class="p-3 font-bold text-right">Monto ($)</th>
-              <th class="p-3 font-bold text-right">Monto (Bs)</th>
-            </tr>
-          </thead>
-          <tbody id="chicken-file-movements" class="divide-y divide-slate-100 text-slate-700"></tbody>
-        </table>
+        <h4 class="font-bold text-slate-900 text-sm mb-2">📋 Historial de Movimientos</h4>
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="p-3 font-bold">Fecha</th>
+                <th class="p-3 font-bold">Tipo</th>
+                <th class="p-3 font-bold text-right">Monto ($)</th>
+                <th class="p-3 font-bold text-right">Monto (Bs)</th>
+              </tr>
+            </thead>
+            <tbody id="chicken-file-movements" class="divide-y divide-slate-100 text-slate-700"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ✅ NUEVO: MODAL MODIFICAR CANTIDAD -->
-<div id="modal-modify-quantity" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
-  <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
-    <button onclick="closeModifyQuantityModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
-    <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-      <div class="p-3 bg-blue-100 text-blue-700 rounded-2xl"><i data-lucide="edit-3" class="w-6 h-6"></i></div>
-      <div>
-        <h3 class="font-extrabold text-lg text-slate-900">Modificar Cantidad de Pollos</h3>
-        <p class="text-xs text-slate-400 font-medium">Ajustar el pedido del cliente</p>
-      </div>
-    </div>
-    <div class="space-y-3 text-xs">
-      <div class="bg-slate-50 p-3 rounded-xl">
-        <div class="flex justify-between text-xs mb-1">
-          <span class="text-slate-600">Cantidad actual:</span>
-          <strong id="modify-current-qty" class="text-slate-900">0 pollos</strong>
-        </div>
-        <div class="flex justify-between text-xs">
-          <span class="text-slate-600">Total actual:</span>
-          <strong id="modify-current-total" class="text-orange-600">$0.00</strong>
+  <!-- MODAL MODIFICAR CANTIDAD -->
+  <div id="modal-modify-quantity" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
+      <button onclick="closeModifyQuantityModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+        <div class="p-3 bg-blue-100 text-blue-700 rounded-2xl"><i data-lucide="edit-3" class="w-6 h-6"></i></div>
+        <div>
+          <h3 class="font-extrabold text-lg text-slate-900">Modificar Cantidad de Pollos</h3>
+          <p class="text-xs text-slate-400 font-medium">Ajustar el pedido del cliente</p>
         </div>
       </div>
-      <div>
-        <label class="block font-bold text-slate-700 mb-1">Nueva cantidad de pollos:</label>
-        <input type="number" id="modify-new-qty" min="1" value="1" oninput="updateModifyPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-500">
-      </div>
-      <div class="bg-blue-50 p-3 rounded-xl border border-blue-200">
-        <div class="flex justify-between text-xs mb-1">
-          <span class="text-slate-600">Nuevo total:</span>
-          <strong id="modify-new-total" class="text-blue-700">$0.00</strong>
+      <div class="space-y-3 text-xs">
+        <div class="bg-slate-50 p-3 rounded-xl">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-600">Cantidad actual:</span>
+            <strong id="modify-current-qty" class="text-slate-900">0 pollos</strong>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-600">Total actual:</span>
+            <strong id="modify-current-total" class="text-orange-600">$0.00</strong>
+          </div>
         </div>
-        <div class="flex justify-between text-xs">
-          <span class="text-slate-600">Diferencia:</span>
-          <strong id="modify-difference" class="text-amber-700">$0.00</strong>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nueva cantidad de pollos:</label>
+          <input type="number" id="modify-new-qty" min="1" value="1" oninput="updateModifyPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-500">
         </div>
-        <p id="modify-difference-text" class="text-[10px] text-slate-500 mt-1"></p>
+        <div class="bg-blue-50 p-3 rounded-xl border border-blue-200">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-600">Nuevo total:</span>
+            <strong id="modify-new-total" class="text-blue-700">$0.00</strong>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-600">Diferencia:</span>
+            <strong id="modify-difference" class="text-amber-700">$0.00</strong>
+          </div>
+          <p id="modify-difference-text" class="text-[10px] text-slate-500 mt-1"></p>
+        </div>
+        <button onclick="saveModifiedQuantity()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
+          <i data-lucide="save" class="w-4 h-4"></i><span>Guardar Cambios</span>
+        </button>
       </div>
-      <button onclick="saveModifiedQuantity()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
-        <i data-lucide="save" class="w-4 h-4"></i><span>Guardar Cambios</span>
-      </button>
     </div>
   </div>
-</div>
 
-  <!-- ✅ NUEVO: MODAL ABONO POLLOS -->
+  <!-- MODAL ABONO POLLOS -->
   <div id="modal-chicken-payment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
       <button onclick="closeChickenPaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1547,7 +1541,6 @@
         renderPosGrid();
         renderInventoryTable();
         updateCartTotals();
-        updateChickenPayConversion();
       });
 
       onSnapshot(collection(db, "productos"), (snapshot) => {
@@ -1584,7 +1577,6 @@
         populateAbonoDebtorSelect();
       });
 
-      // ✅ Cargar pedidos de pollos
       onSnapshot(collection(db, "pedidosPollos"), (snapshot) => {
         chickenOrders = [];
         snapshot.forEach((docSnap) => {
@@ -1637,7 +1629,6 @@
       await deleteDoc(doc(window.db, "deudores", debtorId.toString()));
     }
 
-    // ✅ Funciones para guardar pedidos de pollos
     async function saveChickenOrderCloud(order) {
       if (!window.db) return false;
       try {
@@ -1650,35 +1641,7 @@
       }
     }
 
-   async function deleteChickenOrder(orderId) {
-  if (!checkAdminAccess('eliminar pedidos de pollos')) return;
-  
-  const order = chickenOrders.find(o => o.id === orderId);
-  if (!order) return;
-  
-  // ✅ Solo permitir eliminar si está ENTREGADO
-  if (order.status !== 'entregado') {
-    alert('⚠️ Solo se pueden eliminar pedidos que estén marcados como ENTREGADOS.\n\nPrimero marca el pedido como entregado y luego podrás eliminarlo.');
-    return;
-  }
-  
-  if (!confirm(`¿Eliminar la carpeta de ${order.clientName}?\n\nEste pedido fue entregado y se eliminará permanentemente.`)) {
-    return;
-  }
-  
-  try {
-    await deleteChickenOrderCloud(orderId);
-    alert('✅ Carpeta eliminada.');
-    if (activeChickenOrder && activeChickenOrder.id === orderId) {
-      closeChickenFileModal();
-    }
-    renderChickenOrders(); // ✅ Refresca la lista
-  } catch (error) {
-    console.error("❌ Error:", error);
-    alert('❌ Error al eliminar: ' + error.message);
-  }
-}
-
+    async function deleteChickenOrderCloud(orderId) {
       if (!window.db) return;
       const { doc, deleteDoc } = window.firebaseFns;
       await deleteDoc(doc(window.db, "pedidosPollos", orderId.toString()));
@@ -3461,799 +3424,608 @@
       }
     }
 
-// ✅ FUNCIONES PARA VENTA DE POLLOS - ACTUALIZADAS
+    // =================================================================
+    // ✅ FUNCIONES PARA VENTA DE POLLOS
+    // =================================================================
 
-function openChickenOrderModal() {
-  if (!checkAdminAccess('registrar pedidos de pollos')) return;
-  document.getElementById('chicken-client-name').value = '';
-  document.getElementById('chicken-client-phone').value = '';
-  document.getElementById('chicken-quantity').value = '1';
-  document.getElementById('chicken-price-usd').value = '5.00';
-  document.getElementById('chicken-status').value = 'apartado';
-  document.getElementById('chicken-abono-section').classList.add('hidden');
-  updateChickenTotals();
-  document.getElementById('modal-chicken-order').classList.remove('hidden');
-  if (window.lucide) lucide.createIcons();
-}
-
-function closeChickenOrderModal() {
-  document.getElementById('modal-chicken-order').classList.add('hidden');
-}
-
-function updateChickenTotals() {
-  const qty = parseFloat(document.getElementById('chicken-quantity').value) || 0;
-  const priceUsd = parseFloat(document.getElementById('chicken-price-usd').value) || 0;
-  const totalUsd = qty * priceUsd;
-  const totalBs = totalUsd * bcvRate;
-  
-  document.getElementById('chicken-total-usd').innerText = `$${totalUsd.toFixed(2)}`;
-  document.getElementById('chicken-total-bs').innerText = `${totalBs.toFixed(2)} Bs`;
-  
-  updateChickenAbonoConversion();
-}
-
-function handleChickenStatusChange() {
-  const status = document.getElementById('chicken-status').value;
-  const abonoSection = document.getElementById('chicken-abono-section');
-  
-  if (status === 'abono') {
-    abonoSection.classList.remove('hidden');
-    updateChickenAbonoConversion();
-  } else {
-    abonoSection.classList.add('hidden');
-  }
-}
-
-function updateChickenAbonoConversion() {
-  const totalUsd = (parseFloat(document.getElementById('chicken-quantity').value) || 0) * (parseFloat(document.getElementById('chicken-price-usd').value) || 0);
-  const abonoAmount = parseFloat(document.getElementById('chicken-abono-amount').value) || 0;
-  const currency = document.getElementById('chicken-abono-currency').value;
-  
-  const abonoUsd = currency === 'USD' ? abonoAmount : abonoAmount / bcvRate;
-  const abonoBs = currency === 'BS' ? abonoAmount : abonoAmount * bcvRate;
-  const remaining = Math.max(0, totalUsd - abonoUsd);
-  
-  document.getElementById('chicken-abono-equivalent').innerText = `$${abonoUsd.toFixed(2)} / ${abonoBs.toFixed(2)} Bs`;
-  document.getElementById('chicken-abono-remaining').innerText = `$${remaining.toFixed(2)}`;
-}
-
-async function saveChickenOrder() {
-  if (!checkAdminAccess('guardar pedidos de pollos')) return;
-  
-  const clientName = document.getElementById('chicken-client-name').value.trim();
-  const clientPhone = document.getElementById('chicken-client-phone').value.trim();
-  const quantity = parseInt(document.getElementById('chicken-quantity').value) || 0;
-  const priceUsd = parseFloat(document.getElementById('chicken-price-usd').value) || 0;
-  const status = document.getElementById('chicken-status').value;
-  
-  if (!clientName) { alert('⚠️ Por favor escriba el nombre del cliente.'); return; }
-  if (quantity <= 0) { alert('⚠️ La cantidad de pollos debe ser mayor a 0.'); return; }
-  if (priceUsd <= 0) { alert('⚠️ El precio por pollo debe ser mayor a 0.'); return; }
-  
-  const totalUsd = quantity * priceUsd;
-  const totalBs = totalUsd * bcvRate;
-  const now = new Date();
-  
-  const order = {
-    id: 'POLLO-' + Date.now().toString().slice(-6),
-    clientName: clientName,
-    clientPhone: clientPhone,
-    quantity: quantity,
-    pricePerChickenUsd: priceUsd,
-    totalUsd: totalUsd,
-    totalBs: totalBs,
-    status: status,
-    delivered: false,
-    bcvRateAtCreation: bcvRate,
-    createdAt: now.toISOString(),
-    createdAtDisplay: formatDateDDMMYYYY(now.toISOString()),
-    movements: []
-  };
-  
-  if (status === 'abono') {
-    const abonoAmount = parseFloat(document.getElementById('chicken-abono-amount').value) || 0;
-    const abonoCurrency = document.getElementById('chicken-abono-currency').value;
-    
-    if (abonoAmount <= 0) { alert('⚠️ El monto del abono debe ser mayor a 0.'); return; }
-    
-    const abonoUsd = abonoCurrency === 'USD' ? abonoAmount : abonoAmount / bcvRate;
-    const abonoBs = abonoCurrency === 'BS' ? abonoAmount : abonoAmount * bcvRate;
-    
-    order.movements.push({
-      id: 'ABO-' + Date.now().toString().slice(-6),
-      type: 'abono',
-      dateISO: now.toISOString(),
-      dateDisplay: formatDateDDMMYYYY(now.toISOString()),
-      amountUsd: abonoUsd,
-      amountBs: abonoBs,
-      bcvRate: bcvRate,
-      remainingUsd: totalUsd - abonoUsd,
-      remainingBs: (totalUsd - abonoUsd) * bcvRate
-    });
-    
-    order.paidUsd = abonoUsd;
-    order.paidBs = abonoBs;
-    order.remainingUsd = totalUsd - abonoUsd;
-    order.remainingBs = (totalUsd - abonoUsd) * bcvRate;
-  } else if (status === 'cancelado') {
-    order.movements.push({
-      id: 'PAGO-' + Date.now().toString().slice(-6),
-      type: 'pago_completo',
-      dateISO: now.toISOString(),
-      dateDisplay: formatDateDDMMYYYY(now.toISOString()),
-      amountUsd: totalUsd,
-      amountBs: totalBs,
-      bcvRate: bcvRate,
-      remainingUsd: 0,
-      remainingBs: 0
-    });
-    
-    order.paidUsd = totalUsd;
-    order.paidBs = totalBs;
-    order.remainingUsd = 0;
-    order.remainingBs = 0;
-  } else {
-    order.paidUsd = 0;
-    order.paidBs = 0;
-    order.remainingUsd = totalUsd;
-    order.remainingBs = totalBs;
-  }
-  
-  try {
-    const { doc, setDoc } = window.firebaseFns;
-    await setDoc(doc(window.db, "pedidosPollos", order.id), order);
-    closeChickenOrderModal();
-    alert('✅ ¡Pedido de pollos registrado exitosamente!');
-  } catch (error) {
-    console.error("❌ Error al guardar:", error);
-    alert('❌ Error al guardar: ' + error.message);
-  }
-}
-
-function renderChickenOrders() {
-  const grid = document.getElementById('chicken-orders-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  
-  const searchQuery = normalizeText(document.getElementById('chicken-search')?.value || '');
-  
-  const filtered = chickenOrders.filter(o => {
-    if (searchQuery) {
-      const nameMatch = normalizeText(o.clientName || '').includes(searchQuery);
-      const phoneMatch = normalizeText(o.clientPhone || '').includes(searchQuery);
-      return nameMatch || phoneMatch;
+    function openChickenOrderModal() {
+      if (!checkAdminAccess('registrar pedidos de pollos')) return;
+      document.getElementById('chicken-client-name').value = '';
+      document.getElementById('chicken-client-phone').value = '';
+      document.getElementById('chicken-quantity').value = '1';
+      document.getElementById('chicken-price-usd').value = '5.00';
+      document.getElementById('chicken-status').value = 'apartado';
+      document.getElementById('chicken-abono-section').classList.add('hidden');
+      updateChickenTotals();
+      document.getElementById('modal-chicken-order').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
     }
-    return true;
-  });
-  
-  // ✅ Contadores actualizados (incluye 'entregado')
-  const pending = filtered.filter(o => o.status === 'apartado' && !o.delivered).length;
-  const partial = filtered.filter(o => o.status === 'abono' && !o.delivered).length;
-  const completed = filtered.filter(o => o.status === 'cancelado' || o.status === 'entregado').length;
-  
-  setSafeText('chicken-pending-count', pending);
-  setSafeText('chicken-partial-count', partial);
-  setSafeText('chicken-completed-count', completed);
-  
-  if (filtered.length === 0) {
-    grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">
-      <div class="flex flex-col items-center gap-2">
-        <i data-lucide="search-x" class="w-8 h-8 text-slate-300"></i>
-        <span>${searchQuery ? `No se encontraron pedidos para "${searchQuery}"` : 'No hay pedidos de pollos registrados.'}</span>
-      </div>
-    </div>`;
-    if (window.lucide) lucide.createIcons();
-    return;
-  }
-  
-  filtered.forEach(o => {
-    // ✅ CORREGIDO: Manejo de estado 'entregado'
-    const statusColors = {
-      'apartado': 'bg-amber-100 text-amber-700',
-      'abono': 'bg-blue-100 text-blue-700',
-      'cancelado': 'bg-emerald-100 text-emerald-700',
-      'entregado': 'bg-emerald-100 text-emerald-700'
-    };
-    const statusLabels = {
-      'apartado': 'Apartado',
-      'abono': 'Con Abono',
-      'cancelado': 'Cancelado',
-      'entregado': 'ENTREGADO'
-    };
-    
-    // ✅ Mostrar ícono de check si está entregado
-    const statusIcon = o.status === 'entregado' ? '✅ ' : '';
-    
-    const card = document.createElement('div');
-    card.className = "bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3";
-    card.innerHTML = `
-      <div class="flex justify-between items-start">
-        <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${statusColors[o.status] || 'bg-slate-100 text-slate-700'}">${statusIcon}${statusLabels[o.status] || o.status}</span>
-        <button onclick="deleteChickenOrder('${o.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-      </div>
-      <div>
-        <h4 class="font-extrabold text-slate-900 text-base">${o.clientName}</h4>
-        <span class="text-xs text-slate-500">${o.clientPhone || 'Sin teléfono'}</span>
-        <div class="text-[10px] text-slate-400 mt-1">📅 ${o.createdAtDisplay || '--'}</div>
-      </div>
-      <div class="bg-slate-50 p-3 rounded-xl space-y-1 text-xs">
-        <div class="flex justify-between"><span>Pollos:</span><strong class="text-slate-800">${o.quantity}</strong></div>
-        <div class="flex justify-between"><span>Total:</span><strong class="text-orange-600">$${o.totalUsd.toFixed(2)} / ${o.totalBs.toFixed(2)} Bs</strong></div>
-        <div class="flex justify-between"><span>Pagado:</span><strong class="text-emerald-600">$${(o.paidUsd || 0).toFixed(2)}</strong></div>
-        <div class="flex justify-between"><span>Restante:</span><strong class="text-amber-600">$${(o.remainingUsd || 0).toFixed(2)}</strong></div>
-      </div>
-      <button onclick="openChickenFile('${o.id}')" class="w-full py-2.5 bg-orange-600 text-white font-bold text-xs rounded-xl hover:bg-orange-700 transition">Ver Archivo del Cliente</button>
-    `;
-    grid.appendChild(card);
-  });
-  
-  if (window.lucide) lucide.createIcons();
-}
 
-  const grid = document.getElementById('chicken-orders-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  
-  const searchQuery = normalizeText(document.getElementById('chicken-search')?.value || '');
-  
-  const filtered = chickenOrders.filter(o => {
-    if (searchQuery) {
-      const nameMatch = normalizeText(o.clientName || '').includes(searchQuery);
-      const phoneMatch = normalizeText(o.clientPhone || '').includes(searchQuery);
-      return nameMatch || phoneMatch;
+    function closeChickenOrderModal() {
+      document.getElementById('modal-chicken-order').classList.add('hidden');
     }
-    return true;
-  });
-  
-  const pending = filtered.filter(o => o.status === 'apartado' && !o.delivered).length;
-  const partial = filtered.filter(o => o.status === 'abono' && !o.delivered).length;
-  const completed = filtered.filter(o => o.status === 'cancelado' || o.delivered).length;
-  
-  setSafeText('chicken-pending-count', pending);
-  setSafeText('chicken-partial-count', partial);
-  setSafeText('chicken-completed-count', completed);
-  
-  if (filtered.length === 0) {
-    grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">
-      <div class="flex flex-col items-center gap-2">
-        <i data-lucide="search-x" class="w-8 h-8 text-slate-300"></i>
-        <span>${searchQuery ? `No se encontraron pedidos para "${searchQuery}"` : 'No hay pedidos de pollos registrados.'}</span>
-      </div>
-    </div>`;
-    if (window.lucide) lucide.createIcons();
-    return;
-  }
-  
-  filtered.forEach(o => {
-    const statusColors = {
-      'apartado': o.delivered ? 'bg-slate-100 text-slate-700' : 'bg-amber-100 text-amber-700',
-      'abono': 'bg-blue-100 text-blue-700',
-      'cancelado': 'bg-emerald-100 text-emerald-700'
-    };
-    const statusLabels = {
-      'apartado': o.delivered ? 'Entregado' : 'Apartado',
-      'abono': 'Con Abono',
-      'cancelado': 'Cancelado'
-    };
-    
-    const card = document.createElement('div');
-    card.className = "bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3";
-    card.innerHTML = `
-      <div class="flex justify-between items-start">
-        <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${statusColors[o.status]}">${statusLabels[o.status]}</span>
-        <button onclick="deleteChickenOrder('${o.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-      </div>
-      <div>
-        <h4 class="font-extrabold text-slate-900 text-base">${o.clientName}</h4>
-        <span class="text-xs text-slate-500">${o.clientPhone || 'Sin teléfono'}</span>
-        <div class="text-[10px] text-slate-400 mt-1">📅 ${o.createdAtDisplay || '--'}</div>
-      </div>
-      <div class="bg-slate-50 p-3 rounded-xl space-y-1 text-xs">
-        <div class="flex justify-between"><span>Pollos:</span><strong class="text-slate-800">${o.quantity}</strong></div>
-        <div class="flex justify-between"><span>Total:</span><strong class="text-orange-600">$${o.totalUsd.toFixed(2)} / ${o.totalBs.toFixed(2)} Bs</strong></div>
-        <div class="flex justify-between"><span>Pagado:</span><strong class="text-emerald-600">$${(o.paidUsd || 0).toFixed(2)}</strong></div>
-        <div class="flex justify-between"><span>Restante:</span><strong class="text-amber-600">$${(o.remainingUsd || 0).toFixed(2)}</strong></div>
-      </div>
-      <button onclick="openChickenFile('${o.id}')" class="w-full py-2.5 bg-orange-600 text-white font-bold text-xs rounded-xl hover:bg-orange-700 transition">Ver Archivo del Cliente</button>
-    `;
-    grid.appendChild(card);
-  });
-  
-  if (window.lucide) lucide.createIcons();
-}
 
-function openChickenFile(orderId) {
-  activeChickenOrder = chickenOrders.find(o => o.id === orderId);
-  if (!activeChickenOrder) return;
-  
-  setSafeText('chicken-file-client-name', activeChickenOrder.clientName);
-  setSafeText('chicken-file-client-phone', activeChickenOrder.clientPhone || 'Sin teléfono');
-  setSafeText('chicken-file-order-date', activeChickenOrder.createdAtDisplay || '--/--/----');
-  setSafeText('chicken-file-quantity', activeChickenOrder.quantity);
-  setSafeText('chicken-file-total', `$${activeChickenOrder.totalUsd.toFixed(2)}`);
-  
-  const statusEl = document.getElementById('chicken-file-status');
-  const statusLabels = { 
-    'apartado': 'Apartado', 
-    'abono': 'Con Abono', 
-    'cancelado': 'Cancelado',
-    'entregado': 'ENTREGADO'
-  };
-  const statusColors = { 
-    'apartado': 'bg-amber-100 text-amber-700', 
-    'abono': 'bg-blue-100 text-blue-700', 
-    'cancelado': 'bg-emerald-100 text-emerald-700',
-    'entregado': 'bg-emerald-100 text-emerald-700'
-  };
-  
-  // ✅ Mostrar "ENTREGADO" con ícono si está entregado
-  const statusIcon = activeChickenOrder.status === 'entregado' ? '✅ ' : '';
-  statusEl.innerText = statusIcon + (statusLabels[activeChickenOrder.status] || activeChickenOrder.status);
-  statusEl.className = `text-xs font-bold px-2 py-1 rounded-full ${statusColors[activeChickenOrder.status] || 'bg-slate-100 text-slate-700'}`;
-  
-  setSafeText('chicken-file-paid', `$${(activeChickenOrder.paidUsd || 0).toFixed(2)}`);
-  setSafeText('chicken-file-paid-bs', `(${(activeChickenOrder.paidBs || 0).toFixed(2)} Bs)`);
-  setSafeText('chicken-file-remaining', `$${(activeChickenOrder.remainingUsd || 0).toFixed(2)}`);
-  setSafeText('chicken-file-remaining-bs', `(${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs)`);
-  
-  // ✅ Mostrar botón "Marcar Entregado" solo si saldo es 0 y NO está entregado
-  const btnDelivered = document.getElementById('btn-mark-delivered');
-  if ((activeChickenOrder.remainingUsd || 0) <= 0.001 && activeChickenOrder.status !== 'entregado') {
-    btnDelivered.classList.remove('hidden');
-  } else {
-    btnDelivered.classList.add('hidden');
-  }
-  
-  // ✅ Mostrar botón "Eliminar" solo si está ENTREGADO
-  const btnDelete = document.getElementById('btn-delete-chicken-file');
-  if (activeChickenOrder.status === 'entregado') {
-    btnDelete.classList.remove('hidden');
-  } else {
-    btnDelete.classList.add('hidden');
-  }
-  
-  const movementsBody = document.getElementById('chicken-file-movements');
-  movementsBody.innerHTML = '';
-  
-  if (!activeChickenOrder.movements || activeChickenOrder.movements.length === 0) {
-    movementsBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">No hay movimientos registrados.</td></tr>`;
-  } else {
-    activeChickenOrder.movements.forEach(m => {
-      const typeLabels = { 
-        'abono': 'Abono', 
-        'pago_completo': 'Pago Completo',
-        'modificacion': 'Modificación',
-        'entregado': '✅ Entregado'
+    function updateChickenTotals() {
+      const qty = parseFloat(document.getElementById('chicken-quantity').value) || 0;
+      const priceUsd = parseFloat(document.getElementById('chicken-price-usd').value) || 0;
+      const totalUsd = qty * priceUsd;
+      const totalBs = totalUsd * bcvRate;
+      
+      document.getElementById('chicken-total-usd').innerText = `$${totalUsd.toFixed(2)}`;
+      document.getElementById('chicken-total-bs').innerText = `${totalBs.toFixed(2)} Bs`;
+      
+      updateChickenAbonoConversion();
+    }
+
+    function handleChickenStatusChange() {
+      const status = document.getElementById('chicken-status').value;
+      const abonoSection = document.getElementById('chicken-abono-section');
+      
+      if (status === 'abono') {
+        abonoSection.classList.remove('hidden');
+        updateChickenAbonoConversion();
+      } else {
+        abonoSection.classList.add('hidden');
+      }
+    }
+
+    function updateChickenAbonoConversion() {
+      const totalUsd = (parseFloat(document.getElementById('chicken-quantity').value) || 0) * (parseFloat(document.getElementById('chicken-price-usd').value) || 0);
+      const abonoAmount = parseFloat(document.getElementById('chicken-abono-amount').value) || 0;
+      const currency = document.getElementById('chicken-abono-currency').value;
+      
+      const abonoUsd = currency === 'USD' ? abonoAmount : abonoAmount / bcvRate;
+      const abonoBs = currency === 'BS' ? abonoAmount : abonoAmount * bcvRate;
+      const remaining = Math.max(0, totalUsd - abonoUsd);
+      
+      document.getElementById('chicken-abono-equivalent').innerText = `$${abonoUsd.toFixed(2)} / ${abonoBs.toFixed(2)} Bs`;
+      document.getElementById('chicken-abono-remaining').innerText = `$${remaining.toFixed(2)}`;
+    }
+
+    async function saveChickenOrder() {
+      if (!checkAdminAccess('guardar pedidos de pollos')) return;
+      
+      const clientName = document.getElementById('chicken-client-name').value.trim();
+      const clientPhone = document.getElementById('chicken-client-phone').value.trim();
+      const quantity = parseInt(document.getElementById('chicken-quantity').value) || 0;
+      const priceUsd = parseFloat(document.getElementById('chicken-price-usd').value) || 0;
+      const status = document.getElementById('chicken-status').value;
+      
+      if (!clientName) { alert('⚠️ Por favor escriba el nombre del cliente.'); return; }
+      if (quantity <= 0) { alert('⚠️ La cantidad de pollos debe ser mayor a 0.'); return; }
+      if (priceUsd <= 0) { alert('⚠️ El precio por pollo debe ser mayor a 0.'); return; }
+      
+      const totalUsd = quantity * priceUsd;
+      const totalBs = totalUsd * bcvRate;
+      const now = new Date();
+      
+      const order = {
+        id: 'POLLO-' + Date.now().toString().slice(-6),
+        clientName: clientName,
+        clientPhone: clientPhone,
+        quantity: quantity,
+        pricePerChickenUsd: priceUsd,
+        totalUsd: totalUsd,
+        totalBs: totalBs,
+        status: status,
+        delivered: false,
+        bcvRateAtCreation: bcvRate,
+        createdAt: now.toISOString(),
+        createdAtDisplay: formatDateDDMMYYYY(now.toISOString()),
+        movements: []
       };
-      const typeColors = { 
+      
+      if (status === 'abono') {
+        const abonoAmount = parseFloat(document.getElementById('chicken-abono-amount').value) || 0;
+        const abonoCurrency = document.getElementById('chicken-abono-currency').value;
+        
+        if (abonoAmount <= 0) { alert('⚠️ El monto del abono debe ser mayor a 0.'); return; }
+        
+        const abonoUsd = abonoCurrency === 'USD' ? abonoAmount : abonoAmount / bcvRate;
+        const abonoBs = abonoCurrency === 'BS' ? abonoAmount : abonoAmount * bcvRate;
+        
+        order.movements.push({
+          id: 'ABO-' + Date.now().toString().slice(-6),
+          type: 'abono',
+          dateISO: now.toISOString(),
+          dateDisplay: formatDateDDMMYYYY(now.toISOString()),
+          amountUsd: abonoUsd,
+          amountBs: abonoBs,
+          bcvRate: bcvRate,
+          remainingUsd: totalUsd - abonoUsd,
+          remainingBs: (totalUsd - abonoUsd) * bcvRate
+        });
+        
+        order.paidUsd = abonoUsd;
+        order.paidBs = abonoBs;
+        order.remainingUsd = totalUsd - abonoUsd;
+        order.remainingBs = (totalUsd - abonoUsd) * bcvRate;
+      } else if (status === 'cancelado') {
+        order.movements.push({
+          id: 'PAGO-' + Date.now().toString().slice(-6),
+          type: 'pago_completo',
+          dateISO: now.toISOString(),
+          dateDisplay: formatDateDDMMYYYY(now.toISOString()),
+          amountUsd: totalUsd,
+          amountBs: totalBs,
+          bcvRate: bcvRate,
+          remainingUsd: 0,
+          remainingBs: 0
+        });
+        
+        order.paidUsd = totalUsd;
+        order.paidBs = totalBs;
+        order.remainingUsd = 0;
+        order.remainingBs = 0;
+      } else {
+        order.paidUsd = 0;
+        order.paidBs = 0;
+        order.remainingUsd = totalUsd;
+        order.remainingBs = totalBs;
+      }
+      
+      try {
+        const { doc, setDoc } = window.firebaseFns;
+        await setDoc(doc(window.db, "pedidosPollos", order.id), order);
+        closeChickenOrderModal();
+        alert('✅ ¡Pedido de pollos registrado exitosamente!');
+      } catch (error) {
+        console.error("❌ Error al guardar:", error);
+        alert('❌ Error al guardar: ' + error.message);
+      }
+    }
+
+    function renderChickenOrders() {
+      const grid = document.getElementById('chicken-orders-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      
+      const searchQuery = normalizeText(document.getElementById('chicken-search')?.value || '');
+      
+      const filtered = chickenOrders.filter(o => {
+        if (searchQuery) {
+          const nameMatch = normalizeText(o.clientName || '').includes(searchQuery);
+          const phoneMatch = normalizeText(o.clientPhone || '').includes(searchQuery);
+          return nameMatch || phoneMatch;
+        }
+        return true;
+      });
+      
+      const pending = filtered.filter(o => o.status === 'apartado' && !o.delivered).length;
+      const partial = filtered.filter(o => o.status === 'abono' && !o.delivered).length;
+      const completed = filtered.filter(o => o.status === 'cancelado' || o.status === 'entregado' || o.delivered).length;
+      
+      setSafeText('chicken-pending-count', pending);
+      setSafeText('chicken-partial-count', partial);
+      setSafeText('chicken-completed-count', completed);
+      
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">
+          <div class="flex flex-col items-center gap-2">
+            <i data-lucide="search-x" class="w-8 h-8 text-slate-300"></i>
+            <span>${searchQuery ? `No se encontraron pedidos para "${searchQuery}"` : 'No hay pedidos de pollos registrados.'}</span>
+          </div>
+        </div>`;
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+      
+      filtered.forEach(o => {
+        const statusColors = {
+          'apartado': o.delivered ? 'bg-slate-100 text-slate-700' : 'bg-amber-100 text-amber-700',
+          'abono': 'bg-blue-100 text-blue-700',
+          'cancelado': 'bg-emerald-100 text-emerald-700',
+          'entregado': 'bg-emerald-100 text-emerald-700'
+        };
+        const statusLabels = {
+          'apartado': o.delivered ? 'Entregado' : 'Apartado',
+          'abono': 'Con Abono',
+          'cancelado': 'Cancelado',
+          'entregado': '✅ ENTREGADO'
+        };
+        
+        const statusIcon = o.status === 'entregado' ? '✅ ' : '';
+        
+        const card = document.createElement('div');
+        card.className = "bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${statusColors[o.status] || 'bg-slate-100 text-slate-700'}">${statusIcon}${statusLabels[o.status] || o.status}</span>
+            <button onclick="deleteChickenOrder('${o.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
+          <div>
+            <h4 class="font-extrabold text-slate-900 text-base">${o.clientName}</h4>
+            <span class="text-xs text-slate-500">${o.clientPhone || 'Sin teléfono'}</span>
+            <div class="text-[10px] text-slate-400 mt-1">📅 ${o.createdAtDisplay || '--'}</div>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl space-y-1 text-xs">
+            <div class="flex justify-between"><span>Pollos:</span><strong class="text-slate-800">${o.quantity}</strong></div>
+            <div class="flex justify-between"><span>Total:</span><strong class="text-orange-600">$${o.totalUsd.toFixed(2)} / ${o.totalBs.toFixed(2)} Bs</strong></div>
+            <div class="flex justify-between"><span>Pagado:</span><strong class="text-emerald-600">$${(o.paidUsd || 0).toFixed(2)}</strong></div>
+            <div class="flex justify-between"><span>Restante:</span><strong class="text-amber-600">$${(o.remainingUsd || 0).toFixed(2)}</strong></div>
+          </div>
+          <button onclick="openChickenFile('${o.id}')" class="w-full py-2.5 bg-orange-600 text-white font-bold text-xs rounded-xl hover:bg-orange-700 transition">Ver Archivo del Cliente</button>
+        `;
+        grid.appendChild(card);
+      });
+      
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openChickenFile(orderId) {
+      activeChickenOrder = chickenOrders.find(o => o.id === orderId);
+      if (!activeChickenOrder) return;
+      
+      setSafeText('chicken-file-client-name', activeChickenOrder.clientName);
+      setSafeText('chicken-file-client-phone', activeChickenOrder.clientPhone || 'Sin teléfono');
+      setSafeText('chicken-file-order-date', activeChickenOrder.createdAtDisplay || '--/--/----');
+      setSafeText('chicken-file-quantity', activeChickenOrder.quantity);
+      setSafeText('chicken-file-total', `$${activeChickenOrder.totalUsd.toFixed(2)}`);
+      
+      const statusEl = document.getElementById('chicken-file-status');
+      const statusLabels = { 
+        'apartado': 'Apartado', 
+        'abono': 'Con Abono', 
+        'cancelado': 'Cancelado',
+        'entregado': '✅ ENTREGADO'
+      };
+      const statusColors = { 
+        'apartado': 'bg-amber-100 text-amber-700', 
         'abono': 'bg-blue-100 text-blue-700', 
-        'pago_completo': 'bg-emerald-100 text-emerald-700',
-        'modificacion': 'bg-purple-100 text-purple-700',
+        'cancelado': 'bg-emerald-100 text-emerald-700',
         'entregado': 'bg-emerald-100 text-emerald-700'
       };
-      movementsBody.innerHTML += `
-        <tr>
-          <td class="p-3">${m.dateDisplay}</td>
-          <td class="p-3"><span class="px-2 py-1 rounded ${typeColors[m.type] || 'bg-slate-100 text-slate-700'} text-[10px] font-bold">${typeLabels[m.type] || m.type}</span></td>
-          <td class="p-3 text-right font-bold">$${m.amountUsd.toFixed(2)}</td>
-          <td class="p-3 text-right font-bold text-botalon-purple">${m.amountBs.toFixed(2)} Bs</td>
-        </tr>
-      `;
-    });
-  }
-  
-  document.getElementById('modal-chicken-file').classList.remove('hidden');
-  if (window.lucide) lucide.createIcons();
-}
+      
+      statusEl.innerText = activeChickenOrder.delivered ? '✅ ENTREGADO' : (statusLabels[activeChickenOrder.status] || activeChickenOrder.status);
+      statusEl.className = `text-xs font-bold px-2 py-1 rounded-full ${activeChickenOrder.delivered ? 'bg-emerald-100 text-emerald-700' : (statusColors[activeChickenOrder.status] || 'bg-slate-100 text-slate-700')}`;
+      
+      setSafeText('chicken-file-paid', `$${(activeChickenOrder.paidUsd || 0).toFixed(2)}`);
+      setSafeText('chicken-file-paid-bs', `(${(activeChickenOrder.paidBs || 0).toFixed(2)} Bs)`);
+      setSafeText('chicken-file-remaining', `$${(activeChickenOrder.remainingUsd || 0).toFixed(2)}`);
+      setSafeText('chicken-file-remaining-bs', `(${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs)`);
+      
+      // ✅ Mostrar botón "Marcar Entregado" solo si saldo es 0 y NO está entregado
+      const btnDelivered = document.getElementById('btn-mark-delivered');
+      if ((activeChickenOrder.remainingUsd || 0) <= 0.001 && !activeChickenOrder.delivered && activeChickenOrder.status !== 'entregado') {
+        btnDelivered.classList.remove('hidden');
+      } else {
+        btnDelivered.classList.add('hidden');
+      }
+      
+      // ✅ Mostrar botón "Eliminar" solo si está ENTREGADO
+      const btnDelete = document.getElementById('btn-delete-chicken-file');
+      if (activeChickenOrder.delivered || activeChickenOrder.status === 'entregado') {
+        btnDelete.classList.remove('hidden');
+      } else {
+        btnDelete.classList.add('hidden');
+      }
+      
+      const movementsBody = document.getElementById('chicken-file-movements');
+      movementsBody.innerHTML = '';
+      
+      if (!activeChickenOrder.movements || activeChickenOrder.movements.length === 0) {
+        movementsBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">No hay movimientos registrados.</td></tr>`;
+      } else {
+        activeChickenOrder.movements.forEach(m => {
+          const typeLabels = { 
+            'abono': 'Abono', 
+            'pago_completo': 'Pago Completo',
+            'modificacion': 'Modificación',
+            'entregado': '✅ Entregado'
+          };
+          const typeColors = { 
+            'abono': 'bg-blue-100 text-blue-700', 
+            'pago_completo': 'bg-emerald-100 text-emerald-700',
+            'modificacion': 'bg-purple-100 text-purple-700',
+            'entregado': 'bg-emerald-100 text-emerald-700'
+          };
+          movementsBody.innerHTML += `
+            <tr>
+              <td class="p-3">${m.dateDisplay}</td>
+              <td class="p-3"><span class="px-2 py-1 rounded ${typeColors[m.type] || 'bg-slate-100 text-slate-700'} text-[10px] font-bold">${typeLabels[m.type] || m.type}</span></td>
+              <td class="p-3 text-right font-bold">$${m.amountUsd.toFixed(2)}</td>
+              <td class="p-3 text-right font-bold text-botalon-purple">${m.amountBs.toFixed(2)} Bs</td>
+            </tr>
+          `;
+        });
+      }
+      
+      document.getElementById('modal-chicken-file').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
 
-  activeChickenOrder = chickenOrders.find(o => o.id === orderId);
-  if (!activeChickenOrder) return;
-  
-  setSafeText('chicken-file-client-name', activeChickenOrder.clientName);
-  setSafeText('chicken-file-client-phone', activeChickenOrder.clientPhone || 'Sin teléfono');
-  setSafeText('chicken-file-order-date', activeChickenOrder.createdAtDisplay || '--/--/----');
-  setSafeText('chicken-file-quantity', activeChickenOrder.quantity);
-  setSafeText('chicken-file-total', `$${activeChickenOrder.totalUsd.toFixed(2)}`);
-  
-  const statusEl = document.getElementById('chicken-file-status');
-  const statusLabels = { 'apartado': 'Apartado', 'abono': 'Con Abono', 'cancelado': 'Cancelado' };
-  const statusColors = { 'apartado': 'bg-amber-100 text-amber-700', 'abono': 'bg-blue-100 text-blue-700', 'cancelado': 'bg-emerald-100 text-emerald-700' };
-  statusEl.innerText = activeChickenOrder.delivered ? 'Entregado' : statusLabels[activeChickenOrder.status];
-  statusEl.className = `text-xs font-bold px-2 py-1 rounded-full ${activeChickenOrder.delivered ? 'bg-slate-100 text-slate-700' : statusColors[activeChickenOrder.status]}`;
-  
-  setSafeText('chicken-file-paid', `$${(activeChickenOrder.paidUsd || 0).toFixed(2)}`);
-  setSafeText('chicken-file-paid-bs', `(${(activeChickenOrder.paidBs || 0).toFixed(2)} Bs)`);
-  setSafeText('chicken-file-remaining', `$${(activeChickenOrder.remainingUsd || 0).toFixed(2)}`);
-  setSafeText('chicken-file-remaining-bs', `(${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs)`);
-  
-  // ✅ Mostrar/ocultar botón "Marcar Entregado"
-  const btnDelivered = document.getElementById('btn-mark-delivered');
-  if ((activeChickenOrder.remainingUsd || 0) <= 0.001 && !activeChickenOrder.delivered) {
-    btnDelivered.classList.remove('hidden');
-  } else {
-    btnDelivered.classList.add('hidden');
-  }
-  
-  // ✅ Mostrar/ocultar botón "Eliminar"
-  const btnDelete = document.getElementById('btn-delete-chicken-file');
-  if (activeChickenOrder.delivered) {
-    btnDelete.classList.remove('hidden');
-  } else {
-    btnDelete.classList.add('hidden');
-  }
-  
-  const movementsBody = document.getElementById('chicken-file-movements');
-  movementsBody.innerHTML = '';
-  
-  if (!activeChickenOrder.movements || activeChickenOrder.movements.length === 0) {
-    movementsBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">No hay movimientos registrados.</td></tr>`;
-  } else {
-    activeChickenOrder.movements.forEach(m => {
-      const typeLabels = { 
-        'abono': 'Abono', 
-        'pago_completo': 'Pago Completo',
-        'modificacion': 'Modificación',
-        'entregado': 'Entregado'
+    function closeChickenFileModal() {
+      document.getElementById('modal-chicken-file').classList.add('hidden');
+      activeChickenOrder = null;
+    }
+
+    // ✅ MODIFICAR CANTIDAD DE POLLOS
+    function openModifyQuantityModal() {
+      if (!checkAdminAccess('modificar pedidos de pollos')) return;
+      if (!activeChickenOrder) return;
+      
+      if (activeChickenOrder.delivered || activeChickenOrder.status === 'entregado') {
+        alert('⚠️ No se puede modificar un pedido ya entregado.');
+        return;
+      }
+      
+      document.getElementById('modify-current-qty').innerText = `${activeChickenOrder.quantity} pollos`;
+      document.getElementById('modify-current-total').innerText = `$${activeChickenOrder.totalUsd.toFixed(2)}`;
+      document.getElementById('modify-new-qty').value = activeChickenOrder.quantity;
+      updateModifyPreview();
+      
+      document.getElementById('modal-modify-quantity').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeModifyQuantityModal() {
+      document.getElementById('modal-modify-quantity').classList.add('hidden');
+    }
+
+    function updateModifyPreview() {
+      if (!activeChickenOrder) return;
+      const newQty = parseInt(document.getElementById('modify-new-qty').value) || 0;
+      const pricePerChicken = activeChickenOrder.pricePerChickenUsd || 0;
+      const newTotal = newQty * pricePerChicken;
+      const difference = newTotal - activeChickenOrder.totalUsd;
+      
+      document.getElementById('modify-new-total').innerText = `$${newTotal.toFixed(2)}`;
+      document.getElementById('modify-difference').innerText = `${difference >= 0 ? '+' : ''}$${difference.toFixed(2)}`;
+      
+      const diffText = document.getElementById('modify-difference-text');
+      if (difference > 0) {
+        diffText.innerText = `⚠️ El cliente deberá pagar $${difference.toFixed(2)} adicionales`;
+        diffText.className = 'text-[10px] text-amber-700 mt-1 font-bold';
+      } else if (difference < 0) {
+        diffText.innerText = `✅ Se reducirá el saldo en $${Math.abs(difference).toFixed(2)}`;
+        diffText.className = 'text-[10px] text-emerald-700 mt-1 font-bold';
+      } else {
+        diffText.innerText = 'Sin cambios en el total';
+        diffText.className = 'text-[10px] text-slate-500 mt-1';
+      }
+    }
+
+    async function saveModifiedQuantity() {
+      if (!checkAdminAccess('modificar pedidos de pollos')) return;
+      if (!activeChickenOrder) return;
+      
+      const newQty = parseInt(document.getElementById('modify-new-qty').value) || 0;
+      if (newQty <= 0) { alert('⚠️ La cantidad debe ser mayor a 0.'); return; }
+      if (newQty === activeChickenOrder.quantity) { alert('La cantidad no ha cambiado.'); return; }
+      
+      const pricePerChicken = activeChickenOrder.pricePerChickenUsd || 0;
+      const oldTotal = activeChickenOrder.totalUsd;
+      const newTotal = newQty * pricePerChicken;
+      const difference = newTotal - oldTotal;
+      
+      const now = new Date();
+      const movement = {
+        id: 'MOD-' + Date.now().toString().slice(-6),
+        type: 'modificacion',
+        dateISO: now.toISOString(),
+        dateDisplay: formatDateDDMMYYYY(now.toISOString()),
+        description: `Cantidad modificada: de ${activeChickenOrder.quantity} a ${newQty} pollos`,
+        amountUsd: Math.abs(difference),
+        amountBs: Math.abs(difference) * bcvRate,
+        bcvRate: bcvRate,
+        oldQuantity: activeChickenOrder.quantity,
+        newQuantity: newQty,
+        remainingUsd: (activeChickenOrder.remainingUsd || 0) + difference,
+        remainingBs: ((activeChickenOrder.remainingUsd || 0) + difference) * bcvRate
       };
-      const typeColors = { 
-        'abono': 'bg-blue-100 text-blue-700', 
-        'pago_completo': 'bg-emerald-100 text-emerald-700',
-        'modificacion': 'bg-purple-100 text-purple-700',
-        'entregado': 'bg-slate-100 text-slate-700'
+      
+      if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
+      activeChickenOrder.movements.push(movement);
+      
+      activeChickenOrder.quantity = newQty;
+      activeChickenOrder.totalUsd = newTotal;
+      activeChickenOrder.totalBs = newTotal * bcvRate;
+      activeChickenOrder.remainingUsd = (activeChickenOrder.remainingUsd || 0) + difference;
+      activeChickenOrder.remainingBs = activeChickenOrder.remainingUsd * bcvRate;
+      
+      if (activeChickenOrder.remainingUsd <= 0.001) {
+        activeChickenOrder.remainingUsd = 0;
+        activeChickenOrder.remainingBs = 0;
+        if (!activeChickenOrder.delivered) {
+          activeChickenOrder.status = 'cancelado';
+        }
+      } else {
+        activeChickenOrder.status = 'abono';
+      }
+      
+      try {
+        const success = await saveChickenOrderCloud(activeChickenOrder);
+        if (success) {
+          closeModifyQuantityModal();
+          alert(`✅ Cantidad modificada exitosamente.\n\nNueva cantidad: ${newQty} pollos\nNuevo total: $${newTotal.toFixed(2)}\nDiferencia: ${difference >= 0 ? '+' : ''}$${difference.toFixed(2)}`);
+          openChickenFile(activeChickenOrder.id);
+        } else {
+          alert('❌ Error al guardar los cambios.');
+        }
+      } catch (error) {
+        console.error("❌ Error:", error);
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // ✅ MARCAR COMO ENTREGADO
+    async function markChickenAsDelivered() {
+      if (!checkAdminAccess('marcar pedido como entregado')) return;
+      if (!activeChickenOrder) return;
+      
+      if ((activeChickenOrder.remainingUsd || 0) > 0.001) {
+        alert('⚠️ El pedido tiene saldo pendiente. No se puede marcar como entregado.');
+        return;
+      }
+      
+      if (!confirm(`¿Confirmar que el pedido de ${activeChickenOrder.quantity} pollos de ${activeChickenOrder.clientName} fue ENTREGADO?`)) {
+        return;
+      }
+      
+      const now = new Date();
+      const movement = {
+        id: 'ENT-' + Date.now().toString().slice(-6),
+        type: 'entregado',
+        dateISO: now.toISOString(),
+        dateDisplay: formatDateDDMMYYYY(now.toISOString()),
+        description: 'Pedido entregado al cliente',
+        amountUsd: 0,
+        amountBs: 0,
+        bcvRate: bcvRate,
+        remainingUsd: 0,
+        remainingBs: 0
       };
-      movementsBody.innerHTML += `
-        <tr>
-          <td class="p-3">${m.dateDisplay}</td>
-          <td class="p-3"><span class="px-2 py-1 rounded ${typeColors[m.type] || 'bg-slate-100 text-slate-700'} text-[10px] font-bold">${typeLabels[m.type] || m.type}</span></td>
-          <td class="p-3 text-right font-bold">$${m.amountUsd.toFixed(2)}</td>
-          <td class="p-3 text-right font-bold text-botalon-purple">${m.amountBs.toFixed(2)} Bs</td>
-        </tr>
-      `;
-    });
-  }
-  
-  document.getElementById('modal-chicken-file').classList.remove('hidden');
-  if (window.lucide) lucide.createIcons();
-}
-
-function closeChickenFileModal() {
-  document.getElementById('modal-chicken-file').classList.add('hidden');
-  activeChickenOrder = null;
-}
-
-// ✅ NUEVA FUNCIÓN: Modificar cantidad de pollos
-function openModifyQuantityModal() {
-  if (!checkAdminAccess('modificar pedidos de pollos')) return;
-  if (!activeChickenOrder) return;
-  
-  document.getElementById('modify-current-qty').innerText = `${activeChickenOrder.quantity} pollos`;
-  document.getElementById('modify-current-total').innerText = `$${activeChickenOrder.totalUsd.toFixed(2)}`;
-  document.getElementById('modify-new-qty').value = activeChickenOrder.quantity;
-  updateModifyPreview();
-  
-  document.getElementById('modal-modify-quantity').classList.remove('hidden');
-  if (window.lucide) lucide.createIcons();
-}
-
-function closeModifyQuantityModal() {
-  document.getElementById('modal-modify-quantity').classList.add('hidden');
-}
-
-function updateModifyPreview() {
-  if (!activeChickenOrder) return;
-  const newQty = parseInt(document.getElementById('modify-new-qty').value) || 0;
-  const pricePerChicken = activeChickenOrder.pricePerChickenUsd || 0;
-  const newTotal = newQty * pricePerChicken;
-  const difference = newTotal - activeChickenOrder.totalUsd;
-  
-  document.getElementById('modify-new-total').innerText = `$${newTotal.toFixed(2)}`;
-  document.getElementById('modify-difference').innerText = `${difference >= 0 ? '+' : ''}$${difference.toFixed(2)}`;
-  
-  const diffText = document.getElementById('modify-difference-text');
-  if (difference > 0) {
-    diffText.innerText = `⚠️ El cliente deberá pagar $${difference.toFixed(2)} adicionales`;
-    diffText.className = 'text-[10px] text-amber-700 mt-1 font-bold';
-  } else if (difference < 0) {
-    diffText.innerText = `✅ Se reducirá el saldo en $${Math.abs(difference).toFixed(2)}`;
-    diffText.className = 'text-[10px] text-emerald-700 mt-1 font-bold';
-  } else {
-    diffText.innerText = 'Sin cambios en el total';
-    diffText.className = 'text-[10px] text-slate-500 mt-1';
-  }
-}
-
-async function saveModifiedQuantity() {
-  if (!checkAdminAccess('modificar pedidos de pollos')) return;
-  if (!activeChickenOrder) return;
-  
-  const newQty = parseInt(document.getElementById('modify-new-qty').value) || 0;
-  if (newQty <= 0) { alert('⚠️ La cantidad debe ser mayor a 0.'); return; }
-  if (newQty === activeChickenOrder.quantity) { alert('La cantidad no ha cambiado.'); return; }
-  
-  const pricePerChicken = activeChickenOrder.pricePerChickenUsd || 0;
-  const oldTotal = activeChickenOrder.totalUsd;
-  const newTotal = newQty * pricePerChicken;
-  const difference = newTotal - oldTotal;
-  
-  const now = new Date();
-  const movement = {
-    id: 'MOD-' + Date.now().toString().slice(-6),
-    type: 'modificacion',
-    dateISO: now.toISOString(),
-    dateDisplay: formatDateDDMMYYYY(now.toISOString()),
-    description: `Cantidad modificada: de ${activeChickenOrder.quantity} a ${newQty} pollos`,
-    amountUsd: Math.abs(difference),
-    amountBs: Math.abs(difference) * bcvRate,
-    bcvRate: bcvRate,
-    oldQuantity: activeChickenOrder.quantity,
-    newQuantity: newQty,
-    remainingUsd: (activeChickenOrder.remainingUsd || 0) + difference,
-    remainingBs: ((activeChickenOrder.remainingUsd || 0) + difference) * bcvRate
-  };
-  
-  if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
-  activeChickenOrder.movements.push(movement);
-  
-  activeChickenOrder.quantity = newQty;
-  activeChickenOrder.totalUsd = newTotal;
-  activeChickenOrder.totalBs = newTotal * bcvRate;
-  activeChickenOrder.remainingUsd = (activeChickenOrder.remainingUsd || 0) + difference;
-  activeChickenOrder.remainingBs = activeChickenOrder.remainingUsd * bcvRate;
-  
-  // Si el saldo queda en 0 o menos, marcar como cancelado
-  if (activeChickenOrder.remainingUsd <= 0.001) {
-    activeChickenOrder.remainingUsd = 0;
-    activeChickenOrder.remainingBs = 0;
-    activeChickenOrder.status = 'cancelado';
-  } else {
-    activeChickenOrder.status = 'abono';
-  }
-  
-  try {
-    const success = await saveChickenOrderCloud(activeChickenOrder);
-    if (success) {
-      closeModifyQuantityModal();
-      alert(`✅ Cantidad modificada exitosamente.\n\nNueva cantidad: ${newQty} pollos\nNuevo total: $${newTotal.toFixed(2)}\nDiferencia: ${difference >= 0 ? '+' : ''}$${difference.toFixed(2)}`);
-      openChickenFile(activeChickenOrder.id);
-    } else {
-      alert('❌ Error al guardar los cambios.');
+      
+      if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
+      activeChickenOrder.movements.push(movement);
+      
+      activeChickenOrder.delivered = true;
+      activeChickenOrder.deliveredAt = now.toISOString();
+      activeChickenOrder.deliveredAtDisplay = formatDateDDMMYYYY(now.toISOString());
+      activeChickenOrder.status = 'entregado';
+      activeChickenOrder.remainingUsd = 0;
+      activeChickenOrder.remainingBs = 0;
+      
+      try {
+        const success = await saveChickenOrderCloud(activeChickenOrder);
+        if (success) {
+          alert('✅ Pedido marcado como ENTREGADO.\n\nAhora puedes eliminar la carpeta del cliente si lo deseas.');
+          openChickenFile(activeChickenOrder.id);
+          renderChickenOrders();
+        } else {
+          alert('❌ Error al actualizar.');
+        }
+      } catch (error) {
+        console.error("❌ Error:", error);
+        alert('❌ Error: ' + error.message);
+      }
     }
-  } catch (error) {
-    console.error("❌ Error:", error);
-    alert('❌ Error: ' + error.message);
-  }
-}
 
-// ✅ NUEVA FUNCIÓN: Marcar como entregado
-// ✅ CORREGIDA: Marcar como entregado (no como cancelado)
-async function markChickenAsDelivered() {
-  if (!checkAdminAccess('marcar pedido como entregado')) return;
-  if (!activeChickenOrder) return;
-  
-  if ((activeChickenOrder.remainingUsd || 0) > 0.001) {
-    alert('⚠️ El pedido tiene saldo pendiente. No se puede marcar como entregado.');
-    return;
-  }
-  
-  if (!confirm(`¿Confirmar que el pedido de ${activeChickenOrder.quantity} pollos de ${activeChickenOrder.clientName} fue ENTREGADO?`)) {
-    return;
-  }
-  
-  const now = new Date();
-  const movement = {
-    id: 'ENT-' + Date.now().toString().slice(-6),
-    type: 'entregado',
-    dateISO: now.toISOString(),
-    dateDisplay: formatDateDDMMYYYY(now.toISOString()),
-    description: 'Pedido entregado al cliente',
-    amountUsd: 0,
-    amountBs: 0,
-    bcvRate: bcvRate,
-    remainingUsd: 0,
-    remainingBs: 0
-  };
-  
-  if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
-  activeChickenOrder.movements.push(movement);
-  
-  // ✅ CORRECCIÓN: status = 'entregado' (no 'cancelado')
-  activeChickenOrder.delivered = true;
-  activeChickenOrder.deliveredAt = now.toISOString();
-  activeChickenOrder.deliveredAtDisplay = formatDateDDMMYYYY(now.toISOString());
-  activeChickenOrder.status = 'entregado';
-  activeChickenOrder.remainingUsd = 0;
-  activeChickenOrder.remainingBs = 0;
-  
-  try {
-    const success = await saveChickenOrderCloud(activeChickenOrder);
-    if (success) {
-      alert('✅ Pedido marcado como ENTREGADO.\n\nAhora puedes eliminar la carpeta del cliente si lo deseas.');
-      openChickenFile(activeChickenOrder.id);
-      renderChickenOrders(); // ✅ Refresca la lista para mostrar "ENTREGADO"
-    } else {
-      alert('❌ Error al actualizar.');
+    function openChickenPaymentModal() {
+      if (!checkAdminAccess('registrar abonos de pollos')) return;
+      if (!activeChickenOrder) return;
+      
+      if (activeChickenOrder.delivered || activeChickenOrder.status === 'entregado') {
+        alert('⚠️ Este pedido ya fue entregado.');
+        return;
+      }
+      
+      document.getElementById('chicken-pay-amount').value = '';
+      document.getElementById('chicken-pay-date').value = getTodayYMD();
+      document.getElementById('chicken-pay-currency').value = 'USD';
+      updateChickenPayConversion();
+      document.getElementById('modal-chicken-payment').classList.remove('hidden');
     }
-  } catch (error) {
-    console.error("❌ Error:", error);
-    alert('❌ Error: ' + error.message);
-  }
-}
 
-  if (!checkAdminAccess('marcar pedido como entregado')) return;
-  if (!activeChickenOrder) return;
-  
-  if ((activeChickenOrder.remainingUsd || 0) > 0.001) {
-    alert('⚠️ El pedido tiene saldo pendiente. No se puede marcar como entregado.');
-    return;
-  }
-  
-  if (!confirm(`¿Confirmar que el pedido de ${activeChickenOrder.quantity} pollos de ${activeChickenOrder.clientName} fue ENTREGADO?`)) {
-    return;
-  }
-  
-  const now = new Date();
-  const movement = {
-    id: 'ENT-' + Date.now().toString().slice(-6),
-    type: 'entregado',
-    dateISO: now.toISOString(),
-    dateDisplay: formatDateDDMMYYYY(now.toISOString()),
-    description: 'Pedido entregado al cliente',
-    amountUsd: 0,
-    amountBs: 0,
-    bcvRate: bcvRate,
-    remainingUsd: 0,
-    remainingBs: 0
-  };
-  
-  if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
-  activeChickenOrder.movements.push(movement);
-  
-  activeChickenOrder.delivered = true;
-  activeChickenOrder.deliveredAt = now.toISOString();
-  activeChickenOrder.deliveredAtDisplay = formatDateDDMMYYYY(now.toISOString());
-  activeChickenOrder.status = 'cancelado';
-  activeChickenOrder.remainingUsd = 0;
-  activeChickenOrder.remainingBs = 0;
-  
-  try {
-    const success = await saveChickenOrderCloud(activeChickenOrder);
-    if (success) {
-      alert('✅ Pedido marcado como entregado.\n\nAhora puedes eliminar la carpeta del cliente si lo deseas.');
-      openChickenFile(activeChickenOrder.id);
-    } else {
-      alert('❌ Error al actualizar.');
+    function closeChickenPaymentModal() {
+      document.getElementById('modal-chicken-payment').classList.add('hidden');
     }
-  } catch (error) {
-    console.error("❌ Error:", error);
-    alert('❌ Error: ' + error.message);
-  }
-}
 
-function openChickenPaymentModal() {
-  if (!checkAdminAccess('registrar abonos de pollos')) return;
-  if (!activeChickenOrder) return;
-  
-  if (activeChickenOrder.delivered) {
-    alert('Este pedido ya fue entregado.');
-    return;
-  }
-  
-  document.getElementById('chicken-pay-amount').value = '';
-  document.getElementById('chicken-pay-date').value = getTodayYMD();
-  document.getElementById('chicken-pay-currency').value = 'USD';
-  updateChickenPayConversion();
-  document.getElementById('modal-chicken-payment').classList.remove('hidden');
-}
-
-function closeChickenPaymentModal() {
-  document.getElementById('modal-chicken-payment').classList.add('hidden');
-}
-
-function toggleChickenPayCurrency() {
-  updateChickenPayConversion();
-}
-
-function updateChickenPayConversion() {
-  const amount = parseFloat(document.getElementById('chicken-pay-amount').value) || 0;
-  const currency = document.getElementById('chicken-pay-currency').value;
-  const usd = currency === 'USD' ? amount : amount / bcvRate;
-  const bs = currency === 'BS' ? amount : amount * bcvRate;
-  
-  document.getElementById('chicken-pay-equivalent').innerText = `$${usd.toFixed(2)} / ${bs.toFixed(2)} Bs`;
-}
-
-async function saveChickenPayment() {
-  if (!checkAdminAccess('guardar abonos de pollos')) return;
-  if (!activeChickenOrder) return;
-  
-  const amount = parseFloat(document.getElementById('chicken-pay-amount').value) || 0;
-  if (amount <= 0) return alert('Ingrese un monto válido.');
-  
-  const currency = document.getElementById('chicken-pay-currency').value;
-  const method = document.getElementById('chicken-pay-method').value;
-  const payDate = document.getElementById('chicken-pay-date').value;
-  
-  const usd = currency === 'USD' ? amount : amount / bcvRate;
-  const bs = currency === 'BS' ? amount : amount * bcvRate;
-  
-  if (usd > (activeChickenOrder.remainingUsd || 0) + 0.01) {
-    return alert(`El monto excede el saldo pendiente ($${(activeChickenOrder.remainingUsd || 0).toFixed(2)}).`);
-  }
-  
-  const now = payDate ? new Date(payDate + 'T12:00:00') : new Date();
-  
-  const movement = {
-    id: 'ABO-' + Date.now().toString().slice(-6),
-    type: 'abono',
-    dateISO: now.toISOString(),
-    dateDisplay: formatDateDDMMYYYY(now.toISOString()),
-    amountUsd: usd,
-    amountBs: bs,
-    bcvRate: bcvRate,
-    method: method,
-    remainingUsd: (activeChickenOrder.remainingUsd || 0) - usd,
-    remainingBs: ((activeChickenOrder.remainingUsd || 0) - usd) * bcvRate
-  };
-  
-  if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
-  activeChickenOrder.movements.push(movement);
-  
-  activeChickenOrder.paidUsd = (activeChickenOrder.paidUsd || 0) + usd;
-  activeChickenOrder.paidBs = (activeChickenOrder.paidBs || 0) + bs;
-  activeChickenOrder.remainingUsd = (activeChickenOrder.remainingUsd || 0) - usd;
-  activeChickenOrder.remainingBs = activeChickenOrder.remainingUsd * bcvRate;
-  
-  if (activeChickenOrder.remainingUsd <= 0.001) {
-    activeChickenOrder.status = 'cancelado';
-    activeChickenOrder.remainingUsd = 0;
-    activeChickenOrder.remainingBs = 0;
-  } else {
-    activeChickenOrder.status = 'abono';
-  }
-  
-  try {
-    const success = await saveChickenOrderCloud(activeChickenOrder);
-    if (success) {
-      closeChickenPaymentModal();
-      alert('✅ Abono registrado exitosamente!');
-      openChickenFile(activeChickenOrder.id);
-    } else {
-      alert('❌ Error al guardar el abono.');
+    function toggleChickenPayCurrency() {
+      updateChickenPayConversion();
     }
-  } catch (error) {
-    console.error("❌ Error:", error);
-    alert('❌ Error: ' + error.message);
-  }
-}
 
-async function deleteChickenOrder(orderId) {
-  if (!checkAdminAccess('eliminar pedidos de pollos')) return;
-  
-  const order = chickenOrders.find(o => o.id === orderId);
-  if (!order) return;
-  
-  // ✅ Solo permitir eliminar si está entregado
-  if (!order.delivered) {
-    if (!confirm(`⚠️ Este pedido NO está marcado como entregado.\n\n¿Seguro que deseas eliminar el pedido de ${order.clientName} (${order.quantity} pollos)?`)) {
-      return;
+    function updateChickenPayConversion() {
+      const amount = parseFloat(document.getElementById('chicken-pay-amount').value) || 0;
+      const currency = document.getElementById('chicken-pay-currency').value;
+      const usd = currency === 'USD' ? amount : amount / bcvRate;
+      const bs = currency === 'BS' ? amount : amount * bcvRate;
+      
+      document.getElementById('chicken-pay-equivalent').innerText = `$${usd.toFixed(2)} / ${bs.toFixed(2)} Bs`;
     }
-  } else {
-    if (!confirm(`¿Eliminar la carpeta de ${order.clientName}?\n\nEste pedido ya fue entregado y se eliminará permanentemente.`)) {
-      return;
+
+    async function saveChickenPayment() {
+      if (!checkAdminAccess('guardar abonos de pollos')) return;
+      if (!activeChickenOrder) return;
+      
+      const amount = parseFloat(document.getElementById('chicken-pay-amount').value) || 0;
+      if (amount <= 0) return alert('Ingrese un monto válido.');
+      
+      const currency = document.getElementById('chicken-pay-currency').value;
+      const method = document.getElementById('chicken-pay-method').value;
+      const payDate = document.getElementById('chicken-pay-date').value;
+      
+      const usd = currency === 'USD' ? amount : amount / bcvRate;
+      const bs = currency === 'BS' ? amount : amount * bcvRate;
+      
+      if (usd > (activeChickenOrder.remainingUsd || 0) + 0.01) {
+        return alert(`El monto excede el saldo pendiente ($${(activeChickenOrder.remainingUsd || 0).toFixed(2)}).`);
+      }
+      
+      const now = payDate ? new Date(payDate + 'T12:00:00') : new Date();
+      
+      const movement = {
+        id: 'ABO-' + Date.now().toString().slice(-6),
+        type: 'abono',
+        dateISO: now.toISOString(),
+        dateDisplay: formatDateDDMMYYYY(now.toISOString()),
+        amountUsd: usd,
+        amountBs: bs,
+        bcvRate: bcvRate,
+        method: method,
+        remainingUsd: (activeChickenOrder.remainingUsd || 0) - usd,
+        remainingBs: ((activeChickenOrder.remainingUsd || 0) - usd) * bcvRate
+      };
+      
+      if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
+      activeChickenOrder.movements.push(movement);
+      
+      activeChickenOrder.paidUsd = (activeChickenOrder.paidUsd || 0) + usd;
+      activeChickenOrder.paidBs = (activeChickenOrder.paidBs || 0) + bs;
+      activeChickenOrder.remainingUsd = (activeChickenOrder.remainingUsd || 0) - usd;
+      activeChickenOrder.remainingBs = activeChickenOrder.remainingUsd * bcvRate;
+      
+      if (activeChickenOrder.remainingUsd <= 0.001) {
+        activeChickenOrder.status = 'cancelado';
+        activeChickenOrder.remainingUsd = 0;
+        activeChickenOrder.remainingBs = 0;
+      } else {
+        activeChickenOrder.status = 'abono';
+      }
+      
+      try {
+        const success = await saveChickenOrderCloud(activeChickenOrder);
+        if (success) {
+          closeChickenPaymentModal();
+          alert('✅ Abono registrado exitosamente!');
+          openChickenFile(activeChickenOrder.id);
+        } else {
+          alert('❌ Error al guardar el abono.');
+        }
+      } catch (error) {
+        console.error("❌ Error:", error);
+        alert('❌ Error: ' + error.message);
+      }
     }
-  }
-  
-  try {
-    await deleteChickenOrderCloud(orderId);
-    alert('✅ Pedido eliminado.');
-    if (activeChickenOrder && activeChickenOrder.id === orderId) {
-      closeChickenFileModal();
+
+    async function deleteChickenOrder(orderId) {
+      if (!checkAdminAccess('eliminar pedidos de pollos')) return;
+      
+      const order = chickenOrders.find(o => o.id === orderId);
+      if (!order) return;
+      
+      // ✅ Solo permitir eliminar si está ENTREGADO
+      if (order.status !== 'entregado' && !order.delivered) {
+        alert('⚠️ Solo se pueden eliminar pedidos que estén marcados como ENTREGADOS.\n\nPrimero marca el pedido como entregado y luego podrás eliminarlo.');
+        return;
+      }
+      
+      if (!confirm(`¿Eliminar la carpeta de ${order.clientName}?\n\nEste pedido fue entregado y se eliminará permanentemente.`)) {
+        return;
+      }
+      
+      try {
+        await deleteChickenOrderCloud(orderId);
+        alert('✅ Carpeta eliminada.');
+        if (activeChickenOrder && activeChickenOrder.id === orderId) {
+          closeChickenFileModal();
+        }
+        renderChickenOrders();
+      } catch (error) {
+        console.error("❌ Error:", error);
+        alert('❌ Error al eliminar: ' + error.message);
+      }
     }
-  } catch (error) {
-    console.error("❌ Error:", error);
-    alert('❌ Error al eliminar: ' + error.message);
-  }
-}  
   </script>
 </body>
 </html>
