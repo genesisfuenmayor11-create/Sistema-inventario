@@ -598,7 +598,7 @@
         <div id="debtors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
-      <!-- ✅ VENTA DE POLLOS -->
+      <!-- VENTA DE POLLOS -->
       <section id="tab-chickens" class="tab-content p-6 space-y-6 hidden">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -1303,20 +1303,21 @@
         </div>
       </div>
 
+      <!-- ✅ BOTONES DE ACCIÓN -->
       <div class="flex flex-wrap gap-2">
-  <button onclick="openChickenPaymentModal()" class="flex-1 min-w-[120px] bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 shadow-xs">
-    <i data-lucide="plus-circle" class="w-4 h-4"></i><span>Registrar Abono</span>
-  </button>
-  <button onclick="markChickenAsPaid()" class="flex-1 min-w-[120px] bg-indigo-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition flex items-center justify-center gap-1.5 shadow-xs">
-    <i data-lucide="banknote" class="w-4 h-4"></i><span>Marcar Cancelado</span>
-  </button>
-  <button onclick="openModifyQuantityModal()" class="flex-1 min-w-[120px] bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-xs">
-    <i data-lucide="edit-3" class="w-4 h-4"></i><span>Modificar Cantidad</span>
-  </button>
-  <button onclick="markChickenAsDelivered()" id="btn-mark-delivered" class="flex-1 min-w-[120px] bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition flex items-center justify-center gap-1.5 shadow-xs hidden">
-    <i data-lucide="check-circle" class="w-4 h-4"></i><span>Marcar Entregado</span>
-  </button>
-</div>
+        <button id="btn-chicken-abono" onclick="openChickenPaymentModal()" class="flex-1 min-w-[120px] bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 shadow-xs">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i><span>Registrar Abono</span>
+        </button>
+        <button id="btn-chicken-paid" onclick="markChickenAsPaid()" class="flex-1 min-w-[120px] bg-indigo-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition flex items-center justify-center gap-1.5 shadow-xs">
+          <i data-lucide="banknote" class="w-4 h-4"></i><span>Marcar Cancelado</span>
+        </button>
+        <button id="btn-chicken-modify" onclick="openModifyQuantityModal()" class="flex-1 min-w-[120px] bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-xs">
+          <i data-lucide="edit-3" class="w-4 h-4"></i><span>Modificar Cantidad</span>
+        </button>
+        <button id="btn-mark-delivered" onclick="markChickenAsDelivered()" class="flex-1 min-w-[120px] bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition flex items-center justify-center gap-1.5 shadow-xs hidden">
+          <i data-lucide="check-circle" class="w-4 h-4"></i><span>Marcar Entregado</span>
+        </button>
+      </div>
 
       <div>
         <h4 class="font-bold text-slate-900 text-sm mb-2">📋 Historial de Movimientos</h4>
@@ -1426,52 +1427,52 @@
   </div>
 
   <!-- ✅ NUEVO: MODAL MARCAR CANCELADO (PAGO COMPLETO) -->
-<div id="modal-chicken-paid" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
-  <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
-    <button onclick="closeChickenPaidModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
-    <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-      <div class="p-3 bg-indigo-100 text-indigo-700 rounded-2xl"><i data-lucide="banknote" class="w-6 h-6"></i></div>
-      <div>
-        <h3 class="font-extrabold text-lg text-slate-900">Marcar Pedido Cancelado</h3>
-        <p class="text-xs text-slate-400 font-medium">Pago completo del pedido</p>
-      </div>
-    </div>
-    <div class="space-y-3 text-xs">
-      <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-200">
-        <div class="flex justify-between text-xs mb-1">
-          <span class="text-slate-600">Saldo pendiente:</span>
-          <strong id="paid-remaining-usd" class="text-indigo-700">$0.00</strong>
-        </div>
-        <div class="flex justify-between text-xs">
-          <span class="text-slate-600">Equivalente en Bs:</span>
-          <strong id="paid-remaining-bs" class="text-indigo-700">0.00 Bs</strong>
+  <div id="modal-chicken-paid" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative space-y-4">
+      <button onclick="closeChickenPaidModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+        <div class="p-3 bg-indigo-100 text-indigo-700 rounded-2xl"><i data-lucide="banknote" class="w-6 h-6"></i></div>
+        <div>
+          <h3 class="font-extrabold text-lg text-slate-900">Marcar Pedido Cancelado</h3>
+          <p class="text-xs text-slate-400 font-medium">Pago completo del pedido</p>
         </div>
       </div>
-      <div>
-        <label class="block font-semibold text-slate-600 mb-1">Fecha del Pago:</label>
-        <input type="date" id="paid-date" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-indigo-500">
+      <div class="space-y-3 text-xs">
+        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-200">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-600">Saldo pendiente:</span>
+            <strong id="paid-remaining-usd" class="text-indigo-700">$0.00</strong>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-600">Equivalente en Bs:</span>
+            <strong id="paid-remaining-bs" class="text-indigo-700">0.00 Bs</strong>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Fecha del Pago:</label>
+          <input type="date" id="paid-date" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Método de Pago:</label>
+          <select id="paid-method" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500">
+            <option value="Efectivo Bs">Efectivo Bolívares (Bs)</option>
+            <option value="Pago Móvil">Pago Móvil</option>
+            <option value="Punto de Venta">Punto de Venta</option>
+            <option value="BioPago">BioPago</option>
+            <option value="Zelle">Zelle</option>
+            <option value="Efectivo Divisas ($)">Efectivo Divisas ($)</option>
+          </select>
+        </div>
+        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+          <p class="text-[11px] text-emerald-700 font-bold mb-1">💡 Nota:</p>
+          <p class="text-[10px] text-emerald-700">El monto se registrará con la tasa BCV del día seleccionado (<strong id="paid-bcv-display">42.50</strong> Bs/$).</p>
+        </div>
+        <button onclick="confirmChickenPaid()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4"></i><span>Confirmar Pago Completo</span>
+        </button>
       </div>
-      <div>
-        <label class="block font-semibold text-slate-600 mb-1">Método de Pago:</label>
-        <select id="paid-method" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500">
-          <option value="Efectivo Bs">Efectivo Bolívares (Bs)</option>
-          <option value="Pago Móvil">Pago Móvil</option>
-          <option value="Punto de Venta">Punto de Venta</option>
-          <option value="BioPago">BioPago</option>
-          <option value="Zelle">Zelle</option>
-          <option value="Efectivo Divisas ($)">Efectivo Divisas ($)</option>
-        </select>
-      </div>
-      <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
-        <p class="text-[11px] text-emerald-700 font-bold mb-1">💡 Nota:</p>
-        <p class="text-[10px] text-emerald-700">El monto se registrará con la tasa BCV del día seleccionado (<strong id="paid-bcv-display">42.50</strong> Bs/$).</p>
-      </div>
-      <button onclick="confirmChickenPaid()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
-        <i data-lucide="check-circle" class="w-4 h-4"></i><span>Confirmar Pago Completo</span>
-      </button>
     </div>
   </div>
-</div>
 
   <script>
     let bcvRate = 42.50;
@@ -1709,6 +1710,8 @@
       if (oldDebtBcv) oldDebtBcv.innerText = bcvRate.toFixed(2);
       const chickenPayBcv = document.getElementById('chicken-pay-bcv-rate');
       if (chickenPayBcv) chickenPayBcv.innerText = bcvRate.toFixed(2);
+      const paidBcv = document.getElementById('paid-bcv-display');
+      if (paidBcv) paidBcv.innerText = bcvRate.toFixed(2);
     }
 
     function editBcvRate() {
@@ -1721,7 +1724,6 @@
         renderPosGrid();
         renderInventoryTable();
         updateCartTotals();
-        updateChickenTotals();
       }
     }
 
@@ -3703,6 +3705,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // ✅ FUNCIÓN CORREGIDA: openChickenFile
     function openChickenFile(orderId) {
       activeChickenOrder = chickenOrders.find(o => o.id === orderId);
       if (!activeChickenOrder) return;
@@ -3735,28 +3738,57 @@
       setSafeText('chicken-file-remaining', `$${(activeChickenOrder.remainingUsd || 0).toFixed(2)}`);
       setSafeText('chicken-file-remaining-bs', `(${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs)`);
       
-     // ✅ Mostrar botón "Marcar Entregado" cuando:
-// 1. El saldo es $0 (estado "cancelado" o "entregado")
-// 2. O el estado es "apartado" o "abono" pero con saldo $0
-// 3. Y NO está marcado como entregado aún
-const btnDelivered = document.getElementById('btn-mark-delivered');
-const saldoCero = (activeChickenOrder.remainingUsd || 0) <= 0.001;
-const noEntregado = !activeChickenOrder.delivered && activeChickenOrder.status !== 'entregado';
-
-if (saldoCero && noEntregado) {
-  btnDelivered.classList.remove('hidden');
-  btnDelivered.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>Marcar Entregado</span>';
-  btnDelivered.className = 'flex-1 min-w-[120px] bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition flex items-center justify-center gap-1.5 shadow-xs';
-} else {
-  btnDelivered.classList.add('hidden');
-}
-      
-      // ✅ Mostrar botón "Eliminar" solo si está ENTREGADO
+      // ✅ CORREGIDO: Mostrar/ocultar botones según estado
+      const btnAbono = document.getElementById('btn-chicken-abono');
+      const btnPaid = document.getElementById('btn-chicken-paid');
+      const btnModify = document.getElementById('btn-chicken-modify');
+      const btnDelivered = document.getElementById('btn-mark-delivered');
       const btnDelete = document.getElementById('btn-delete-chicken-file');
-      if (activeChickenOrder.delivered || activeChickenOrder.status === 'entregado') {
-        btnDelete.classList.remove('hidden');
-      } else {
-        btnDelete.classList.add('hidden');
+      
+      const isDelivered = activeChickenOrder.delivered || activeChickenOrder.status === 'entregado';
+      const saldoCero = (activeChickenOrder.remainingUsd || 0) <= 0.001;
+      
+      if (btnAbono) {
+        if (isDelivered) {
+          btnAbono.classList.add('hidden');
+        } else {
+          btnAbono.classList.remove('hidden');
+        }
+      }
+      
+      if (btnPaid) {
+        if (isDelivered || saldoCero) {
+          btnPaid.classList.add('hidden');
+        } else {
+          btnPaid.classList.remove('hidden');
+        }
+      }
+      
+      if (btnModify) {
+        if (isDelivered) {
+          btnModify.classList.add('hidden');
+        } else {
+          btnModify.classList.remove('hidden');
+        }
+      }
+      
+      if (btnDelivered) {
+        // ✅ CORRECCIÓN CLAVE: Mostrar cuando saldo es $0 Y no está entregado
+        if (saldoCero && !isDelivered) {
+          btnDelivered.classList.remove('hidden');
+          btnDelivered.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>Marcar Entregado</span>';
+          btnDelivered.className = 'flex-1 min-w-[120px] bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition flex items-center justify-center gap-1.5 shadow-xs';
+        } else {
+          btnDelivered.classList.add('hidden');
+        }
+      }
+      
+      if (btnDelete) {
+        if (isDelivered) {
+          btnDelete.classList.remove('hidden');
+        } else {
+          btnDelete.classList.add('hidden');
+        }
       }
       
       const movementsBody = document.getElementById('chicken-file-movements');
@@ -3789,16 +3821,6 @@ if (saldoCero && noEntregado) {
         });
       }
       
-        // ✅ Mostrar/ocultar botón "Marcar Cancelado" según estado
-  const btnPaid = document.querySelector('[onclick="markChickenAsPaid()"]');
-  if (btnPaid) {
-    if (activeChickenOrder.delivered || activeChickenOrder.status === 'entregado' || (activeChickenOrder.remainingUsd || 0) <= 0.001) {
-      btnPaid.classList.add('hidden');
-    } else {
-      btnPaid.classList.remove('hidden');
-    }
-  }
-
       document.getElementById('modal-chicken-file').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
     }
@@ -3806,6 +3828,96 @@ if (saldoCero && noEntregado) {
     function closeChickenFileModal() {
       document.getElementById('modal-chicken-file').classList.add('hidden');
       activeChickenOrder = null;
+    }
+
+    // ✅ NUEVO: Marcar como Cancelado (pago completo)
+    function markChickenAsPaid() {
+      if (!checkAdminAccess('marcar pedido como cancelado')) return;
+      if (!activeChickenOrder) return;
+      
+      if (activeChickenOrder.delivered || activeChickenOrder.status === 'entregado') {
+        alert('⚠️ Este pedido ya fue entregado.');
+        return;
+      }
+      
+      if ((activeChickenOrder.remainingUsd || 0) <= 0.001) {
+        alert('⚠️ Este pedido ya está cancelado (saldo en $0.00).');
+        return;
+      }
+      
+      // Mostrar el saldo pendiente
+      document.getElementById('paid-remaining-usd').innerText = `$${(activeChickenOrder.remainingUsd || 0).toFixed(2)}`;
+      document.getElementById('paid-remaining-bs').innerText = `${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs`;
+      document.getElementById('paid-date').value = getTodayYMD();
+      document.getElementById('paid-bcv-display').innerText = bcvRate.toFixed(2);
+      
+      document.getElementById('modal-chicken-paid').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeChickenPaidModal() {
+      document.getElementById('modal-chicken-paid').classList.add('hidden');
+    }
+
+    // ✅ NUEVO: Confirmar pago completo
+    async function confirmChickenPaid() {
+      if (!checkAdminAccess('confirmar pago completo')) return;
+      if (!activeChickenOrder) return;
+      
+      const payDate = document.getElementById('paid-date').value;
+      const method = document.getElementById('paid-method').value;
+      
+      if (!payDate) {
+        alert('⚠️ Por favor selecciona la fecha del pago.');
+        return;
+      }
+      
+      const remainingUsd = activeChickenOrder.remainingUsd || 0;
+      const remainingBs = remainingUsd * bcvRate;
+      
+      if (!confirm(`¿Confirmar pago completo de $${remainingUsd.toFixed(2)} (${remainingBs.toFixed(2)} Bs) con método "${method}"?`)) {
+        return;
+      }
+      
+      const now = new Date(payDate + 'T12:00:00');
+      
+      const movement = {
+        id: 'PAGO-' + Date.now().toString().slice(-6),
+        type: 'pago_completo',
+        dateISO: now.toISOString(),
+        dateDisplay: formatDateDDMMYYYY(now.toISOString()),
+        amountUsd: remainingUsd,
+        amountBs: remainingBs,
+        bcvRate: bcvRate,
+        method: method,
+        description: `Pago completo - ${method}`,
+        remainingUsd: 0,
+        remainingBs: 0
+      };
+      
+      if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
+      activeChickenOrder.movements.push(movement);
+      
+      activeChickenOrder.paidUsd = (activeChickenOrder.paidUsd || 0) + remainingUsd;
+      activeChickenOrder.paidBs = (activeChickenOrder.paidBs || 0) + remainingBs;
+      activeChickenOrder.remainingUsd = 0;
+      activeChickenOrder.remainingBs = 0;
+      activeChickenOrder.status = 'cancelado';
+      
+      try {
+        const success = await saveChickenOrderCloud(activeChickenOrder);
+        if (success) {
+          closeChickenPaidModal();
+          alert(`✅ Pago completo registrado.\n\nMonto: $${remainingUsd.toFixed(2)} (${remainingBs.toFixed(2)} Bs)\nMétodo: ${method}\nFecha: ${formatDateDDMMYYYY(now.toISOString())}`);
+          openChickenFile(activeChickenOrder.id);
+          renderChickenOrders();
+        } else {
+          alert('❌ Error al guardar el pago.');
+        }
+      } catch (error) {
+        console.error("❌ Error:", error);
+        alert('❌ Error: ' + error.message);
+      }
     }
 
     // ✅ MODIFICAR CANTIDAD DE POLLOS
@@ -3923,12 +4035,12 @@ if (saldoCero && noEntregado) {
       if (!activeChickenOrder) return;
       
       if ((activeChickenOrder.remainingUsd || 0) > 0.001) {
-        alert('⚠️ El pedido tiene saldo pendiente. No se puede marcar como entregado.');
-        return;
-      }
-      
-      if (!confirm(`¿Confirmar que el pedido de ${activeChickenOrder.quantity} pollos de ${activeChickenOrder.clientName} fue ENTREGADO?`)) {
-        return;
+        const confirmar = confirm(`⚠️ ATENCIÓN: Este pedido tiene un saldo pendiente de $${(activeChickenOrder.remainingUsd || 0).toFixed(2)} (${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs).\n\n¿Deseas marcarlo como ENTREGADO de todas formas?\n\nEl saldo seguirá apareciendo como pendiente.`);
+        if (!confirmar) return;
+      } else {
+        if (!confirm(`¿Confirmar que el pedido de ${activeChickenOrder.quantity} pollos de ${activeChickenOrder.clientName} fue ENTREGADO?`)) {
+          return;
+        }
       }
       
       const now = new Date();
@@ -3941,8 +4053,8 @@ if (saldoCero && noEntregado) {
         amountUsd: 0,
         amountBs: 0,
         bcvRate: bcvRate,
-        remainingUsd: 0,
-        remainingBs: 0
+        remainingUsd: activeChickenOrder.remainingUsd || 0,
+        remainingBs: activeChickenOrder.remainingBs || 0
       };
       
       if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
@@ -4073,97 +4185,6 @@ if (saldoCero && noEntregado) {
       const order = chickenOrders.find(o => o.id === orderId);
       if (!order) return;
       
-      // ✅ NUEVO: Abrir modal de "Marcar Cancelado"
-function markChickenAsPaid() {
-  if (!checkAdminAccess('marcar pedido como cancelado')) return;
-  if (!activeChickenOrder) return;
-  
-  if (activeChickenOrder.delivered || activeChickenOrder.status === 'entregado') {
-    alert('⚠️ Este pedido ya fue entregado.');
-    return;
-  }
-  
-  if ((activeChickenOrder.remainingUsd || 0) <= 0.001) {
-    alert('⚠️ Este pedido ya está cancelado (saldo en $0.00).');
-    return;
-  }
-  
-  // Mostrar el saldo pendiente
-  document.getElementById('paid-remaining-usd').innerText = `$${(activeChickenOrder.remainingUsd || 0).toFixed(2)}`;
-  document.getElementById('paid-remaining-bs').innerText = `${(activeChickenOrder.remainingBs || 0).toFixed(2)} Bs`;
-  document.getElementById('paid-date').value = getTodayYMD();
-  document.getElementById('paid-bcv-display').innerText = bcvRate.toFixed(2);
-  
-  document.getElementById('modal-chicken-paid').classList.remove('hidden');
-  if (window.lucide) lucide.createIcons();
-}
-
-function closeChickenPaidModal() {
-  document.getElementById('modal-chicken-paid').classList.add('hidden');
-}
-
-// ✅ NUEVO: Confirmar pago completo
-async function confirmChickenPaid() {
-  if (!checkAdminAccess('confirmar pago completo')) return;
-  if (!activeChickenOrder) return;
-  
-  const payDate = document.getElementById('paid-date').value;
-  const method = document.getElementById('paid-method').value;
-  
-  if (!payDate) {
-    alert('⚠️ Por favor selecciona la fecha del pago.');
-    return;
-  }
-  
-  const remainingUsd = activeChickenOrder.remainingUsd || 0;
-  const remainingBs = remainingUsd * bcvRate;
-  
-  if (!confirm(`¿Confirmar pago completo de $${remainingUsd.toFixed(2)} (${remainingBs.toFixed(2)} Bs) con método "${method}"?`)) {
-    return;
-  }
-  
-  const now = new Date(payDate + 'T12:00:00');
-  
-  const movement = {
-    id: 'PAGO-' + Date.now().toString().slice(-6),
-    type: 'pago_completo',
-    dateISO: now.toISOString(),
-    dateDisplay: formatDateDDMMYYYY(now.toISOString()),
-    amountUsd: remainingUsd,
-    amountBs: remainingBs,
-    bcvRate: bcvRate,
-    method: method,
-    description: `Pago completo - ${method}`,
-    remainingUsd: 0,
-    remainingBs: 0
-  };
-  
-  if (!activeChickenOrder.movements) activeChickenOrder.movements = [];
-  activeChickenOrder.movements.push(movement);
-  
-  activeChickenOrder.paidUsd = (activeChickenOrder.paidUsd || 0) + remainingUsd;
-  activeChickenOrder.paidBs = (activeChickenOrder.paidBs || 0) + remainingBs;
-  activeChickenOrder.remainingUsd = 0;
-  activeChickenOrder.remainingBs = 0;
-  activeChickenOrder.status = 'cancelado';
-  
-  try {
-    const success = await saveChickenOrderCloud(activeChickenOrder);
-    if (success) {
-      closeChickenPaidModal();
-      alert(`✅ Pago completo registrado exitosamente.\n\nMonto: $${remainingUsd.toFixed(2)} (${remainingBs.toFixed(2)} Bs)\nMétodo: ${method}\nFecha: ${formatDateDDMMYYYY(now.toISOString())}`);
-      openChickenFile(activeChickenOrder.id);
-      renderChickenOrders();
-    } else {
-      alert('❌ Error al guardar el pago.');
-    }
-  } catch (error) {
-    console.error("❌ Error:", error);
-    alert('❌ Error: ' + error.message);
-  }
-}
-
-      // ✅ Solo permitir eliminar si está ENTREGADO
       if (order.status !== 'entregado' && !order.delivered) {
         alert('⚠️ Solo se pueden eliminar pedidos que estén marcados como ENTREGADOS.\n\nPrimero marca el pedido como entregado y luego podrás eliminarlo.');
         return;
@@ -4185,7 +4206,6 @@ async function confirmChickenPaid() {
         alert('❌ Error al eliminar: ' + error.message);
       }
     }
-    
   </script>
 </body>
 </html>
