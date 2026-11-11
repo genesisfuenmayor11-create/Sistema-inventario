@@ -3436,6 +3436,53 @@
     }
 
     function renderCartUI() {
+  const container = document.getElementById('cart-items');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  if (cart.length === 0) {
+    container.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs">El carrito está vacío</div>`;
+  } else {
+    // ✅ Agrupar productos por nombre y tipo
+    const groupedItems = {};
+    
+    cart.forEach(item => {
+      const key = `${item.name}_${item.type || 'standard'}`;
+      if (!groupedItems[key]) {
+        groupedItems[key] = {
+          name: item.name,
+          type: item.type,
+          quantity: 0,
+          totalUsd: 0,
+          totalBs: 0,
+          indices: []
+        };
+      }
+      groupedItems[key].quantity += (item.quantity || 1);
+      groupedItems[key].totalUsd += (item.totalUsd || 0);
+      groupedItems[key].totalBs += (item.totalBs || 0);
+      groupedItems[key].indices.push(cart.indexOf(item));
+    });
+    
+    // ✅ Renderizar items agrupados
+    Object.values(groupedItems).forEach((group, groupIndex) => {
+      const qty = group.quantity;
+      const qtyLabel = qty > 1 ? `<span class="text-[10px] bg-botalon-purple/10 text-botalon-purple px-1.5 py-0.5 rounded-full mr-1">x${qty}</span>` : '';
+      
+      container.innerHTML += `
+        <div class="bg-slate-50 border p-3 rounded-xl flex justify-between items-center text-xs">
+          <div><strong>${qtyLabel}${group.name}</strong></div>
+          <div class="flex items-center gap-3">
+            <span>$${group.totalUsd.toFixed(2)}</span>
+            <button onclick="removeGroupedItem(${groupIndex})" class="text-red-500 font-bold">X</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+  updateCartTotals();
+}
+
       const container = document.getElementById('cart-items');
       if (!container) return;
       container.innerHTML = '';
