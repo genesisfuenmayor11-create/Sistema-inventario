@@ -3483,6 +3483,49 @@
   updateCartTotals();
 }
 
+// ✅ Nueva función para eliminar items agrupados
+function removeGroupedItem(groupIndex) {
+  if (!checkAdminAccess('eliminar del carrito')) return;
+  
+  // Reconstruir el carrito agrupando
+  const groupedItems = {};
+  
+  cart.forEach(item => {
+    const key = `${item.name}_${item.type || 'standard'}`;
+    if (!groupedItems[key]) {
+      groupedItems[key] = {
+        name: item.name,
+        type: item.type,
+        quantity: 0,
+        totalUsd: 0,
+        totalBs: 0,
+        indices: []
+      };
+    }
+    groupedItems[key].quantity += (item.quantity || 1);
+    groupedItems[key].totalUsd += (item.totalUsd || 0);
+    groupedItems[key].totalBs += (item.totalBs || 0);
+    groupedItems[key].indices.push(cart.indexOf(item));
+  });
+  
+  // Obtener el grupo a eliminar
+  const groups = Object.values(groupedItems);
+  if (groups[groupIndex]) {
+    const groupToRemove = groups[groupIndex];
+    
+    // Eliminar todos los items de ese grupo del carrito
+    // Ordenar índices de mayor a menor para eliminar correctamente
+    const indicesToRemove = [...groupToRemove.indices].sort((a, b) => b - a);
+    indicesToRemove.forEach(index => {
+      if (cart[index]) {
+        cart.splice(index, 1);
+      }
+    });
+  }
+  
+  renderCartUI();
+}
+
       const container = document.getElementById('cart-items');
       if (!container) return;
       container.innerHTML = '';
